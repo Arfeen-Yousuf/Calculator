@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'screens/calculator/calculator_screen.dart';
+import 'screens/calculator/calculator_view_model.dart';
+import 'utils/colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,13 +14,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.appBarBackground,
+        surfaceTintColor: Colors.transparent,
+      ),
+      scaffoldBackgroundColor: AppColors.scaffoldBackground,
+      iconTheme: IconThemeData(color: AppColors.primary),
+      primaryTextTheme: Theme.of(context).primaryTextTheme.apply(
+            bodyColor: Colors.black,
+            displayColor: Colors.black,
+          ),
+      useMaterial3: true,
+    );
+
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      theme: themeData,
+      home: ChangeNotifierProvider(
+        create: (context) => CalculatorViewModel(),
+        child: CalculatorScreen(),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
