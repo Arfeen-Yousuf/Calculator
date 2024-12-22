@@ -1,4 +1,4 @@
-import 'package:calculator/utils/colors.dart';
+import 'package:calculator/app/colors.dart';
 import 'package:flutter/material.dart';
 
 class GridButton extends StatelessWidget {
@@ -25,18 +25,21 @@ class GridButton extends StatelessWidget {
         Theme.of(context).brightness == Brightness.light
             ? Colors.black
             : Colors.white;
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
 
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        foregroundColor: foregroundColor ?? themeAdjustedForeground,
+        foregroundColor: foregroundColor ?? appColors.primaryText,
         backgroundColor:
-            backgroundColor ?? AppColors.gridButtonDefaultBackground,
+            backgroundColor ?? appColors.gridButtonDefaultBackground,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         elevation: 0,
         padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
+        splashFactory: InkSplash.splashFactory,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {

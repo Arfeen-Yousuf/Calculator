@@ -9,6 +9,10 @@ import 'package:flutter/material.dart';
 import 'formatters/thousands_formatter.dart';
 
 class CalculatorViewModel extends ChangeNotifier {
+  CalculatorViewModel() {
+    dev.log('View model created');
+  }
+
   final textEditingController = TextEditingController();
   final focusNode = FocusNode();
   final _evaluator = ExpressionEvaluator();
@@ -238,9 +242,9 @@ class CalculatorViewModel extends ChangeNotifier {
     notifyListeners();
 
     focusNode.unfocus();
-    Future.delayed(const Duration(milliseconds: 10)).then((_) {
-      focusNode.requestFocus();
-    });
+    //Future.delayed(const Duration(milliseconds: 10)).then((_) {
+    focusNode.requestFocus();
+    //});
   }
 
   void addDigit(int digit) {

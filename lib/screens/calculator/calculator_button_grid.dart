@@ -1,4 +1,4 @@
-import 'package:calculator/utils/colors.dart';
+import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/widgets/grid_button.dart';
 import 'package:calculator/widgets/operator_grid_button.dart';
@@ -13,215 +13,189 @@ class CalculatorButtonGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final viewModelRead = context.read<CalculatorViewModel>();
+
     final resetButton = GridButton(
-      onPressed: context.read<CalculatorViewModel>().clear,
-      text: 'C',
-      foregroundColor: AppColors.primary,
-      backgroundColor: AppColors.primary.withAlpha(25),
-    );
+        onPressed: viewModelRead.clear,
+        text: 'C',
+        foregroundColor: appColors.primary,
+        backgroundColor: isLightTheme
+            ? appColors.primary?.withAlpha(25)
+            : AppColorsDark.gridButtonDefaultBackground);
     final bracketsButton = GridButton(
-      onPressed: context.read<CalculatorViewModel>().addBracket,
-      text: '( )',
-      foregroundColor: AppColors.primary,
-      backgroundColor: AppColors.primary.withAlpha(25),
-    );
+        onPressed: viewModelRead.addBracket,
+        text: '( )',
+        foregroundColor: appColors.primary,
+        backgroundColor: isLightTheme
+            ? appColors.primary?.withAlpha(25)
+            : AppColorsDark.gridButtonDefaultBackground);
 
     //Operator buttons
     final percentageButton = OperatorGridButton(
-      onPressed: context.read<CalculatorViewModel>().addPercentage,
+      onPressed: viewModelRead.addPercentage,
       text: CalculatorConstants.percentage,
     );
     final divideButton = OperatorGridButton(
-      onPressed: context.read<CalculatorViewModel>().addDivision,
+      onPressed: viewModelRead.addDivision,
       text: CalculatorConstants.division,
     );
     final multiplyButton = OperatorGridButton(
-      onPressed: context.read<CalculatorViewModel>().addMultiplication,
+      onPressed: viewModelRead.addMultiplication,
       text: CalculatorConstants.multiplication,
     );
     final subtractionButton = OperatorGridButton(
-      onPressed: context.read<CalculatorViewModel>().addSubtraction,
+      onPressed: viewModelRead.addSubtraction,
       text: CalculatorConstants.subtraction,
     );
     final additionButton = OperatorGridButton(
-      onPressed: context.read<CalculatorViewModel>().addAddition,
+      onPressed: viewModelRead.addAddition,
       text: CalculatorConstants.addition,
     );
     final powerButton = OperatorGridButton(
-      onPressed: context.read<CalculatorViewModel>().addPower,
+      onPressed: viewModelRead.addPower,
       text: CalculatorConstants.power,
     );
 
     final digitButtons = List<GridButton>.generate(10, (index) {
       return GridButton(
-        onPressed: () => context.read<CalculatorViewModel>().addDigit(index),
+        onPressed: () => viewModelRead.addDigit(index),
         text: '$index',
       );
     });
     final dotButton = GridButton(
-      onPressed: context.read<CalculatorViewModel>().addDot,
+      onPressed: viewModelRead.addDot,
       text: '.',
       largeFontSize: true,
     );
     final equalsButton = GridButton(
-      onPressed: context.read<CalculatorViewModel>().computeResult,
+      onPressed: viewModelRead.computeResult,
       text: '=',
       foregroundColor: Colors.white,
-      backgroundColor: AppColors.primary,
+      backgroundColor: appColors.primary,
       largeFontSize: true,
     );
 
     //Scientific buttons
     final swapScientificButton = GridButton(
-      onPressed:
-          context.read<CalculatorViewModel>().toogleShowScientificInverse,
+      onPressed: viewModelRead.toogleShowScientificInverse,
       iconData: Icons.swap_horiz_outlined,
-      backgroundColor: AppColors.swapScientificButtonBackground,
+      backgroundColor: appColors.swapScientificButtonBackground,
     );
 
     //Constnts
     late final piButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addConstant(ScientificConstants.pi),
+      onPressed: () => viewModelRead.addConstant(ScientificConstants.pi),
       text: ScientificConstants.pi,
     );
     late final eularButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addConstant(ScientificConstants.eular),
+      onPressed: () => viewModelRead.addConstant(ScientificConstants.eular),
       text: ScientificConstants.eular,
     );
     late final roundButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.round),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.round),
       text: ScientificFunctions.round,
     );
     late final phiButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addConstant(ScientificConstants.phi),
+      onPressed: () => viewModelRead.addConstant(ScientificConstants.phi),
       text: ScientificConstants.phi,
     );
 
     //Roots
     late final squareRootButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.squareRoot),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.squareRoot),
       text: ScientificFunctions.squareRoot,
     );
     late final cubeRootButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.cubeRoot),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.cubeRoot),
       text: ScientificFunctions.cubeRoot,
     );
 
     //Trigonometric
     late final sineButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.sine),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.sine),
       text: ScientificFunctions.sine,
     );
     late final cosineButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.cosine),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.cosine),
       text: ScientificFunctions.cosine,
     );
     late final tangentButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.tangent),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.tangent),
       text: ScientificFunctions.tangent,
     );
 
     //Inverse trigonometric
     late final sineInverseButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.sineInverse),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.sineInverse),
       text: ScientificFunctions.sineInverse,
     );
     late final cosineInverseButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.cosineInverse),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.cosineInverse),
       text: ScientificFunctions.cosineInverse,
     );
     late final tangentInverseButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.tangentInverse),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.tangentInverse),
       text: ScientificFunctions.tangentInverse,
     );
 
     //Hyperbolic
     late final sineHyperbolicButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.sineHyperbolic),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.sineHyperbolic),
       text: ScientificFunctions.sineHyperbolic,
     );
     late final cosineHyperbolicButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.cosineHyperbolic),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.cosineHyperbolic),
       text: ScientificFunctions.cosineHyperbolic,
     );
     late final tangentHyperbolicButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.tangentHyperbolic),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.tangentHyperbolic),
       text: ScientificFunctions.tangentHyperbolic,
     );
 
     //Inverse hyperbolic
     late final sineHyperbolicInverseButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.sineHyperbolicInverse),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.sineHyperbolicInverse),
       text: ScientificFunctions.sineHyperbolicInverse,
     );
     late final cosineHyperbolicInverseButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
+      onPressed: () => viewModelRead
           .addFunction(ScientificFunctions.cosineHyperbolicInverse),
       text: ScientificFunctions.cosineHyperbolicInverse,
     );
     late final tangentHyperbolicInverseButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
+      onPressed: () => viewModelRead
           .addFunction(ScientificFunctions.tangentHyperbolicInverse),
       text: ScientificFunctions.tangentHyperbolicInverse,
     );
 
     //Logs
     late final logButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.logarithm),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.logarithm),
       text: ScientificFunctions.logarithm,
     );
     late final naturalLogButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.naturalLogarithm),
+      onPressed: () =>
+          viewModelRead.addFunction(ScientificFunctions.naturalLogarithm),
       text: ScientificFunctions.naturalLogarithm,
     );
 
     //Others
     late final absoluteButton = ScientificGridButton(
-      onPressed: () => context
-          .read<CalculatorViewModel>()
-          .addFunction(ScientificFunctions.absolute),
+      onPressed: () => viewModelRead.addFunction(ScientificFunctions.absolute),
       text: '|x|',
     );
     late final factorialButton = ScientificGridButton(
-      onPressed: context.read<CalculatorViewModel>().addFactorial,
+      onPressed: viewModelRead.addFactorial,
       text: 'x!',
     );
 

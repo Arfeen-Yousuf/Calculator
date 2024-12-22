@@ -1,4 +1,4 @@
-import 'package:calculator/utils/colors.dart';
+import 'package:calculator/app/colors.dart';
 import 'package:calculator/widgets/grid_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +12,9 @@ class CalculatorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+
+    final viewModelRead = context.read<CalculatorViewModel>();
 
     final historyButton = IconButton(
       onPressed: () {},
@@ -22,15 +25,15 @@ class CalculatorScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12),
       child: LayoutBuilder(builder: (context, constraints) {
         return TextField(
-          controller: context.read<CalculatorViewModel>().textEditingController,
+          controller: viewModelRead.textEditingController,
           textAlign: TextAlign.right,
           autofocus: true,
           keyboardType: TextInputType.none,
           decoration: null,
-          cursorColor: AppColors.primary,
+          cursorColor: appColors.primary,
           style: TextStyle(fontSize: constraints.maxHeight / 5),
           maxLines: null,
-          focusNode: context.read<CalculatorViewModel>().focusNode,
+          focusNode: viewModelRead.focusNode,
         );
       }),
     );
@@ -41,41 +44,43 @@ class CalculatorScreen extends StatelessWidget {
             : FittedBox(
                 child: Text(
                   context.watch<CalculatorViewModel>().result,
-                  style: TextStyle(color: AppColors.result),
+                  style: TextStyle(color: appColors.result),
                 ),
               );
 
     final toogleScientificButton = ElevatedButton.icon(
-      onPressed: context.read<CalculatorViewModel>().toogleScientific,
+      onPressed: viewModelRead.toogleScientific,
       icon: Icon(
-        context.read<CalculatorViewModel>().isScientific
+        context.watch<CalculatorViewModel>().isScientific
             ? Icons.keyboard_arrow_up
             : Icons.keyboard_arrow_down,
       ),
       label: Text('Scientific'),
       style: FilledButton.styleFrom(
         foregroundColor: isLightTheme ? Colors.black : Colors.white,
-        iconColor: isLightTheme ? Colors.black : AppColors.primary,
-        backgroundColor: AppColors.toogleScientificButtonBackground,
+        iconColor: isLightTheme ? Colors.black : appColors.primary,
+        backgroundColor: appColors.toogleScientificButtonBackground,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
+        splashFactory: InkSplash.splashFactory,
       ),
     );
 
     late final angleButton = GridButton(
-      onPressed: context.read<CalculatorViewModel>().toogleRadians,
-      text: context.read<CalculatorViewModel>().radians ? 'RAD' : 'DEG',
-      foregroundColor: AppColors.toogleRadiansButtonForeground,
+      onPressed: viewModelRead.toogleRadians,
+      text: viewModelRead.radians ? 'RAD' : 'DEG',
+      foregroundColor: appColors.toogleRadiansButtonForeground,
     );
 
     final backspaceButton = InkWell(
-      onTap: context.read<CalculatorViewModel>().onPressBack,
-      onLongPress: context.read<CalculatorViewModel>().onLongPressBack,
+      onTap: viewModelRead.onPressBack,
+      onLongPress: viewModelRead.onLongPressBack,
       child: Icon(
         Icons.backspace_rounded,
         size: 35,
+        color: isLightTheme ? null : appColors.primary,
       ),
     );
 
@@ -101,7 +106,7 @@ class CalculatorScreen extends StatelessWidget {
                     toogleScientificButton,
                     SizedBox(width: 8),
                     if (context
-                        .read<CalculatorViewModel>()
+                        .watch<CalculatorViewModel>()
                         .hasTrigonometricFunction)
                       angleButton,
                     Spacer(),
@@ -111,7 +116,7 @@ class CalculatorScreen extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Expanded(
-                flex: context.read<CalculatorViewModel>().isScientific ? 7 : 5,
+                flex: context.watch<CalculatorViewModel>().isScientific ? 7 : 5,
                 child: const CalculatorButtonGrid(),
               ),
             ],
