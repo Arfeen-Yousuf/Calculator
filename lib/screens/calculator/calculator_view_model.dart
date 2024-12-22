@@ -73,14 +73,18 @@ class CalculatorViewModel extends ChangeNotifier {
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
   void computeResult() {
-    if (result.isEmpty) {
-      showToast('Invalid Format.');
-      return;
+    switch (result) {
+      case '':
+        showToast('Invalid Format.');
+      case 'Infinity':
+        showToast('Result too large to show.');
+      case '-Infinity':
+        showToast('Result too small to show.');
+      default:
+        textEditingController.text = _result;
+        _result = '';
+        notifyListeners();
     }
-
-    textEditingController.text = _result;
-    _result = '';
-    notifyListeners();
   }
 
   //TODO: Optimize the old business logic code below

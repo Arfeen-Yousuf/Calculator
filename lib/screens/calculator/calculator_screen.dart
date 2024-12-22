@@ -37,13 +37,17 @@ class CalculatorScreen extends StatelessWidget {
         );
       }),
     );
+
+    final viewModelResult = context.watch<CalculatorViewModel>().result;
     final Widget result =
         (context.watch<CalculatorViewModel>().textEditingController.text ==
-                context.watch<CalculatorViewModel>().result)
+                    viewModelResult ||
+                viewModelResult == 'Infinity' ||
+                viewModelResult == '-Infinity')
             ? SizedBox()
             : FittedBox(
                 child: Text(
-                  context.watch<CalculatorViewModel>().result,
+                  viewModelResult,
                   style: TextStyle(color: appColors.result),
                 ),
               );
