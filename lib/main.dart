@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'screens/calculator/calculator_screen.dart';
+import 'screens/calculator/calculator_view_model.dart';
+import 'app/colors.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => CalculatorViewModel(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,59 +21,86 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      theme: lightThemeData(context),
+      darkTheme: darkThemeData(context),
+      home: CalculatorScreen(),
     );
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  ThemeData lightThemeData(BuildContext context) {
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: AppColorsLight.primary),
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColorsLight.appBarBackground,
+        surfaceTintColor: Colors.transparent,
+      ),
+      scaffoldBackgroundColor: AppColorsLight.scaffoldBackground,
+      iconTheme: IconThemeData(color: AppColorsLight.primary),
+      primaryTextTheme: Theme.of(context).primaryTextTheme.apply(
+            bodyColor: AppColorsLight.primaryText,
+            displayColor: AppColorsLight.primaryText,
+          ),
+      useMaterial3: true,
+    ).copyWith(
+      extensions: <ThemeExtension<dynamic>>[
+        const AppColors(
+          //General
+          primary: AppColorsLight.primary,
+          appBarBackground: AppColorsLight.appBarBackground,
+          scaffoldBackground: AppColorsLight.scaffoldBackground,
+          primaryText: AppColorsLight.primaryText,
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+          //Calculator page
+          result: AppColorsLight.result,
+          toogleScientificButtonBackground:
+              AppColorsLight.toogleScientificButtonBackground,
+          gridButtonDefaultBackground:
+              AppColorsLight.gridButtonDefaultBackground,
+          gridButtonDefaultForeground:
+              AppColorsLight.gridButtonDefaultForeground,
+          gridButtonText: AppColorsLight.gridButtonText,
+          gridScientificButtonBackground:
+              AppColorsLight.gridScientificButtonBackground,
+          swapScientificButtonBackground:
+              AppColorsLight.swapScientificButtonBackground,
+          toogleRadiansButtonForeground:
+              AppColorsLight.toogleRadiansButtonForeground,
+          expressionTextFieldOperator:
+              AppColorsLight.expressionTextFieldOperator,
+        ),
+      ],
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+  ThemeData darkThemeData(BuildContext context) {
+    return ThemeData.dark(useMaterial3: true).copyWith(
+      extensions: <ThemeExtension<dynamic>>[
+        const AppColors(
+          //General
+          primary: AppColorsDark.primary,
+          appBarBackground: AppColorsDark.appBarBackground,
+          scaffoldBackground: AppColorsDark.scaffoldBackground,
+          primaryText: AppColorsDark.primaryText,
+
+          //Calculator page
+          result: AppColorsDark.result,
+          toogleScientificButtonBackground:
+              AppColorsDark.toogleScientificButtonBackground,
+          gridButtonDefaultBackground:
+              AppColorsDark.gridButtonDefaultBackground,
+          gridButtonDefaultForeground:
+              AppColorsDark.gridButtonDefaultForeground,
+          gridButtonText: AppColorsDark.gridButtonText,
+          gridScientificButtonBackground:
+              AppColorsDark.gridScientificButtonBackground,
+          swapScientificButtonBackground:
+              AppColorsDark.swapScientificButtonBackground,
+          toogleRadiansButtonForeground:
+              AppColorsDark.toogleRadiansButtonForeground,
+          expressionTextFieldOperator:
+              AppColorsDark.expressionTextFieldOperator,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      ],
     );
   }
 }
