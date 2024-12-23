@@ -17,7 +17,7 @@ class CalculatorScreen extends StatelessWidget {
     final viewModelRead = context.read<CalculatorViewModel>();
 
     final historyButton = IconButton(
-      onPressed: () {},
+      onPressed: () => viewModelRead.onHistoryButtonTapped(context),
       icon: Icon(Icons.history_rounded),
     );
 

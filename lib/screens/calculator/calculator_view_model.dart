@@ -1,10 +1,15 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:calculator/enums/history_log_action.dart';
+import 'package:calculator/screens/history/history_screen.dart';
+import 'package:calculator/screens/history/history_view_model.dart';
+import 'package:calculator/services/history_database.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/expression_evaluator.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'formatters/thousands_formatter.dart';
 
@@ -72,7 +77,7 @@ class CalculatorViewModel extends ChangeNotifier {
   void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
-  void computeResult() {
+  void computeResult(BuildContext context) {
     switch (result) {
       case '':
         showToast('Invalid Format.');
@@ -81,9 +86,40 @@ class CalculatorViewModel extends ChangeNotifier {
       case '-Infinity':
         showToast('Result too small to show.');
       default:
+        if (textEditingController.text == _result) {
+          break;
+        }
+
+        final newHistoryLog = HistoryLog(
+          expression: textEditingController.text,
+          result: _result,
+        );
+        context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
         textEditingController.text = _result;
-        _result = '';
+        //_result = '';
         notifyListeners();
+    }
+  }
+
+  Future<void> onHistoryButtonTapped(BuildContext context) async {
+    final (HistoryLogAction, HistoryLog)? historyLogAction =
+        await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => const HistoryScreen(),
+      ),
+    );
+
+    if (historyLogAction == null) {
+      return;
+    }
+
+    final historyLog = historyLogAction.$2;
+    switch (historyLogAction.$1) {
+      case HistoryLogAction.replace:
+        textEditingController.text = historyLog.expression;
+        _result = historyLog.result;
+        notifyListeners();
+      default:
     }
   }
 

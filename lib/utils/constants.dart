@@ -1,3 +1,7 @@
+class Constants {
+  static const int historyLogsPerPage = 5;
+}
+
 class CalculatorConstants {
   static const String addition = '+';
   static const String subtraction = '\u2212';
