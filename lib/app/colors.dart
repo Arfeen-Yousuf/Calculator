@@ -19,6 +19,9 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.swapScientificButtonBackground,
     required this.toogleRadiansButtonForeground,
     required this.expressionTextFieldOperator,
+
+    //History Page
+    required this.historyTileResult,
   });
 
   //General
@@ -36,8 +39,10 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? gridScientificButtonBackground;
   final Color? swapScientificButtonBackground;
   final Color? toogleRadiansButtonForeground;
-
   final Color? expressionTextFieldOperator;
+
+  //History Page
+  final Color? historyTileResult;
 
   @override
   AppColors copyWith({
@@ -57,6 +62,9 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? swapScientificButtonBackground,
     Color? toogleRadiansButtonForeground,
     Color? expressionTextFieldOperator,
+
+    //History Page
+    Color? historyTileResult,
   }) {
     return AppColors(
       //General
@@ -82,6 +90,9 @@ class AppColors extends ThemeExtension<AppColors> {
           toogleRadiansButtonForeground ?? this.toogleRadiansButtonForeground,
       expressionTextFieldOperator:
           expressionTextFieldOperator ?? this.expressionTextFieldOperator,
+
+      //History Page
+      historyTileResult: historyTileResult ?? this.historyTileResult,
     );
   }
 
@@ -137,6 +148,13 @@ class AppColors extends ThemeExtension<AppColors> {
         other.expressionTextFieldOperator,
         t,
       ),
+
+      //History Page
+      historyTileResult: Color.lerp(
+        historyTileResult,
+        other.historyTileResult,
+        t,
+      ),
     );
   }
 }
@@ -159,6 +177,9 @@ class AppColorsLight {
   static const Color toogleRadiansButtonForeground = primary;
 
   static const Color expressionTextFieldOperator = primary;
+
+  //History Page
+  static const Color historyTileResult = primary;
 }
 
 class AppColorsDark {
@@ -179,4 +200,7 @@ class AppColorsDark {
   static const Color toogleRadiansButtonForeground = primary;
 
   static const Color expressionTextFieldOperator = primary;
+
+  //History Page
+  static const Color historyTileResult = primary;
 }

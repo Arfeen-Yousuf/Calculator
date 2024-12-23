@@ -1,15 +1,58 @@
+import 'package:calculator/screens/history/history_view_model.dart';
+import 'package:calculator/services/history_database.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
 import 'app/colors.dart';
+import 'utils/constants.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Open the history database and store the reference.
+  Database db = await openDatabase(
+    // Set the path to the database. Note: Using the `join` function from the
+    // `path` package is best practice to ensure the path is correctly
+    // constructed for each platform.
+    join(await getDatabasesPath(), 'history_database.db'),
+    onCreate: (db, version) {
+      // Run the CREATE TABLE statement on the database.
+      return db.execute(
+        '''CREATE TABLE $tableHistory(
+            $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnDateTime TEXT NOT NULL,
+            $columnExpression TEXT NOT NULL, 
+            $columnResult TEXT NOT NULL)
+        ''',
+      );
+    },
+    // Set the version. This executes the onCreate function and provides a
+    // path to perform database upgrades and downgrades.
+    version: 1,
+  );
+
+  HistoryDatabaseManager.db = db;
+  int totalHistoryLogs = await HistoryDatabaseManager.historyLogsCount();
+  final initialHistoryLogs = await HistoryDatabaseManager.historyLogs(
+    limit: Constants.historyLogsPerPage,
+  );
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => CalculatorViewModel(),
-      child: const MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CalculatorViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => HistoryViewModel(
+            totalHistoryLogs: totalHistoryLogs,
+            initialHistoryLogs: initialHistoryLogs,
+          ),
+        ),
+      ],
+      child: MyApp(),
     ),
   );
 }
@@ -41,6 +84,12 @@ class MyApp extends StatelessWidget {
             displayColor: AppColorsLight.primaryText,
           ),
       useMaterial3: true,
+      brightness: Brightness.light,
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColorsDark.primary,
+        ),
+      ),
     ).copyWith(
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(
@@ -67,6 +116,9 @@ class MyApp extends StatelessWidget {
               AppColorsLight.toogleRadiansButtonForeground,
           expressionTextFieldOperator:
               AppColorsLight.expressionTextFieldOperator,
+
+          //History Page
+          historyTileResult: AppColorsLight.historyTileResult,
         ),
       ],
     );
@@ -74,6 +126,12 @@ class MyApp extends StatelessWidget {
 
   ThemeData darkThemeData(BuildContext context) {
     return ThemeData.dark(useMaterial3: true).copyWith(
+      brightness: Brightness.dark,
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColorsDark.primary,
+        ),
+      ),
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(
           //General
@@ -99,6 +157,9 @@ class MyApp extends StatelessWidget {
               AppColorsDark.toogleRadiansButtonForeground,
           expressionTextFieldOperator:
               AppColorsDark.expressionTextFieldOperator,
+
+          //History Page
+          historyTileResult: AppColorsDark.historyTileResult,
         ),
       ],
     );

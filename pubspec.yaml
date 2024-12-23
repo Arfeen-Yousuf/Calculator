@@ -40,7 +40,8 @@ dependencies:
   intl: ^0.20.1
   rich_text_controller: ^2.0.1
   fluttertoast: ^8.2.10
-  #function_tree: ^0.9.1
+  sqflite: ^2.4.1
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
