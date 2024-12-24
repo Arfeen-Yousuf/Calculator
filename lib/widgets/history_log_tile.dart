@@ -28,13 +28,13 @@ class HistoryLogTile extends StatelessWidget {
         textAlign: TextAlign.end,
       ),
       subtitle: Text(
-        '= ${historyLog.result}',
+        '= ${numberFormatter.format(historyLog.result)}',
         textAlign: TextAlign.end,
       ),
       subtitleTextStyle: TextTheme.of(context)
           .titleMedium
           ?.copyWith(color: appColors.historyTileResult),
-      trailing: Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right),
       onTap: () => showHistoryLogOptions(context),
     );
   }
@@ -44,8 +44,8 @@ class HistoryLogTile extends StatelessWidget {
     final AppColors appColors = Theme.of(context).extension<AppColors>()!;
 
     final replaceButton = ListTile(
-      title: Text('Replace'),
-      leading: Icon(Icons.swap_horiz_outlined),
+      title: const Text('Replace'),
+      leading: const Icon(Icons.swap_horiz_outlined),
       contentPadding: EdgeInsets.zero,
       onTap: () => Navigator.of(context).pop<(HistoryLogAction, HistoryLog)>(
         (
@@ -55,8 +55,8 @@ class HistoryLogTile extends StatelessWidget {
       ),
     );
     final copyResultButton = ListTile(
-      title: Text('Copy result'),
-      leading: Icon(Icons.copy),
+      title: const Text('Copy result'),
+      leading: const Icon(Icons.copy),
       contentPadding: EdgeInsets.zero,
       onTap: () async {
         await Clipboard.setData(
@@ -69,8 +69,8 @@ class HistoryLogTile extends StatelessWidget {
       },
     );
     final deleteButton = ListTile(
-      title: Text('Delete'),
-      leading: Icon(Icons.delete_outline),
+      title: const Text('Delete'),
+      leading: const Icon(Icons.delete_outline),
       contentPadding: EdgeInsets.zero,
       onTap: () async {
         context.read<HistoryViewModel>().deleteHistoryLog(historyLog);
@@ -87,10 +87,10 @@ class HistoryLogTile extends StatelessWidget {
         return Wrap(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 color: appColors.scaffoldBackground,
-                borderRadius: BorderRadiusDirectional.only(
+                borderRadius: const BorderRadiusDirectional.only(
                   topStart: Radius.circular(20),
                   topEnd: Radius.circular(20),
                 ),
@@ -109,7 +109,7 @@ class HistoryLogTile extends StatelessWidget {
                             .labelLarge
                             ?.copyWith(fontSize: 20),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: Icon(
@@ -120,7 +120,7 @@ class HistoryLogTile extends StatelessWidget {
                     ],
                   ),
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: Theme.of(context).colorScheme.inverseSurface,
@@ -136,7 +136,7 @@ class HistoryLogTile extends StatelessWidget {
                           style: TextTheme.of(context).titleLarge,
                         ),
                         Text(
-                          historyLog.result,
+                          numberFormatter.format(historyLog.result),
                           style: TextTheme.of(context).titleLarge?.copyWith(
                                 color: appColors.primary,
                                 fontSize: 30,

@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:function_tree/function_tree.dart';
@@ -10,12 +11,13 @@ class ExpressionEvaluator {
   //Allow upto 10 decimal points
   final numberFormatter = NumberFormat('#,##0.##########');
 
-  String calculateResult(
+  num calculateResult(
     String? expr, {
     bool angleInDegree = false,
-    int precision = 5,
+    int precision = 10,
   }) {
-    if (expr == null || expr.isEmpty) return '';
+    dev.log('Expression Evaluating $expr');
+    if (expr == null || expr.isEmpty) return double.nan;
 
     //Replace the function names and constants
     expr = expr
@@ -51,58 +53,26 @@ class ExpressionEvaluator {
     if (angleInDegree) expr = _degreeAngleExpression(expr);
 
     expr = _balanceBrackets(expr);
-    if (expr == null) return '';
+    if (expr == null) return double.nan;
 
     if (expr.startsWith('-')) expr = '0$expr';
     expr = expr.replaceAll('(-', '(0-');
-
     expr = _removePercentages(expr);
 
-    double result;
     try {
-      result = expr.interpret().toDouble();
-    } on ArgumentError {
-      return '';
-    } on Exception {
-      return '';
-    }
-
-    if (result == 0 ||
-        result == double.infinity ||
-        result == double.negativeInfinity) {
-      return '$result';
-    }
-
-    //If the result is too large or too short
-    if (result.abs() > 1e16 || result.abs() < pow(10, -precision)) {
-      String res1 = result.toStringAsExponential(precision);
-      String res2 = result.toStringAsExponential();
-
-      String resultStr = (res1.length < res2.length) ? res1 : res2;
-      int eInd = resultStr.indexOf('e');
-      //1.32e-4 = 1.32*10^(-4)
-
-      String numberPart = resultStr.substring(0, eInd);
-      numberPart = _formatNumberString(numberPart);
-
-      String exponentPart = resultStr.substring(eInd);
-      exponentPart = exponentPart.replaceFirst('e',
-          '${CalculatorConstants.space}${CalculatorConstants.multiplication}10^');
-      //1.32 x10^-4
-
-      //If exponent is negative
-      if (exponentPart[5] == '-') {
-        exponentPart = exponentPart.replaceFirst(
-            '-',
-            '(${CalculatorConstants.space}${CalculatorConstants.subtraction}',
-            5);
-        exponentPart += ')';
+      dev.log('Expression Interpreting $expr');
+      final result = expr.interpret();
+      if (result > pow(10, 13)) {
+        dev.log('Large Result $result');
+        return (result.toDouble() * 1000).truncate() / 1000;
       }
 
-      return numberPart + exponentPart.replaceAll('+', '');
+      return result;
+    } on ArgumentError {
+      return double.nan;
+    } on Exception {
+      return double.nan;
     }
-
-    return _formatNumberWithPrecision(result, precision: precision);
   }
 
   String _degreeAngleExpression(String expr) {
@@ -250,60 +220,6 @@ class ExpressionEvaluator {
     }
 
     return longest.isEmpty ? null : longest;
-  }
-
-  String _formatNumberWithPrecision(
-    double num, {
-    int precision = 5,
-    bool withSpace = true,
-  }) {
-    final NumberFormat formatter;
-    try {
-      formatter = (num == num.toInt())
-          ? NumberFormat('#,##0')
-          : NumberFormat('#,##0.${'#' * precision}');
-    } catch (e) {
-      return '';
-    }
-
-    return (num < 0)
-        ? '${withSpace ? CalculatorConstants.space : ''}${CalculatorConstants.subtraction}${formatter.format(-num)}'
-        : formatter.format(num);
-  }
-
-  String _formatNumber(double num) {
-    NumberFormat formatter =
-        (num == num.toInt()) ? NumberFormat('#,##0') : numberFormatter;
-
-    return (num < 0)
-        ? '${CalculatorConstants.space}${CalculatorConstants.subtraction}${formatter.format(-num)}'
-        : formatter.format(num);
-  }
-
-  String _formatNumberSimple(double num) {
-    NumberFormat formatter =
-        (num == num.toInt()) ? NumberFormat('#,##0') : numberFormatter;
-
-    return formatter.format(num);
-  }
-
-  String _formatNumberString(
-    String num, {
-    bool simple = false,
-  }) {
-    if (num.isEmpty) return num;
-    num = num.replaceAll(',', '');
-    if (num[0] == '.') return num;
-
-    final dotIndex = num.indexOf('.');
-    if (dotIndex != -1) {
-      double d = double.parse(num.substring(0, dotIndex));
-      return numberFormatter.format(d) + num.substring(dotIndex);
-    }
-
-    return simple
-        ? _formatNumberSimple(double.parse(num))
-        : _formatNumber(double.parse(num));
   }
 
   bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);

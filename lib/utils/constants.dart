@@ -1,3 +1,5 @@
+const String nanString = 'NaN';
+
 class Constants {
   static const int historyLogsPerPage = 5;
 }

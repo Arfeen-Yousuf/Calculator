@@ -14,10 +14,6 @@ import 'package:provider/provider.dart';
 import 'formatters/thousands_formatter.dart';
 
 class CalculatorViewModel extends ChangeNotifier {
-  CalculatorViewModel() {
-    dev.log('View model created');
-  }
-
   final textEditingController = TextEditingController();
   final focusNode = FocusNode();
   final _evaluator = ExpressionEvaluator();
@@ -51,8 +47,8 @@ class CalculatorViewModel extends ChangeNotifier {
   bool _hasTrigonometricFunction = false;
   bool get hasTrigonometricFunction => _hasTrigonometricFunction;
 
-  String _result = '';
-  String get result => _result;
+  num _result = double.nan;
+  num get result => _result;
 
   @override
   void dispose() {
@@ -65,7 +61,7 @@ class CalculatorViewModel extends ChangeNotifier {
 
   void clear() {
     textEditingController.clear();
-    _result = '';
+    _result = double.nan;
     notifyListeners();
   }
 
@@ -78,27 +74,37 @@ class CalculatorViewModel extends ChangeNotifier {
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
   void computeResult(BuildContext context) {
-    switch (result) {
-      case '':
-        showToast('Invalid Format.');
-      case 'Infinity':
-        showToast('Result too large to show.');
-      case '-Infinity':
-        showToast('Result too small to show.');
-      default:
-        if (textEditingController.text == _result) {
-          break;
-        }
-
-        final newHistoryLog = HistoryLog(
-          expression: textEditingController.text,
-          result: _result,
-        );
-        context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
-        textEditingController.text = _result;
-        //_result = '';
-        notifyListeners();
+    if (isSimpleNumber(textEditingController.text)) {
+      return;
     }
+
+    if (_result.toString().contains(nanString)) {
+      showToast('Invalid Format.');
+      return;
+    }
+
+    if (_result == double.infinity) {
+      showToast('Result too large to show.');
+      return;
+    }
+    if (_result == double.negativeInfinity) {
+      showToast('Result too small to show.');
+      return;
+    }
+
+    final newHistoryLog = HistoryLog(
+      expression: textEditingController.text,
+      result: _result,
+    );
+    context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
+    if (_result >= 0) {
+      textEditingController.text = numberFormatter.format(_result);
+    } else {
+      textEditingController.text = CalculatorConstants.space +
+          CalculatorConstants.subtraction +
+          numberFormatter.format(-_result);
+    }
+    notifyListeners();
   }
 
   Future<void> onHistoryButtonTapped(BuildContext context) async {
@@ -117,7 +123,7 @@ class CalculatorViewModel extends ChangeNotifier {
     switch (historyLogAction.$1) {
       case HistoryLogAction.replace:
         textEditingController.text = historyLog.expression;
-        _result = historyLog.result;
+        _result = historyLog.result.toDouble();
         notifyListeners();
       default:
     }
@@ -278,13 +284,12 @@ class CalculatorViewModel extends ChangeNotifier {
       _hasTrigonometricFunction = hasTrigonometricFunc;
     }
 
+    dev.log('Calculating');
     _result = _evaluator.calculateResult(textEditingController.text);
     notifyListeners();
 
     focusNode.unfocus();
-    //Future.delayed(const Duration(milliseconds: 10)).then((_) {
     focusNode.requestFocus();
-    //});
   }
 
   void addDigit(int digit) {
@@ -332,7 +337,6 @@ class CalculatorViewModel extends ChangeNotifier {
   }
 
   void _addBinaryOperator(String op) {
-    dev.log('${op}pressed');
     _changeText((String beforeCursor, String afterCursor) {
       if (beforeCursor.isNotEmpty &&
           _isBinaryOperator(beforeCursor[beforeCursor.length - 1])) {
@@ -386,10 +390,12 @@ class CalculatorViewModel extends ChangeNotifier {
 
       return {'add': '${CalculatorConstants.space}$op'};
     });
+
+    _result = _evaluator.calculateResult(textEditingController.text);
+    notifyListeners();
   }
 
   void addBracket() {
-    dev.log('Bracket pressed');
     _changeText((String beforeCursor, String afterCursor) {
       if (beforeCursor.isEmpty) return {'replace': '($afterCursor'};
 
@@ -434,7 +440,6 @@ class CalculatorViewModel extends ChangeNotifier {
   void addFactorial() => _addUnaryOperator(CalculatorConstants.factorial);
 
   void _addUnaryOperator(String operator) {
-    dev.log('$operator pressed');
     _changeText((String beforeCursor, String afterCursor) {
       String lastChar =
               beforeCursor.isEmpty ? '' : beforeCursor[beforeCursor.length - 1],
@@ -458,7 +463,6 @@ class CalculatorViewModel extends ChangeNotifier {
   }
 
   void addDot() {
-    dev.log('Dot pressed');
     _changeText((String beforeCursor, String afterCursor) {
       String lastChar =
               beforeCursor.isEmpty ? '' : beforeCursor[beforeCursor.length - 1],
@@ -603,7 +607,6 @@ class CalculatorViewModel extends ChangeNotifier {
   }
 
   void onPressBack() {
-    dev.log("Back button pressed");
     _changeText(
       (String beforeCursor, String afterCursor) {
         if (beforeCursor.isEmpty) {
@@ -642,7 +645,6 @@ class CalculatorViewModel extends ChangeNotifier {
   }
 
   void onLongPressBack() {
-    dev.log("Back button long pressed");
     _changeText(
       (String beforeCursor, String afterCursor) =>
           {'remove': beforeCursor.length},
