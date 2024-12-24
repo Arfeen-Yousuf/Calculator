@@ -242,7 +242,7 @@ class CalculatorButtonGrid extends StatelessWidget {
                 absoluteButton,
               ];
 
-    final rowItemsSpacing = 8.0;
+    const rowItemsSpacing = 8.0;
 
     final row1Children = [
       resetButton,

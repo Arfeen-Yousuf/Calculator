@@ -18,7 +18,7 @@ class HistoryScreen extends StatelessWidget {
 
     final deleteHistoryButton = IconButton(
       onPressed: () => showClearHistoryAlertDialog(context),
-      icon: Icon(Icons.delete_outlined),
+      icon: const Icon(Icons.delete_outlined),
     );
     late final loadMoreButton = PrimaryTextFilledButton(
       onPressed: context.read<HistoryViewModel>().loadMoreHistoryLogs,
@@ -29,7 +29,7 @@ class HistoryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('History'),
+        title: const Text('History'),
         actions: [deleteHistoryButton],
       ),
       body: SafeArea(
@@ -62,7 +62,7 @@ class HistoryScreen extends StatelessWidget {
 
                   return HistoryLogTile(historyLog: historyLogs[index]);
                 },
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 separatorBuilder: (_, ind) {
                   if (ind >= logsCount - 1) {
                     return Container();
@@ -95,27 +95,28 @@ class HistoryScreen extends StatelessWidget {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
 
     showDialog(
-        context: context,
-        builder: (BuildContext ctx) {
-          return AlertDialog(
-            title: const Text('Delete history'),
-            content: const Text('All history will be deleted.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Dismiss'),
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<HistoryViewModel>().clearHistoryLogs();
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Clear'),
-              ),
-            ],
-            backgroundColor:
-                isLightTheme ? AppColorsLight.scaffoldBackground : null,
-          );
-        });
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Delete history'),
+          content: const Text('All history will be deleted.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Dismiss'),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<HistoryViewModel>().clearHistoryLogs();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Clear'),
+            ),
+          ],
+          backgroundColor:
+              isLightTheme ? AppColorsLight.scaffoldBackground : null,
+        );
+      },
+    );
   }
 }

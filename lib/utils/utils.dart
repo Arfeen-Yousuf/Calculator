@@ -21,3 +21,10 @@ final List<String> months = List.generate(
 );
 
 String dateToString(DateTime date) => DateFormat('MMM dd, yyyy').format(date);
+
+final numberFormatter = NumberFormat('#,##0.#####');
+
+bool isSimpleNumber(String str) {
+  final invalidCharacterRegExp = RegExp(r'[^0-9,\.]');
+  return !invalidCharacterRegExp.hasMatch(str);
+}

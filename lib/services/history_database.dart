@@ -2,17 +2,17 @@ import 'dart:developer';
 
 import 'package:sqflite/sqflite.dart';
 
-final String tableHistory = 'history';
-final String columnId = '_id';
-final String columnDateTime = '_dateTime';
-final String columnExpression = 'expression';
-final String columnResult = 'result';
+const String tableHistory = 'history';
+const String columnId = '_id';
+const String columnDateTime = '_dateTime';
+const String columnExpression = 'expression';
+const String columnResult = 'result';
 
 class HistoryLog {
   int? id;
   late DateTime dateTime;
   String expression;
-  String result;
+  num result;
 
   HistoryLog({
     this.id,
@@ -41,14 +41,12 @@ class HistoryLog {
       id: map[columnId] as int,
       dateTime: DateTime.parse(map[columnDateTime] as String),
       expression: map[columnExpression] as String,
-      result: map[columnResult] as String,
+      result: map[columnResult] as num,
     );
   }
 
   @override
-  bool operator ==(Object other) {
-    return (other is HistoryLog && id == other.id);
-  }
+  bool operator ==(Object other) => (other is HistoryLog && id == other.id);
 
   @override
   int get hashCode => id.hashCode;

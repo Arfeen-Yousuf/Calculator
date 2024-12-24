@@ -2,9 +2,6 @@ import 'dart:math';
 
 import 'package:calculator/utils/constants.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-
-final numberFormatter = NumberFormat('#,##0.##########');
 
 class MyThousandsFormatter extends TextInputFormatter {
   @override
@@ -71,23 +68,6 @@ String formatNumberString(String num) {
   return formatWithComma(num);
 }
 
-/*
-String formatNumberSimple(double num) {
-  final formatter =
-      (num == num.toInt()) ? NumberFormat('#,##0') : numberFormatter;
-
-  return formatter.format(num);
-}
-
-String formatNumber(double num) {
-  final formatter =
-      (num == num.toInt()) ? NumberFormat('#,##0') : numberFormatter;
-
-  return (num < 0)
-      ? '${CalculatorConstants.space}${CalculatorConstants.subtraction}${formatter.format(-num)}'
-      : formatter.format(num);
-}
-*/
 String formatWithComma(String input) {
   final bool isNegativeValue;
 

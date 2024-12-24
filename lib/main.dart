@@ -26,7 +26,7 @@ void main() async {
             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnDateTime TEXT NOT NULL,
             $columnExpression TEXT NOT NULL, 
-            $columnResult TEXT NOT NULL)
+            $columnResult REAL NOT NULL)
         ''',
       );
     },
@@ -42,17 +42,12 @@ void main() async {
   );
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => CalculatorViewModel()),
-        ChangeNotifierProvider(
-          create: (_) => HistoryViewModel(
-            totalHistoryLogs: totalHistoryLogs,
-            initialHistoryLogs: initialHistoryLogs,
-          ),
-        ),
-      ],
-      child: MyApp(),
+    ChangeNotifierProvider(
+      create: (_) => HistoryViewModel(
+        totalHistoryLogs: totalHistoryLogs,
+        initialHistoryLogs: initialHistoryLogs,
+      ),
+      child: const MyApp(),
     ),
   );
 }
@@ -63,34 +58,35 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Calculator App',
       theme: lightThemeData(context),
       darkTheme: darkThemeData(context),
-      home: CalculatorScreen(),
+      themeMode: ThemeMode.system,
+      home: ChangeNotifierProvider(
+        create: (_) => CalculatorViewModel(),
+        child: const CalculatorScreen(),
+      ),
     );
   }
 
   ThemeData lightThemeData(BuildContext context) {
-    return ThemeData(
+    return ThemeData().copyWith(
       colorScheme: ColorScheme.fromSeed(seedColor: AppColorsLight.primary),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColorsLight.appBarBackground,
         surfaceTintColor: Colors.transparent,
       ),
       scaffoldBackgroundColor: AppColorsLight.scaffoldBackground,
-      iconTheme: IconThemeData(color: AppColorsLight.primary),
+      iconTheme: const IconThemeData(color: AppColorsLight.primary),
       primaryTextTheme: Theme.of(context).primaryTextTheme.apply(
             bodyColor: AppColorsLight.primaryText,
             displayColor: AppColorsLight.primaryText,
           ),
-      useMaterial3: true,
-      brightness: Brightness.light,
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColorsDark.primary,
         ),
       ),
-    ).copyWith(
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(
           //General
@@ -125,8 +121,7 @@ class MyApp extends StatelessWidget {
   }
 
   ThemeData darkThemeData(BuildContext context) {
-    return ThemeData.dark(useMaterial3: true).copyWith(
-      brightness: Brightness.dark,
+    return ThemeData.dark().copyWith(
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColorsDark.primary,
