@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
@@ -11,12 +13,9 @@ import 'unit_converter_view_model.dart';
 class UnitConverterScreen extends StatelessWidget {
   UnitConverterScreen({super.key});
 
-  final List<String> massOptions = Mass()
-          .mapSymbols
-          ?.keys
-          .map((key) => camelCaseToNormal(key.toString().split('.')[1]))
-          .toList() ??
-      [];
+  final List<String> massOptions = MASS.values
+      .map((unit) => camelCaseToNormal(unit.toString().split('.')[1]))
+      .toList();
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +23,10 @@ class UnitConverterScreen extends StatelessWidget {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
     final viewModelRead = context.read<UnitConverterViewModel>();
-    final viewModel = context.watch<UnitConverterViewModel>();
 
     final selectQuantityTypeButton = FilledButton(
       onPressed: () {},
       style: FilledButton.styleFrom(
-        //backgroundColor: isLightTheme ? Colors.grey[300]! : Colors.transparent,
         backgroundColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           side: BorderSide(
@@ -100,12 +97,19 @@ class UnitConverterScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
-                flex: 50,
-                child: NumericKeypad(
-                  controller: viewModel.currentController,
+              if (context.watch<UnitConverterViewModel>().currentFocusNode !=
+                  null)
+                Expanded(
+                  flex: 50,
+                  child: NumericKeypad(
+                    controller: viewModelRead.currentController!,
+                    focusNode: viewModelRead.currentFocusNode,
+                    onValueChanged: (value) {
+                      //log('New number is $value ${viewModelRead._massUnit1} ${viewModelRead._massUnit2}');
+                      viewModelRead.onValueChanged(value);
+                    },
+                  ),
                 ),
-              ),
               //Text(viewModel.currentController.text)
             ],
           ),
@@ -119,11 +123,14 @@ class UnitConverterScreen extends StatelessWidget {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.massUnit1 = MASS.values[index];
+    viewModelRead.onMassType1Changed(MASS.values[index]);
   }
 
   void onOption2Changed(
     BuildContext context, {
     required int index,
-  }) {}
+  }) {
+    final viewModelRead = context.read<UnitConverterViewModel>();
+    viewModelRead.onMassType2Changed(MASS.values[index]);
+  }
 }

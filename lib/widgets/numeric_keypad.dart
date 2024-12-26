@@ -1,7 +1,9 @@
+import 'dart:developer';
+
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/constants.dart';
+import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'grid_button.dart';
 
@@ -9,11 +11,13 @@ class NumericKeypad extends StatelessWidget {
   const NumericKeypad({
     super.key,
     required this.controller,
-    this.onNumChanged,
+    this.focusNode,
+    this.onValueChanged,
   });
 
   final TextEditingController controller;
-  final void Function(double?)? onNumChanged;
+  final FocusNode? focusNode;
+  final void Function(double?)? onValueChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +31,7 @@ class NumericKeypad extends StatelessWidget {
       );
     });
     final twoZerosButton = GridButton(
-      onPressed: () {},
+      onPressed: addTwoZeros,
       text: '00',
     );
 
@@ -47,19 +51,19 @@ class NumericKeypad extends StatelessWidget {
             ? appColors.primary?.withAlpha(25)
             : AppColorsDark.gridButtonDefaultBackground);
     final equalsButton = GridButton(
-      onPressed: () {},
+      onPressed: onEqualPressed,
       text: '=',
       foregroundColor: Colors.white,
       backgroundColor: appColors.primary,
       largeFontSize: true,
     );
     final dotButton = GridButton(
-      onPressed: () {},
+      onPressed: addDot,
       text: '.',
       largeFontSize: true,
     );
     final toogleSignButton = GridButton(
-        onPressed: () {},
+        onPressed: toogleSign,
         text: '+/${CalculatorConstants.subtraction}',
         foregroundColor: appColors.primary,
         backgroundColor: isLightTheme
@@ -88,8 +92,8 @@ class NumericKeypad extends StatelessWidget {
     ];
     final row4Children = [
       twoZerosButton,
-      dotButton,
       digitButtons[0],
+      dotButton,
       equalsButton,
     ];
 
@@ -124,56 +128,140 @@ class NumericKeypad extends StatelessWidget {
   }
 
   void addDigit(int digit) {
-    if (controller.text.isEmpty) {
-      controller.text = '$digit';
-      onNumChanged?.call(digit.toDouble());
-      return;
+    final text = controller.text;
+
+    final dotIndex = text.indexOf('.');
+    if (dotIndex == -1) {
+      final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
+          ? text.substring(1)
+          : text;
+      if (textWithoutSign.length >= 12) {
+        showToast('You can enter upto 12 integers.');
+        return;
+      }
+    } else {
+      final decimalPart = text.substring(dotIndex + 1);
+      if (decimalPart.length >= 10) {
+        showToast('You can enter upto 10 decimals.');
+        return;
+      }
     }
 
-    final (cursorPosition, textBeforeCursor, textAfterCursor) =
-        cursorRelativeText();
+    switch (text) {
+      case '':
+        controller.text = '$digit';
+      case CalculatorConstants.subtraction:
+        controller.text = '${CalculatorConstants.subtraction}$digit';
+      case '0':
+        controller.text = '$digit';
+      case '${CalculatorConstants.subtraction}0':
+        controller.text = '${CalculatorConstants.subtraction}$digit';
+      default:
+        controller.text = '$text$digit';
+    }
 
-    if (textAfterCursor.startsWith('-')) return;
-    if (textBeforeCursor.isEmpty && textAfterCursor.startsWith('0')) return;
+    finalStep();
+  }
 
-    //final noOfDigitsAfterCursor = textAfterCursor.replaceAll('.', '').length;
-    String newNumberStr = '$textBeforeCursor$digit$textAfterCursor';
-    double newNumber = double.parse(newNumberStr);
+  void addTwoZeros() {
+    final text = controller.text;
 
-    final numberFormatter = NumberFormat('#,##0.##########');
-    controller.text = numberFormatter.format(newNumber);
+    final dotIndex = text.indexOf('.');
+    if (dotIndex == -1) {
+      final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
+          ? text.substring(1)
+          : text;
+      if (textWithoutSign.length >= 11) {
+        showToast('You can enter upto 12 integers.');
+        return;
+      }
+    } else {
+      final decimalPart = text.substring(dotIndex + 1);
+      if (decimalPart.length >= 9) {
+        showToast('You can enter upto 10 decimals.');
+        return;
+      }
+    }
+
+    switch (text) {
+      case '':
+        controller.text = '0';
+      case CalculatorConstants.subtraction:
+        controller.text = '${CalculatorConstants.subtraction}0';
+      case '0':
+        return;
+      case '${CalculatorConstants.subtraction}0':
+        return;
+      default:
+        controller.text = '${text}00';
+    }
+
+    finalStep();
+  }
+
+  void addDot() {
+    final text = controller.text;
+    if (text.contains('.')) return;
+
+    switch (text) {
+      case '':
+        controller.text = '0.';
+      case CalculatorConstants.subtraction:
+        controller.text = '${CalculatorConstants.subtraction}0.';
+      case '0':
+        controller.text = '0.';
+      case '${CalculatorConstants.subtraction}0':
+        controller.text = '${CalculatorConstants.subtraction}0.';
+      default:
+        controller.text = '$text.';
+    }
+
+    finalStep();
+  }
+
+  void toogleSign() {
+    final text = controller.text;
+    if (text.startsWith(CalculatorConstants.subtraction)) {
+      controller.text = text.substring(1);
+    } else {
+      controller.text = CalculatorConstants.subtraction + text;
+    }
+
+    finalStep();
   }
 
   void backspace() {
-    final (cursorPosition, textBeforeCursor, textAfterCursor) =
-        cursorRelativeText();
+    final text = controller.text;
+    if (text.isEmpty) return;
+    controller.text = text.substring(0, text.length - 1);
 
-    if (textBeforeCursor.isEmpty) return;
-    String newNumberStr =
-        textBeforeCursor.substring(0, textBeforeCursor.length - 1) +
-            textAfterCursor;
-    double newNumber = double.parse(newNumberStr);
-
-    final numberFormatter = NumberFormat('#,##0.##########');
-    controller.text = numberFormatter.format(newNumber);
+    finalStep();
   }
 
   void clear() {
     controller.clear();
-    onNumChanged?.call(null);
+    onValueChanged?.call(null);
   }
 
-  (int, String, String) cursorRelativeText() {
-    final text = controller.text;
+  void onEqualPressed() => focusNode?.unfocus();
 
-    int cursorPosition = controller.selection.base.offset;
-    if (cursorPosition == -1) {
-      cursorPosition = 0;
+  void finalStep() {
+    final text = controller.text
+        .replaceAll(',', '')
+        .replaceFirst(CalculatorConstants.subtraction, '-');
+    final dotIndex = text.indexOf('.');
+    log('Final dot index $dotIndex');
+
+    if (dotIndex == -1) {
+      final value = int.parse(text);
+      log('Final An Integer $value');
+      controller.text = (value < 0)
+          ? '${CalculatorConstants.subtraction}${numberFormatter.format(-value)}'
+          : numberFormatter.format(value);
+      onValueChanged?.call(value.toDouble());
+    } else {
+      final value = double.tryParse(text);
+      onValueChanged?.call(value);
     }
-
-    final textBeforeCursor =
-        text.substring(0, cursorPosition).replaceAll(',', '');
-    final textAfterCursor = text.substring(cursorPosition).replaceAll(',', '');
-    return (cursorPosition, textBeforeCursor, textAfterCursor);
   }
 }

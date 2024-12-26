@@ -61,6 +61,7 @@ class _TextFieldWithOptionsState extends State<TextFieldWithOptions> {
           keyboardType: TextInputType.none,
           textAlign: TextAlign.right,
           style: const TextStyle(fontSize: 20),
+          enableInteractiveSelection: false,
           decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
