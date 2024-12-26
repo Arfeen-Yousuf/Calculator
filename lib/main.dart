@@ -8,6 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
 import 'app/colors.dart';
+import 'screens/unit_converter/unit_converter_view_model.dart';
 import 'utils/constants.dart';
 
 void main() async {
@@ -42,11 +43,17 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => HistoryViewModel(
-        totalHistoryLogs: totalHistoryLogs,
-        initialHistoryLogs: initialHistoryLogs,
-      ),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => HistoryViewModel(
+            totalHistoryLogs: totalHistoryLogs,
+            initialHistoryLogs: initialHistoryLogs,
+          ),
+        ),
+        ChangeNotifierProvider(create: (_) => CalculatorViewModel()),
+        ChangeNotifierProvider(create: (_) => UnitConverterViewModel()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -62,10 +69,8 @@ class MyApp extends StatelessWidget {
       theme: lightThemeData(context),
       darkTheme: darkThemeData(context),
       themeMode: ThemeMode.system,
-      home: ChangeNotifierProvider(
-        create: (_) => CalculatorViewModel(),
-        child: const CalculatorScreen(),
-      ),
+      home: const CalculatorScreen(),
+      //home: const UnitConverterScreen(),
     );
   }
 
