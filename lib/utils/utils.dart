@@ -36,6 +36,15 @@ double? roundToDecimalPlaces(
 ) =>
     double.parse(value.toStringAsFixed(decimalPlaces));
 
+String enumToNormal(String input) {
+  final dotIndex = input.indexOf('.');
+  return camelCaseToNormal(input.substring(dotIndex + 1));
+}
+
+List<String> enumListToNormal(List<dynamic> enumValues) {
+  return enumValues.map((e) => enumToNormal('$e')).toList();
+}
+
 String camelCaseToNormal(String input) {
   // Add a space before each uppercase letter except the first one
   String spaced = input.replaceAllMapped(

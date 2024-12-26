@@ -38,17 +38,60 @@ class UnitConverterViewModel extends ChangeNotifier {
   //Length, mass, volume, time, data etc
   PROPERTY _property = PROPERTY.mass;
   PROPERTY get property => _property;
-  set property(PROPERTY newVal) {
+  void setProperty(PROPERTY newVal) {
+    log('Property set $newVal');
+
     _property = newVal;
+    final List<dynamic> values;
+    switch (newVal) {
+      case PROPERTY.mass:
+        values = MASS.values;
+      case PROPERTY.length:
+        values = LENGTH.values;
+
+      case PROPERTY.area:
+        values = AREA.values;
+      case PROPERTY.volume:
+        values = VOLUME.values;
+      case PROPERTY.time:
+        values = TIME.values;
+      case PROPERTY.speed:
+        values = SPEED.values;
+      case PROPERTY.temperature:
+        values = TEMPERATURE.values;
+      case PROPERTY.digitalData:
+        values = DIGITAL_DATA.values;
+      default:
+        throw Error();
+    }
+
+    //Mass().mapSymbols;
+
+    allUnits = values;
+    //.map((unit) => camelCaseToNormal(unit.toString().split('.')[1]))
+    //.toList();
+    _unit1 = values[0];
+    _unit2 = values[0];
+
+    log('Now units are $_unit1 $_unit2');
+
+    textEditingController1.clear();
+    textEditingController2.clear();
     notifyListeners();
   }
 
-  MASS _massUnit1 = MASS.micrograms;
-  MASS _massUnit2 = MASS.milligrams;
+  List<dynamic> allUnits = MASS.values;
+  //.map((unit) => camelCaseToNormal(unit.toString().split('.')[1]))
+  //.toList();
 
-  void onMassType1Changed(MASS massType) {
-    _massUnit1 = massType;
-    log('Convertingv 1 $_massUnit1 ${textEditingController1.text} $_massUnit2 ${textEditingController2.text}');
+  dynamic _unit1 = MASS.values[0];
+  dynamic _unit2 = MASS.values[0];
+  get unit1 => _unit1;
+  get unit2 => _unit2;
+
+  void onMassType1Changed(dynamic massType) {
+    _unit1 = massType;
+    log('Convertingv 1 $_unit1 ${textEditingController1.text} $_unit2 ${textEditingController2.text}');
 
     //Value of first controller changed
     final text = textEditingController1.text
@@ -61,16 +104,16 @@ class UnitConverterViewModel extends ChangeNotifier {
       return;
     }
 
-    final convertedValue = value.convertFromTo(_massUnit1, _massUnit2);
+    final convertedValue = value.convertFromTo(_unit1, _unit2);
     textEditingController2.text =
         (convertedValue == null) ? '' : numberFormatter.format(convertedValue);
 
     notifyListeners();
   }
 
-  void onMassType2Changed(MASS massType) {
-    _massUnit2 = massType;
-    log('Converting 2 $_massUnit1 ${textEditingController1.text} $_massUnit2 ${textEditingController2.text}');
+  void onMassType2Changed(dynamic massType) {
+    _unit2 = massType;
+    log('Converting 2 $_unit1 ${textEditingController1.text} $_unit2 ${textEditingController2.text}');
 
     //Value of first controller changed
     final text = textEditingController2.text
@@ -83,7 +126,7 @@ class UnitConverterViewModel extends ChangeNotifier {
       return;
     }
 
-    final convertedValue = value.convertFromTo(_massUnit2, _massUnit1);
+    final convertedValue = value.convertFromTo(_unit2, _unit1);
     textEditingController1.text =
         (convertedValue == null) ? '' : numberFormatter.format(convertedValue);
 
@@ -98,7 +141,7 @@ class UnitConverterViewModel extends ChangeNotifier {
         return;
       }
 
-      final convertedValue = value.convertFromTo(_massUnit1, _massUnit2);
+      final convertedValue = value.convertFromTo(_unit1, _unit2);
       textEditingController2.text = (convertedValue == null)
           ? ''
           : numberFormatter.format(convertedValue);
@@ -109,7 +152,7 @@ class UnitConverterViewModel extends ChangeNotifier {
         return;
       }
 
-      final convertedValue = value.convertFromTo(_massUnit2, _massUnit1);
+      final convertedValue = value.convertFromTo(_unit2, _unit1);
       textEditingController1.text = (convertedValue == null)
           ? ''
           : numberFormatter.format(convertedValue);

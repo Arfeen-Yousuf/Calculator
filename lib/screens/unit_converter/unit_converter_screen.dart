@@ -1,6 +1,5 @@
-import 'dart:developer';
-
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/utils/ui_helper.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
 import 'package:calculator/widgets/text_field_with_options.dart';
@@ -11,11 +10,7 @@ import 'package:units_converter/units_converter.dart';
 import 'unit_converter_view_model.dart';
 
 class UnitConverterScreen extends StatelessWidget {
-  UnitConverterScreen({super.key});
-
-  final List<String> massOptions = MASS.values
-      .map((unit) => camelCaseToNormal(unit.toString().split('.')[1]))
-      .toList();
+  const UnitConverterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +20,7 @@ class UnitConverterScreen extends StatelessWidget {
     final viewModelRead = context.read<UnitConverterViewModel>();
 
     final selectQuantityTypeButton = FilledButton(
-      onPressed: () {},
+      onPressed: () => _showPropertyPicker(context),
       style: FilledButton.styleFrom(
         backgroundColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -40,14 +35,8 @@ class UnitConverterScreen extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.ring_volume_outlined,
-            color: appColors.primary,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
           Text(
-            'Speed',
+            enumToNormal('${viewModelRead.property}'),
             style: TextTheme.of(context).labelLarge?.copyWith(
                   color: appColors.primaryText,
                   fontSize: 20,
@@ -81,16 +70,18 @@ class UnitConverterScreen extends StatelessWidget {
                     TextFieldWithOptions(
                       controller: viewModelRead.textEditingController1,
                       focusNode: viewModelRead.focusNode1,
-                      title: 'Mass',
-                      options: massOptions,
+                      title: enumToNormal('${viewModelRead.property}'),
+                      currentOption: enumToNormal('${viewModelRead.unit1}'),
+                      options: enumListToNormal(viewModelRead.allUnits),
                       onOptionSelected: (ind) =>
                           onOption1Changed(context, index: ind),
                     ),
                     TextFieldWithOptions(
                       controller: viewModelRead.textEditingController2,
                       focusNode: viewModelRead.focusNode2,
-                      title: 'Mass',
-                      options: massOptions,
+                      title: enumToNormal('${viewModelRead.property}'),
+                      currentOption: enumToNormal('${viewModelRead.unit2}'),
+                      options: enumListToNormal(viewModelRead.allUnits),
                       onOptionSelected: (ind) =>
                           onOption2Changed(context, index: ind),
                     ),
@@ -104,13 +95,9 @@ class UnitConverterScreen extends StatelessWidget {
                   child: NumericKeypad(
                     controller: viewModelRead.currentController!,
                     focusNode: viewModelRead.currentFocusNode,
-                    onValueChanged: (value) {
-                      //log('New number is $value ${viewModelRead._massUnit1} ${viewModelRead._massUnit2}');
-                      viewModelRead.onValueChanged(value);
-                    },
+                    onValueChanged: viewModelRead.onValueChanged,
                   ),
                 ),
-              //Text(viewModel.currentController.text)
             ],
           ),
         ),
@@ -123,7 +110,7 @@ class UnitConverterScreen extends StatelessWidget {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.onMassType1Changed(MASS.values[index]);
+    viewModelRead.onMassType1Changed(viewModelRead.allUnits[index]);
   }
 
   void onOption2Changed(
@@ -131,6 +118,31 @@ class UnitConverterScreen extends StatelessWidget {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.onMassType2Changed(MASS.values[index]);
+    viewModelRead.onMassType2Changed(viewModelRead.allUnits[index]);
+  }
+
+  void _showPropertyPicker(BuildContext context) async {
+    final List<PROPERTY> properties = [
+      PROPERTY.length,
+      PROPERTY.mass,
+      PROPERTY.area,
+      PROPERTY.volume,
+      PROPERTY.time,
+      PROPERTY.speed,
+      PROPERTY.temperature,
+      PROPERTY.digitalData,
+    ];
+
+    final viewModelRead = context.read<UnitConverterViewModel>();
+
+    await showOptionsBottomSheet(
+      context,
+      title: 'Select Unit',
+      options: enumListToNormal(properties),
+      currentOption: enumToNormal('${viewModelRead.property}'),
+      onOptionSelected: (index) {
+        viewModelRead.setProperty(properties[index]);
+      },
+    );
   }
 }

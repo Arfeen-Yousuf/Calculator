@@ -8,7 +8,6 @@ import 'package:sqflite/sqflite.dart';
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
 import 'app/colors.dart';
-import 'screens/unit_converter/unit_converter_screen.dart';
 import 'screens/unit_converter/unit_converter_view_model.dart';
 import 'utils/constants.dart';
 
@@ -70,8 +69,8 @@ class MyApp extends StatelessWidget {
       theme: lightThemeData(context),
       darkTheme: darkThemeData(context),
       themeMode: ThemeMode.system,
-      //home: const CalculatorScreen(),
-      home: UnitConverterScreen(),
+      home: const CalculatorScreen(),
+      //home: const UnitConverterScreen(),
     );
   }
 

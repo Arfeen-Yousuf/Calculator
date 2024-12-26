@@ -1,4 +1,5 @@
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
@@ -21,6 +22,16 @@ class CalculatorScreen extends StatelessWidget {
     final historyButton = IconButton(
       onPressed: () => viewModelRead.onHistoryButtonTapped(context),
       icon: const Icon(Icons.history_rounded),
+    );
+    final unitConverterButton = IconButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const UnitConverterScreen(),
+          ),
+        );
+      },
+      icon: const Icon(Icons.transform_rounded),
     );
 
     final textField = Container(
@@ -94,7 +105,7 @@ class CalculatorScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calculator'),
-        actions: [historyButton],
+        actions: [unitConverterButton, historyButton],
       ),
       body: SafeArea(
         child: Padding(
