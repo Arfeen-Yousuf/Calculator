@@ -28,3 +28,20 @@ bool isSimpleNumber(String str) {
   final invalidCharacterRegExp = RegExp(r'[^0-9,\.]');
   return !invalidCharacterRegExp.hasMatch(str);
 }
+
+double? roundToDecimalPlaces(
+  double value,
+  int decimalPlaces,
+) =>
+    double.parse(value.toStringAsFixed(decimalPlaces));
+
+String camelCaseToNormal(String input) {
+  // Add a space before each uppercase letter except the first one
+  String spaced = input.replaceAllMapped(
+    RegExp(r'(?<!^)([A-Z])'),
+    (match) => ' ${match.group(1)}',
+  );
+
+  // Convert the first letter to uppercase and the rest to lowercase
+  return spaced[0].toUpperCase() + spaced.substring(1).toLowerCase();
+}

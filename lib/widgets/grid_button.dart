@@ -21,10 +21,6 @@ class GridButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final themeAdjustedForeground =
-        Theme.of(context).brightness == Brightness.light
-            ? Colors.black
-            : Colors.white;
     final AppColors appColors = Theme.of(context).extension<AppColors>()!;
 
     return FilledButton(
@@ -56,7 +52,7 @@ class GridButton extends StatelessWidget {
           return Icon(
             iconData,
             size: constraints.maxHeight * 0.7,
-            color: themeAdjustedForeground,
+            color: foregroundColor ?? appColors.primary,
           );
         },
       ),
