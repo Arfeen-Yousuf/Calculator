@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
@@ -55,3 +56,6 @@ String camelCaseToNormal(String input) {
   // Convert the first letter to uppercase and the rest to lowercase
   return spaced[0].toUpperCase() + spaced.substring(1).toLowerCase();
 }
+
+Future<void> copyTextToClipboard(String str) async =>
+    await Clipboard.setData(ClipboardData(text: str));

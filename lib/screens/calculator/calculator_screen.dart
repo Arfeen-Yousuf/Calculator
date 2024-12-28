@@ -60,9 +60,13 @@ class CalculatorScreen extends StatelessWidget {
     final Widget result = showResult
         ? const SizedBox()
         : FittedBox(
-            child: Text(
-              numberFormatter.format(viewModelResult),
-              style: TextStyle(color: appColors.result),
+            child: GestureDetector(
+              onLongPress: () async => await copyTextToClipboard(
+                  numberFormatter.format(viewModelResult)),
+              child: Text(
+                numberFormatter.format(viewModelResult),
+                style: TextStyle(color: appColors.result),
+              ),
             ),
           );
 

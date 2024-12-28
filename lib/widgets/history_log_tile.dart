@@ -59,11 +59,8 @@ class HistoryLogTile extends StatelessWidget {
       leading: const Icon(Icons.copy),
       contentPadding: EdgeInsets.zero,
       onTap: () async {
-        await Clipboard.setData(
-          ClipboardData(
-            text:
-                'Expression:\n${historyLog.expression}\nResult:\n${historyLog.result}',
-          ),
+        await copyTextToClipboard(
+          'Expression:\n${historyLog.expression}\nResult:\n${historyLog.result}',
         );
         showToast('Expression and result copied.');
       },
