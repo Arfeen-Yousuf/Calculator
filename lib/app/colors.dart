@@ -186,7 +186,6 @@ class AppColorsDark {
   // General
   static const Color primary = Colors.orange;
   static const Color appBarBackground = Color(0xFF141118);
-  static const Color scaffoldBackground = Colors.black;
   static const Color primaryText = Colors.white;
 
   // Calculator Page
