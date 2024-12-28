@@ -108,7 +108,9 @@ class CalculatorScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculator'),
+        title: Text(
+          '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
+        ),
         actions: [unitConverterButton, historyButton],
       ),
       body: SafeArea(

@@ -39,59 +39,41 @@ class UnitConverterViewModel extends ChangeNotifier {
   PROPERTY _property = PROPERTY.mass;
   PROPERTY get property => _property;
   void setProperty(PROPERTY newVal) {
-    log('Property set $newVal');
-
     _property = newVal;
-    final List<dynamic> values;
-    switch (newVal) {
-      case PROPERTY.mass:
-        values = MASS.values;
-      case PROPERTY.length:
-        values = LENGTH.values;
 
-      case PROPERTY.area:
-        values = AREA.values;
-      case PROPERTY.volume:
-        values = VOLUME.values;
-      case PROPERTY.time:
-        values = TIME.values;
-      case PROPERTY.speed:
-        values = SPEED.values;
-      case PROPERTY.temperature:
-        values = TEMPERATURE.values;
-      case PROPERTY.digitalData:
-        values = DIGITAL_DATA.values;
-      default:
-        throw Error();
-    }
+    final (newUnits, newUnitsMapSymbols) = switch (newVal) {
+      PROPERTY.mass => (MASS.values, Mass().mapSymbols),
+      PROPERTY.length => (LENGTH.values, Length().mapSymbols),
+      PROPERTY.area => (AREA.values, Area().mapSymbols),
+      PROPERTY.volume => (VOLUME.values, Volume().mapSymbols),
+      PROPERTY.time => (TIME.values, Time().mapSymbols),
+      PROPERTY.speed => (SPEED.values, Speed().mapSymbols),
+      PROPERTY.temperature => (TEMPERATURE.values, Temperature().mapSymbols),
+      PROPERTY.digitalData => (DIGITAL_DATA.values, DigitalData().mapSymbols),
+      _ => throw Error()
+    };
 
-    //Mass().mapSymbols;
+    allUnits = newUnits;
+    allUnitsMapSymbols = newUnitsMapSymbols;
 
-    allUnits = values;
-    //.map((unit) => camelCaseToNormal(unit.toString().split('.')[1]))
-    //.toList();
-    _unit1 = values[0];
-    _unit2 = values[0];
-
-    log('Now units are $_unit1 $_unit2');
+    _unit1 = allUnits.first;
+    _unit2 = allUnits.first;
 
     textEditingController1.clear();
     textEditingController2.clear();
     notifyListeners();
   }
 
-  List<dynamic> allUnits = MASS.values;
-  //.map((unit) => camelCaseToNormal(unit.toString().split('.')[1]))
-  //.toList();
+  List<Enum> allUnits = MASS.values;
+  Map<dynamic, String>? allUnitsMapSymbols = Mass().mapSymbols;
 
-  dynamic _unit1 = MASS.values[0];
-  dynamic _unit2 = MASS.values[0];
-  get unit1 => _unit1;
-  get unit2 => _unit2;
+  Enum _unit1 = MASS.values[0];
+  Enum _unit2 = MASS.values[0];
+  Enum get unit1 => _unit1;
+  Enum get unit2 => _unit2;
 
-  void onMassType1Changed(dynamic massType) {
+  void onUnitType1Changed(Enum massType) {
     _unit1 = massType;
-    log('Convertingv 1 $_unit1 ${textEditingController1.text} $_unit2 ${textEditingController2.text}');
 
     //Value of first controller changed
     final text = textEditingController1.text
@@ -105,15 +87,13 @@ class UnitConverterViewModel extends ChangeNotifier {
     }
 
     final convertedValue = value.convertFromTo(_unit1, _unit2);
-    textEditingController2.text =
-        (convertedValue == null) ? '' : numberFormatter.format(convertedValue);
-
-    notifyListeners();
+    textEditingController2.text = (convertedValue == null)
+        ? ''
+        : numberFormatterMedium.format(convertedValue);
   }
 
-  void onMassType2Changed(dynamic massType) {
+  void onUnitType2Changed(Enum massType) {
     _unit2 = massType;
-    log('Converting 2 $_unit1 ${textEditingController1.text} $_unit2 ${textEditingController2.text}');
 
     //Value of first controller changed
     final text = textEditingController2.text
@@ -127,10 +107,9 @@ class UnitConverterViewModel extends ChangeNotifier {
     }
 
     final convertedValue = value.convertFromTo(_unit2, _unit1);
-    textEditingController1.text =
-        (convertedValue == null) ? '' : numberFormatter.format(convertedValue);
-
-    //notifyListeners();
+    textEditingController1.text = (convertedValue == null)
+        ? ''
+        : numberFormatterMedium.format(convertedValue);
   }
 
   void onValueChanged(double? value) {

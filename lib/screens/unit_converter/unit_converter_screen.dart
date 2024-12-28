@@ -36,7 +36,7 @@ class UnitConverterScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            enumToNormal('${viewModelRead.property}'),
+            enumToNormal(viewModelRead.property),
             style: TextTheme.of(context).labelLarge?.copyWith(
                   color: appColors.primaryText,
                   fontSize: 20,
@@ -70,20 +70,28 @@ class UnitConverterScreen extends StatelessWidget {
                     TextFieldWithOptions(
                       controller: viewModelRead.textEditingController1,
                       focusNode: viewModelRead.focusNode1,
-                      title: enumToNormal('${viewModelRead.property}'),
-                      currentOption: enumToNormal('${viewModelRead.unit1}'),
-                      options: enumListToNormal(viewModelRead.allUnits),
+                      title:
+                          _getEnumWithSymbol(context, viewModelRead.property),
+                      currentOption:
+                          _getEnumWithSymbol(context, viewModelRead.unit1),
+                      options: viewModelRead.allUnits
+                          .map((enu) => _getEnumWithSymbol(context, enu))
+                          .toList(),
                       onOptionSelected: (ind) =>
-                          onOption1Changed(context, index: ind),
+                          _onOption1Changed(context, index: ind),
                     ),
                     TextFieldWithOptions(
                       controller: viewModelRead.textEditingController2,
                       focusNode: viewModelRead.focusNode2,
-                      title: enumToNormal('${viewModelRead.property}'),
-                      currentOption: enumToNormal('${viewModelRead.unit2}'),
-                      options: enumListToNormal(viewModelRead.allUnits),
+                      title:
+                          _getEnumWithSymbol(context, viewModelRead.property),
+                      currentOption:
+                          _getEnumWithSymbol(context, viewModelRead.unit2),
+                      options: viewModelRead.allUnits
+                          .map((enu) => _getEnumWithSymbol(context, enu))
+                          .toList(),
                       onOptionSelected: (ind) =>
-                          onOption2Changed(context, index: ind),
+                          _onOption2Changed(context, index: ind),
                     ),
                   ],
                 ),
@@ -105,20 +113,20 @@ class UnitConverterScreen extends StatelessWidget {
     );
   }
 
-  void onOption1Changed(
+  void _onOption1Changed(
     BuildContext context, {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.onMassType1Changed(viewModelRead.allUnits[index]);
+    viewModelRead.onUnitType1Changed(viewModelRead.allUnits[index]);
   }
 
-  void onOption2Changed(
+  void _onOption2Changed(
     BuildContext context, {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.onMassType2Changed(viewModelRead.allUnits[index]);
+    viewModelRead.onUnitType2Changed(viewModelRead.allUnits[index]);
   }
 
   void _showPropertyPicker(BuildContext context) async {
@@ -139,10 +147,16 @@ class UnitConverterScreen extends StatelessWidget {
       context,
       title: 'Select Unit',
       options: enumListToNormal(properties),
-      currentOption: enumToNormal('${viewModelRead.property}'),
+      currentOption: enumToNormal(viewModelRead.property),
       onOptionSelected: (index) {
         viewModelRead.setProperty(properties[index]);
       },
     );
+  }
+
+  String _getEnumWithSymbol(BuildContext context, Enum enu) {
+    final unitSymbol =
+        context.read<UnitConverterViewModel>().allUnitsMapSymbols?[enu];
+    return enumToNormal(enu) + ((unitSymbol != null) ? ' ($unitSymbol)' : '');
   }
 }
