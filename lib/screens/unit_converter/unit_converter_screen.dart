@@ -2,6 +2,7 @@ import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/ui_helper.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
+import 'package:calculator/widgets/svg_icon.dart';
 import 'package:calculator/widgets/text_field_with_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -130,6 +131,9 @@ class UnitConverterScreen extends StatelessWidget {
   }
 
   void _showPropertyPicker(BuildContext context) async {
+    final viewModelRead = context.read<UnitConverterViewModel>();
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
     final List<PROPERTY> properties = [
       PROPERTY.length,
       PROPERTY.mass,
@@ -140,17 +144,34 @@ class UnitConverterScreen extends StatelessWidget {
       PROPERTY.temperature,
       PROPERTY.digitalData,
     ];
-
-    final viewModelRead = context.read<UnitConverterViewModel>();
+    final Map<PROPERTY, SvgIconData> propertiesIcons = {
+      PROPERTY.length: SvgIconData.length,
+      PROPERTY.mass: SvgIconData.mass,
+      PROPERTY.area: SvgIconData.area,
+      PROPERTY.volume: SvgIconData.volume,
+      PROPERTY.time: SvgIconData.time,
+      PROPERTY.speed: SvgIconData.speed,
+      PROPERTY.temperature: SvgIconData.temperature,
+      PROPERTY.digitalData: SvgIconData.data,
+    };
+    final Map<String, Widget> propertiesWidgets = propertiesIcons.map(
+      (prop, asset) => MapEntry(
+        enumToNormal(prop),
+        SvgIcon(
+          asset,
+          size: 28,
+          color: (viewModelRead.property == prop) ? appColors.primary : null,
+        ),
+      ),
+    );
 
     await showOptionsBottomSheet(
       context,
       title: 'Select Unit',
+      leading: propertiesWidgets,
       options: enumListToNormal(properties),
       currentOption: enumToNormal(viewModelRead.property),
-      onOptionSelected: (index) {
-        viewModelRead.setProperty(properties[index]);
-      },
+      onOptionSelected: (index) => viewModelRead.setProperty(properties[index]),
     );
   }
 
