@@ -3,6 +3,7 @@ import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
+import 'package:calculator/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class CalculatorScreen extends StatelessWidget {
           ),
         );
       },
-      icon: const Icon(Icons.transform_rounded),
+      icon: const SvgIcon(SvgIconData.ruler),
     );
 
     final textField = Container(

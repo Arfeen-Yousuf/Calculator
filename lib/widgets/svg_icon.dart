@@ -11,7 +11,8 @@ enum SvgIconData {
   time('time'),
   speed('speed'),
   temperature('temperature'),
-  data('data');
+  data('data'),
+  ruler('ruler');
 
   const SvgIconData(String name) : path = '$_assetsBasePath$name.svg';
   final String path;
