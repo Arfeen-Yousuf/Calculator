@@ -13,11 +13,13 @@ class NumericKeypad extends StatelessWidget {
     required this.controller,
     this.focusNode,
     this.onValueChanged,
+    this.allowNegativeNumbers = true,
   });
 
   final TextEditingController controller;
   final FocusNode? focusNode;
   final void Function(double?)? onValueChanged;
+  final bool allowNegativeNumbers;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +65,7 @@ class NumericKeypad extends StatelessWidget {
       largeFontSize: true,
     );
     final toogleSignButton = GridButton(
-        onPressed: toogleSign,
+        onPressed: allowNegativeNumbers ? toogleSign : null,
         text: '+/${CalculatorConstants.subtraction}',
         foregroundColor: appColors.primary,
         backgroundColor: isLightTheme

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -78,18 +76,14 @@ class UnitConverterViewModel extends ChangeNotifier {
     //Value of first controller changed
     final text = textEditingController1.text
         .replaceAll(',', '')
-        .replaceAll(CalculatorConstants.subtraction, '');
+        .replaceAll(CalculatorConstants.subtraction, '-');
+
     final value = double.tryParse(text);
-
-    if (value == null) {
-      textEditingController2.clear();
-      return;
-    }
-
-    final convertedValue = value.convertFromTo(_unit1, _unit2);
-    textEditingController2.text = (convertedValue == null)
-        ? ''
-        : numberFormatterMedium.format(convertedValue);
+    final convertedValue = value?.convertFromTo(_unit1, _unit2);
+    _setControllerValue(
+      textEditingController2,
+      value: convertedValue,
+    );
   }
 
   void onUnitType2Changed(Enum massType) {
@@ -98,53 +92,39 @@ class UnitConverterViewModel extends ChangeNotifier {
     //Value of first controller changed
     final text = textEditingController2.text
         .replaceAll(',', '')
-        .replaceAll(CalculatorConstants.subtraction, '');
+        .replaceAll(CalculatorConstants.subtraction, '-');
+
     final value = double.tryParse(text);
-
-    if (value == null) {
-      textEditingController1.clear();
-      return;
-    }
-
-    final convertedValue = value.convertFromTo(_unit2, _unit1);
-    textEditingController1.text = (convertedValue == null)
-        ? ''
-        : numberFormatterMedium.format(convertedValue);
+    final convertedValue = value?.convertFromTo(_unit2, _unit1);
+    _setControllerValue(
+      textEditingController1,
+      value: convertedValue,
+    );
   }
 
   void onValueChanged(double? value) {
     if (_currentFocusNode == focusNode1) {
       //Value of first controller changed
-      if (value == null) {
-        textEditingController2.clear();
-        return;
-      }
-
-      final convertedValue = value.convertFromTo(_unit1, _unit2);
-      textEditingController2.text = (convertedValue == null)
-          ? ''
-          : numberFormatter.format(convertedValue);
+      final convertedValue = value?.convertFromTo(_unit1, _unit2);
+      _setControllerValue(
+        textEditingController2,
+        value: convertedValue,
+      );
     } else if (_currentFocusNode == focusNode2) {
       //Value of second controller changed
-      if (value == null) {
-        textEditingController1.clear();
-        return;
-      }
-
-      final convertedValue = value.convertFromTo(_unit2, _unit1);
-      textEditingController1.text = (convertedValue == null)
-          ? ''
-          : numberFormatter.format(convertedValue);
+      final convertedValue = value?.convertFromTo(_unit2, _unit1);
+      _setControllerValue(
+        textEditingController1,
+        value: convertedValue,
+      );
     }
   }
 
   void _onFocusNodeChanged() {
     if (focusNode1.hasFocus) {
-      log('Focus 1');
       _currentController = textEditingController1;
       _currentFocusNode = focusNode1;
     } else if (focusNode2.hasFocus) {
-      log('Focus 2');
       _currentController = textEditingController2;
       _currentFocusNode = focusNode2;
     } else {
@@ -153,5 +133,20 @@ class UnitConverterViewModel extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  void _setControllerValue(
+    TextEditingController controller, {
+    required double? value,
+  }) {
+    if (value == null) {
+      controller.clear();
+      return;
+    }
+
+    final formattedValue = numberFormatterMedium.format(value);
+    controller.text = formattedValue.startsWith('-')
+        ? CalculatorConstants.subtraction + formattedValue.substring(1)
+        : formattedValue;
   }
 }

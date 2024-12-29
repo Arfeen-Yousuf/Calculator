@@ -105,6 +105,8 @@ class UnitConverterScreen extends StatelessWidget {
                     controller: viewModelRead.currentController!,
                     focusNode: viewModelRead.currentFocusNode,
                     onValueChanged: viewModelRead.onValueChanged,
+                    allowNegativeNumbers:
+                        (viewModelRead.property == PROPERTY.temperature),
                   ),
                 ),
             ],
