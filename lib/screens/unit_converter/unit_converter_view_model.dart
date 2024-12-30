@@ -59,6 +59,7 @@ class UnitConverterViewModel extends ChangeNotifier {
 
     textEditingController1.clear();
     textEditingController2.clear();
+
     notifyListeners();
   }
 
@@ -84,6 +85,8 @@ class UnitConverterViewModel extends ChangeNotifier {
       textEditingController2,
       value: convertedValue,
     );
+
+    notifyListeners();
   }
 
   void onUnitType2Changed(Enum massType) {
@@ -100,6 +103,8 @@ class UnitConverterViewModel extends ChangeNotifier {
       textEditingController1,
       value: convertedValue,
     );
+
+    notifyListeners();
   }
 
   void onValueChanged(double? value) {
