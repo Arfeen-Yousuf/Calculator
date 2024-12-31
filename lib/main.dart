@@ -98,6 +98,7 @@ class MyApp extends StatelessWidget {
           appBarBackground: AppColorsLight.appBarBackground,
           scaffoldBackground: AppColorsLight.scaffoldBackground,
           primaryText: AppColorsLight.primaryText,
+          optionsBackground: AppColorsLight.optionsBackground,
 
           //Calculator page
           result: AppColorsLight.result,
@@ -138,6 +139,7 @@ class MyApp extends StatelessWidget {
           appBarBackground: AppColorsDark.appBarBackground,
           scaffoldBackground: null,
           primaryText: AppColorsDark.primaryText,
+          optionsBackground: AppColorsDark.optionsBackground,
 
           //Calculator page
           result: AppColorsDark.result,

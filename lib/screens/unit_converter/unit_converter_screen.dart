@@ -13,6 +13,27 @@ import 'unit_converter_view_model.dart';
 class UnitConverterScreen extends StatelessWidget {
   const UnitConverterScreen({super.key});
 
+  static const List<PROPERTY> properties = [
+    PROPERTY.length,
+    PROPERTY.mass,
+    PROPERTY.area,
+    PROPERTY.volume,
+    PROPERTY.time,
+    PROPERTY.speed,
+    PROPERTY.temperature,
+    PROPERTY.digitalData,
+  ];
+  static const Map<PROPERTY, SvgIconData> propertiesIcons = {
+    PROPERTY.length: SvgIconData.length,
+    PROPERTY.mass: SvgIconData.mass,
+    PROPERTY.area: SvgIconData.area,
+    PROPERTY.volume: SvgIconData.volume,
+    PROPERTY.time: SvgIconData.time,
+    PROPERTY.speed: SvgIconData.speed,
+    PROPERTY.temperature: SvgIconData.temperature,
+    PROPERTY.digitalData: SvgIconData.data,
+  };
+
   @override
   Widget build(BuildContext context) {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
@@ -23,12 +44,8 @@ class UnitConverterScreen extends StatelessWidget {
     final selectQuantityTypeButton = FilledButton(
       onPressed: () => _showPropertyPicker(context),
       style: FilledButton.styleFrom(
-        backgroundColor: Colors.transparent,
+        backgroundColor: appColors.optionsBackground,
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            color: isLightTheme ? Colors.black : Colors.white,
-            width: 1,
-          ),
           borderRadius: BorderRadius.circular(10),
         ),
         padding: const EdgeInsets.all(12),
@@ -36,6 +53,12 @@ class UnitConverterScreen extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SvgIcon(
+            propertiesIcons[viewModelRead.property]!,
+            size: 20,
+            color: appColors.primary,
+          ),
+          const SizedBox(width: 10),
           Text(
             enumToNormal(viewModelRead.property),
             style: TextTheme.of(context).labelLarge?.copyWith(
@@ -136,26 +159,6 @@ class UnitConverterScreen extends StatelessWidget {
     final viewModelRead = context.read<UnitConverterViewModel>();
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    final List<PROPERTY> properties = [
-      PROPERTY.length,
-      PROPERTY.mass,
-      PROPERTY.area,
-      PROPERTY.volume,
-      PROPERTY.time,
-      PROPERTY.speed,
-      PROPERTY.temperature,
-      PROPERTY.digitalData,
-    ];
-    final Map<PROPERTY, SvgIconData> propertiesIcons = {
-      PROPERTY.length: SvgIconData.length,
-      PROPERTY.mass: SvgIconData.mass,
-      PROPERTY.area: SvgIconData.area,
-      PROPERTY.volume: SvgIconData.volume,
-      PROPERTY.time: SvgIconData.time,
-      PROPERTY.speed: SvgIconData.speed,
-      PROPERTY.temperature: SvgIconData.temperature,
-      PROPERTY.digitalData: SvgIconData.data,
-    };
     final Map<String, Widget> propertiesWidgets = propertiesIcons.map(
       (prop, asset) => MapEntry(
         enumToNormal(prop),
