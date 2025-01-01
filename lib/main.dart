@@ -70,7 +70,6 @@ class MyApp extends StatelessWidget {
       darkTheme: darkThemeData(context),
       themeMode: ThemeMode.system,
       home: const CalculatorScreen(),
-      //home: const UnitConverterScreen(),
     );
   }
 
@@ -99,6 +98,7 @@ class MyApp extends StatelessWidget {
           appBarBackground: AppColorsLight.appBarBackground,
           scaffoldBackground: AppColorsLight.scaffoldBackground,
           primaryText: AppColorsLight.primaryText,
+          optionsBackground: AppColorsLight.optionsBackground,
 
           //Calculator page
           result: AppColorsLight.result,
@@ -137,8 +137,9 @@ class MyApp extends StatelessWidget {
           //General
           primary: AppColorsDark.primary,
           appBarBackground: AppColorsDark.appBarBackground,
-          scaffoldBackground: AppColorsDark.scaffoldBackground,
+          scaffoldBackground: null,
           primaryText: AppColorsDark.primaryText,
+          optionsBackground: AppColorsDark.optionsBackground,
 
           //Calculator page
           result: AppColorsDark.result,

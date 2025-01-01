@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +23,13 @@ final List<String> months = List.generate(
 
 String dateToString(DateTime date) => DateFormat('MMM dd, yyyy').format(date);
 
+///Format a number upto 5 decimal places
 final numberFormatter = NumberFormat('#,##0.#####');
+
+///Format a number upto 8 decimal places
+final numberFormatterMedium = NumberFormat('#,##0.########');
+
+///Format a number upto 10 decimal places
 final numberFormatterLong = NumberFormat('#,##0.############');
 
 bool isSimpleNumber(String str) {
@@ -36,14 +43,14 @@ double? roundToDecimalPlaces(
 ) =>
     double.parse(value.toStringAsFixed(decimalPlaces));
 
-String enumToNormal(String input) {
-  final dotIndex = input.indexOf('.');
-  return camelCaseToNormal(input.substring(dotIndex + 1));
+String enumToNormal(Enum input) {
+  final inputStr = '$input';
+  final dotIndex = inputStr.indexOf('.');
+  return camelCaseToNormal(inputStr.substring(dotIndex + 1));
 }
 
-List<String> enumListToNormal(List<dynamic> enumValues) {
-  return enumValues.map((e) => enumToNormal('$e')).toList();
-}
+List<String> enumListToNormal(List<Enum> enumValues) =>
+    enumValues.map(enumToNormal).toList();
 
 String camelCaseToNormal(String input) {
   // Add a space before each uppercase letter except the first one
@@ -55,3 +62,6 @@ String camelCaseToNormal(String input) {
   // Convert the first letter to uppercase and the rest to lowercase
   return spaced[0].toUpperCase() + spaced.substring(1).toLowerCase();
 }
+
+Future<void> copyTextToClipboard(String str) async =>
+    await Clipboard.setData(ClipboardData(text: str));

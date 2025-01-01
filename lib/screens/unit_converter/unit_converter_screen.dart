@@ -2,6 +2,7 @@ import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/ui_helper.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
+import 'package:calculator/widgets/svg_icon.dart';
 import 'package:calculator/widgets/text_field_with_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,27 @@ import 'unit_converter_view_model.dart';
 
 class UnitConverterScreen extends StatelessWidget {
   const UnitConverterScreen({super.key});
+
+  static const List<PROPERTY> properties = [
+    PROPERTY.length,
+    PROPERTY.mass,
+    PROPERTY.area,
+    PROPERTY.volume,
+    PROPERTY.time,
+    PROPERTY.speed,
+    PROPERTY.temperature,
+    PROPERTY.digitalData,
+  ];
+  static const Map<PROPERTY, SvgIconData> propertiesIcons = {
+    PROPERTY.length: SvgIconData.length,
+    PROPERTY.mass: SvgIconData.mass,
+    PROPERTY.area: SvgIconData.area,
+    PROPERTY.volume: SvgIconData.volume,
+    PROPERTY.time: SvgIconData.time,
+    PROPERTY.speed: SvgIconData.speed,
+    PROPERTY.temperature: SvgIconData.temperature,
+    PROPERTY.digitalData: SvgIconData.data,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +44,8 @@ class UnitConverterScreen extends StatelessWidget {
     final selectQuantityTypeButton = FilledButton(
       onPressed: () => _showPropertyPicker(context),
       style: FilledButton.styleFrom(
-        backgroundColor: Colors.transparent,
+        backgroundColor: appColors.optionsBackground,
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-            color: isLightTheme ? Colors.black : Colors.white,
-            width: 1,
-          ),
           borderRadius: BorderRadius.circular(10),
         ),
         padding: const EdgeInsets.all(12),
@@ -35,8 +53,14 @@ class UnitConverterScreen extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SvgIcon(
+            propertiesIcons[viewModelRead.property]!,
+            size: 20,
+            color: appColors.primary,
+          ),
+          const SizedBox(width: 10),
           Text(
-            enumToNormal('${viewModelRead.property}'),
+            enumToNormal(viewModelRead.property),
             style: TextTheme.of(context).labelLarge?.copyWith(
                   color: appColors.primaryText,
                   fontSize: 20,
@@ -70,20 +94,28 @@ class UnitConverterScreen extends StatelessWidget {
                     TextFieldWithOptions(
                       controller: viewModelRead.textEditingController1,
                       focusNode: viewModelRead.focusNode1,
-                      title: enumToNormal('${viewModelRead.property}'),
-                      currentOption: enumToNormal('${viewModelRead.unit1}'),
-                      options: enumListToNormal(viewModelRead.allUnits),
+                      title:
+                          _getEnumWithSymbol(context, viewModelRead.property),
+                      currentOption:
+                          _getEnumWithSymbol(context, viewModelRead.unit1),
+                      options: viewModelRead.allUnits
+                          .map((enu) => _getEnumWithSymbol(context, enu))
+                          .toList(),
                       onOptionSelected: (ind) =>
-                          onOption1Changed(context, index: ind),
+                          _onOption1Changed(context, index: ind),
                     ),
                     TextFieldWithOptions(
                       controller: viewModelRead.textEditingController2,
                       focusNode: viewModelRead.focusNode2,
-                      title: enumToNormal('${viewModelRead.property}'),
-                      currentOption: enumToNormal('${viewModelRead.unit2}'),
-                      options: enumListToNormal(viewModelRead.allUnits),
+                      title:
+                          _getEnumWithSymbol(context, viewModelRead.property),
+                      currentOption:
+                          _getEnumWithSymbol(context, viewModelRead.unit2),
+                      options: viewModelRead.allUnits
+                          .map((enu) => _getEnumWithSymbol(context, enu))
+                          .toList(),
                       onOptionSelected: (ind) =>
-                          onOption2Changed(context, index: ind),
+                          _onOption2Changed(context, index: ind),
                     ),
                   ],
                 ),
@@ -96,6 +128,8 @@ class UnitConverterScreen extends StatelessWidget {
                     controller: viewModelRead.currentController!,
                     focusNode: viewModelRead.currentFocusNode,
                     onValueChanged: viewModelRead.onValueChanged,
+                    allowNegativeNumbers:
+                        (viewModelRead.property == PROPERTY.temperature),
                   ),
                 ),
             ],
@@ -105,44 +139,50 @@ class UnitConverterScreen extends StatelessWidget {
     );
   }
 
-  void onOption1Changed(
+  void _onOption1Changed(
     BuildContext context, {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.onMassType1Changed(viewModelRead.allUnits[index]);
+    viewModelRead.onUnitType1Changed(viewModelRead.allUnits[index]);
   }
 
-  void onOption2Changed(
+  void _onOption2Changed(
     BuildContext context, {
     required int index,
   }) {
     final viewModelRead = context.read<UnitConverterViewModel>();
-    viewModelRead.onMassType2Changed(viewModelRead.allUnits[index]);
+    viewModelRead.onUnitType2Changed(viewModelRead.allUnits[index]);
   }
 
   void _showPropertyPicker(BuildContext context) async {
-    final List<PROPERTY> properties = [
-      PROPERTY.length,
-      PROPERTY.mass,
-      PROPERTY.area,
-      PROPERTY.volume,
-      PROPERTY.time,
-      PROPERTY.speed,
-      PROPERTY.temperature,
-      PROPERTY.digitalData,
-    ];
-
     final viewModelRead = context.read<UnitConverterViewModel>();
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    final Map<String, Widget> propertiesWidgets = propertiesIcons.map(
+      (prop, asset) => MapEntry(
+        enumToNormal(prop),
+        SvgIcon(
+          asset,
+          size: 28,
+          color: (viewModelRead.property == prop) ? appColors.primary : null,
+        ),
+      ),
+    );
 
     await showOptionsBottomSheet(
       context,
       title: 'Select Unit',
+      leading: propertiesWidgets,
       options: enumListToNormal(properties),
-      currentOption: enumToNormal('${viewModelRead.property}'),
-      onOptionSelected: (index) {
-        viewModelRead.setProperty(properties[index]);
-      },
+      currentOption: enumToNormal(viewModelRead.property),
+      onOptionSelected: (index) => viewModelRead.setProperty(properties[index]),
     );
+  }
+
+  String _getEnumWithSymbol(BuildContext context, Enum enu) {
+    final unitSymbol =
+        context.read<UnitConverterViewModel>().allUnitsMapSymbols?[enu];
+    return enumToNormal(enu) + ((unitSymbol != null) ? ' ($unitSymbol)' : '');
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 Future<int?> showOptionsBottomSheet(
   BuildContext context, {
   String? title,
+  Map<String, Widget?>? leading,
   required List<String> options,
   String? currentOption,
   required void Function(int index) onOptionSelected,
@@ -52,40 +53,34 @@ Future<int?> showOptionsBottomSheet(
                 ],
               ),
               Expanded(
-                child: ListView.separated(
-                  itemCount: options.length,
-                  itemBuilder: (_, index) {
-                    final String option = options[index];
-                    final textStyle =
-                        TextTheme.of(context).labelMedium?.copyWith(
-                              color: (currentOption == option)
-                                  ? appColors.primary
-                                  : appColors.primaryText,
-                              fontSize: 16,
-                            );
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  child: ListView.separated(
+                    itemCount: options.length,
+                    itemBuilder: (_, index) {
+                      final String option = options[index];
+                      final textStyle =
+                          TextTheme.of(context).titleMedium?.copyWith(
+                                color: (currentOption == option)
+                                    ? appColors.primary
+                                    : appColors.primaryText,
+                                fontSize: 16,
+                              );
 
-                    return FilledButton.tonal(
-                      onPressed: () {
-                        onOptionSelected(index);
-                        Navigator.pop(context, index);
-                      },
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        backgroundColor: Colors.transparent,
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            option,
-                            style: textStyle,
-                            textAlign: TextAlign.left,
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                    );
-                  },
-                  separatorBuilder: (_, __) => const Divider(),
+                      return ListTile(
+                        leading: leading?[option],
+                        title: Text(option),
+                        selected: (currentOption == option),
+                        selectedColor: appColors.primary,
+                        titleTextStyle: textStyle,
+                        onTap: () {
+                          onOptionSelected(index);
+                          Navigator.pop(context, index);
+                        },
+                      );
+                    },
+                    separatorBuilder: (_, __) => const Divider(),
+                  ),
                 ),
               ),
             ],

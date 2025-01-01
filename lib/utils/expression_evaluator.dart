@@ -62,7 +62,13 @@ class ExpressionEvaluator {
     try {
       dev.log('Expression Interpreting $expr');
       final result = expr.interpret();
-      if (result > pow(10, 13)) {
+
+      final tenPower15 = pow(10, 15);
+      if (result > tenPower15) return double.infinity;
+      if (result < -tenPower15) return double.negativeInfinity;
+      if (result.abs() < pow(10, -8)) return 0;
+
+      if (result.abs() > pow(10, 13)) {
         dev.log('Large Result $result');
         return (result.toDouble() * 1000).truncate() / 1000;
       }

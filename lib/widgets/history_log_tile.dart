@@ -6,7 +6,6 @@ import 'package:calculator/screens/history/history_view_model.dart';
 import 'package:calculator/services/history_database.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -59,11 +58,8 @@ class HistoryLogTile extends StatelessWidget {
       leading: const Icon(Icons.copy),
       contentPadding: EdgeInsets.zero,
       onTap: () async {
-        await Clipboard.setData(
-          ClipboardData(
-            text:
-                'Expression:\n${historyLog.expression}\nResult:\n${historyLog.result}',
-          ),
+        await copyTextToClipboard(
+          'Expression:\n${historyLog.expression}\nResult:\n${historyLog.result}',
         );
         showToast('Expression and result copied.');
       },

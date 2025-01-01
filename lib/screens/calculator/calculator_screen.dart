@@ -3,6 +3,7 @@ import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
+import 'package:calculator/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,7 @@ class CalculatorScreen extends StatelessWidget {
           ),
         );
       },
-      icon: const Icon(Icons.transform_rounded),
+      icon: const SvgIcon(SvgIconData.ruler),
     );
 
     final textField = Container(
@@ -53,16 +54,21 @@ class CalculatorScreen extends StatelessWidget {
 
     final viewModelResult = context.watch<CalculatorViewModel>().result;
     final bool showResult =
-        (isSimpleNumber(viewModelRead.textEditingController.text) ||
+        !(isSimpleNumber(viewModelRead.textEditingController.text) ||
             viewModelResult.toString().contains(nanString) ||
             viewModelResult == double.infinity ||
             viewModelResult == double.negativeInfinity);
-    final Widget result = showResult
+    final Widget result = !showResult
         ? const SizedBox()
         : FittedBox(
-            child: Text(
-              numberFormatter.format(viewModelResult),
-              style: TextStyle(color: appColors.result),
+            child: GestureDetector(
+              onLongPress: () async => await copyTextToClipboard(
+                numberFormatter.format(viewModelResult),
+              ),
+              child: Text(
+                numberFormatter.format(viewModelResult),
+                style: TextStyle(color: appColors.result),
+              ),
             ),
           );
 
@@ -104,7 +110,9 @@ class CalculatorScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculator'),
+        title: Text(
+          '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
+        ),
         actions: [unitConverterButton, historyButton],
       ),
       body: SafeArea(
