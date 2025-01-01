@@ -54,16 +54,17 @@ class CalculatorScreen extends StatelessWidget {
 
     final viewModelResult = context.watch<CalculatorViewModel>().result;
     final bool showResult =
-        (isSimpleNumber(viewModelRead.textEditingController.text) ||
+        !(isSimpleNumber(viewModelRead.textEditingController.text) ||
             viewModelResult.toString().contains(nanString) ||
             viewModelResult == double.infinity ||
             viewModelResult == double.negativeInfinity);
-    final Widget result = showResult
+    final Widget result = !showResult
         ? const SizedBox()
         : FittedBox(
             child: GestureDetector(
               onLongPress: () async => await copyTextToClipboard(
-                  numberFormatter.format(viewModelResult)),
+                numberFormatter.format(viewModelResult),
+              ),
               child: Text(
                 numberFormatter.format(viewModelResult),
                 style: TextStyle(color: appColors.result),
