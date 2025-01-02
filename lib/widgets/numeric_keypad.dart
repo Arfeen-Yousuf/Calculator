@@ -14,12 +14,14 @@ class NumericKeypad extends StatelessWidget {
     this.focusNode,
     this.onValueChanged,
     this.allowNegativeNumbers = true,
+    this.percentageOnly = false,
   });
 
   final TextEditingController controller;
   final FocusNode? focusNode;
   final void Function(double?)? onValueChanged;
   final bool allowNegativeNumbers;
+  final bool percentageOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -113,9 +115,12 @@ class NumericKeypad extends StatelessWidget {
         .toList();
 
     // Return the column containing all rows
-    return Column(
-      spacing: 8,
-      children: rows,
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        spacing: 8,
+        children: rows,
+      ),
     );
   }
 
@@ -137,14 +142,24 @@ class NumericKeypad extends StatelessWidget {
       final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
           ? text.substring(1)
           : text;
+
       if (textWithoutSign.length >= 12) {
         showToast('You can enter upto 12 integers.');
         return;
       }
+      if (percentageOnly && textWithoutSign.length >= 2) {
+        showToast('You can enter upto 99.99%');
+        return;
+      }
     } else {
       final decimalPart = text.substring(dotIndex + 1);
+
       if (decimalPart.length >= 10) {
         showToast('You can enter upto 10 decimals.');
+        return;
+      }
+      if (percentageOnly && decimalPart.length >= 2) {
+        showToast('You can enter upto 2 decimals.');
         return;
       }
     }

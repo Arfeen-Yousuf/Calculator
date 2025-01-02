@@ -9,6 +9,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.scaffoldBackground,
     required this.primaryText,
     required this.optionsBackground,
+    required this.resultsBackground,
 
     // Calculator Page
     required this.result,
@@ -31,6 +32,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? scaffoldBackground;
   final Color? primaryText;
   final Color? optionsBackground;
+  final Color? resultsBackground;
 
   // Calculator Page
   final Color? result;
@@ -54,6 +56,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? scaffoldBackground,
     Color? primaryText,
     Color? optionsBackground,
+    Color? resultsBackground,
 
     // Calculator Page
     Color? result,
@@ -76,6 +79,7 @@ class AppColors extends ThemeExtension<AppColors> {
       scaffoldBackground: scaffoldBackground ?? this.scaffoldBackground,
       primaryText: primaryText ?? this.primaryText,
       optionsBackground: optionsBackground ?? this.optionsBackground,
+      resultsBackground: resultsBackground ?? this.resultsBackground,
 
       // Calculator Page
       result: result ?? this.result,
@@ -115,6 +119,8 @@ class AppColors extends ThemeExtension<AppColors> {
       primaryText: Color.lerp(primaryText, other.primaryText, t),
       optionsBackground:
           Color.lerp(optionsBackground, other.optionsBackground, t),
+      resultsBackground:
+          Color.lerp(resultsBackground, other.resultsBackground, t),
 
       // Calculator Page
       result: Color.lerp(result, other.result, t),
@@ -172,6 +178,7 @@ class AppColorsLight {
   static const Color scaffoldBackground = Colors.white;
   static const Color primaryText = Colors.black;
   static const Color optionsBackground = Color(0xFFF1F1F1);
+  static const Color resultsBackground = Color(0xFFF1F1F1);
 
   // Calculator Page
   static const Color result = Color(0xFFAFAFAF);
@@ -195,6 +202,7 @@ class AppColorsDark {
   static const Color appBarBackground = Color(0xFF141118);
   static const Color primaryText = Colors.white;
   static const Color optionsBackground = Color(0xFF222222);
+  static const Color resultsBackground = Color(0xFF222222);
 
   // Calculator Page
   static const Color result = Color(0xFFAFAFAF);
