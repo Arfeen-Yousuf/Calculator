@@ -1,9 +1,8 @@
 import 'package:calculator/app/colors.dart';
-import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
-import 'package:calculator/widgets/svg_icon.dart';
+import 'package:calculator/widgets/my_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,16 +22,6 @@ class CalculatorScreen extends StatelessWidget {
     final historyButton = IconButton(
       onPressed: () => viewModelRead.onHistoryButtonTapped(context),
       icon: const Icon(Icons.history_rounded),
-    );
-    final unitConverterButton = IconButton(
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const UnitConverterScreen(),
-          ),
-        );
-      },
-      icon: const SvgIcon(SvgIconData.ruler),
     );
 
     final textField = Container(
@@ -113,7 +102,7 @@ class CalculatorScreen extends StatelessWidget {
         title: Text(
           '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
         ),
-        actions: [unitConverterButton, historyButton],
+        actions: [historyButton],
       ),
       body: SafeArea(
         child: Padding(
@@ -149,6 +138,7 @@ class CalculatorScreen extends StatelessWidget {
           ),
         ),
       ),
+      drawer: const MyDrawer(),
     );
   }
 }
