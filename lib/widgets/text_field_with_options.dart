@@ -1,6 +1,7 @@
-import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/ui_helper.dart';
 import 'package:flutter/material.dart';
+
+import 'number_text_field.dart';
 
 class TextFieldWithOptions extends StatelessWidget {
   const TextFieldWithOptions({
@@ -22,8 +23,6 @@ class TextFieldWithOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,31 +44,9 @@ class TextFieldWithOptions extends StatelessWidget {
           ),
           iconAlignment: IconAlignment.end,
         ),
-        TextField(
+        NumberTextField(
           controller: controller,
           focusNode: focusNode,
-          keyboardType: TextInputType.none,
-          textAlign: TextAlign.right,
-          style: const TextStyle(fontSize: 20),
-          enableInteractiveSelection: false,
-          decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: appColors.primary ?? Colors.black,
-                width: 2.0,
-              ),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(10),
-              ),
-            ),
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(10),
-              ),
-            ),
-          ),
         ),
       ],
     );
