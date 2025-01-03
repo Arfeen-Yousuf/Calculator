@@ -8,6 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
 import 'app/colors.dart';
+import 'screens/date_calculator/date_calculator_view_model.dart';
 import 'screens/discount_calculator/discount_calculator_view_model.dart';
 import 'screens/unit_converter/unit_converter_view_model.dart';
 import 'utils/constants.dart';
@@ -55,6 +56,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CalculatorViewModel()),
         ChangeNotifierProvider(create: (_) => UnitConverterViewModel()),
         ChangeNotifierProvider(create: (_) => DiscountCalculatorViewModel()),
+        ChangeNotifierProvider(create: (_) => DateCalculatorViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -102,6 +104,7 @@ class MyApp extends StatelessWidget {
           primaryText: AppColorsLight.primaryText,
           optionsBackground: AppColorsLight.optionsBackground,
           resultsBackground: AppColorsLight.resultsBackground,
+          hintText: AppColorsLight.hintText,
 
           //Calculator page
           result: AppColorsLight.result,
@@ -144,6 +147,7 @@ class MyApp extends StatelessWidget {
           primaryText: AppColorsDark.primaryText,
           optionsBackground: AppColorsDark.optionsBackground,
           resultsBackground: AppColorsDark.resultsBackground,
+          hintText: AppColorsDark.hintText,
 
           //Calculator page
           result: AppColorsDark.result,

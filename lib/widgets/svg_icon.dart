@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 const _assetsBasePath = 'assets/svg_icons/';
 
 enum SvgIconData {
+  calendar('calendar'),
   length('length'),
   mass('mass'),
   area('area'),
@@ -33,13 +34,14 @@ class SvgIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final svgColor = color ?? IconTheme.of(context).color;
+    late final isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final svgColor = color ?? (isLightTheme ? Colors.black : Colors.white);
 
     return SvgPicture.asset(
       iconData.path,
       height: size,
       width: size,
-      colorFilter: ColorFilter.mode(svgColor!, BlendMode.srcIn),
+      colorFilter: ColorFilter.mode(svgColor, BlendMode.srcIn),
     );
   }
 }

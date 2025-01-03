@@ -1,4 +1,5 @@
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/screens/date_calculator/date_calculator_screen.dart';
 import 'package:calculator/screens/discount_calculator/discount_calculator_screen.dart';
 import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,11 @@ class MyDrawer extends StatelessWidget {
             leadingSvgIconData: SvgIconData.discount,
             title: 'Discount Calculator',
             destination: DiscountCalculatorScreen(),
+          ),
+          const _DrawerListTile(
+            leadingSvgIconData: SvgIconData.calendar,
+            title: 'Date Calculator',
+            destination: DateCalculatorScreen(),
           ),
         ],
       ),
