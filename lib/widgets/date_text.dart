@@ -22,7 +22,7 @@ class DateText extends StatelessWidget {
     } else if (now.difference(truncatedDate).inDays == 1) {
       toShow = 'Yesterday';
     } else {
-      toShow = dateToString(dateTime);
+      toShow = dateToString(dateTime)!;
     }
 
     return Text(toShow, style: style);

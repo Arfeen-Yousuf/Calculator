@@ -1,6 +1,8 @@
-import 'package:calculator/app/colors.dart';
+import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/date_field.dart';
 import 'package:calculator/widgets/number_text_field.dart';
+import 'package:calculator/widgets/numeric_keypad.dart';
+import 'package:calculator/widgets/results_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,19 +13,25 @@ class DateCalculatorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
     final viewModelRead = context.read<DateCalculatorViewModel>();
 
     final Widget startDateField = DateField(
       label: 'From Date',
+      dateTime: viewModelRead.startDate,
+      onDateTimeChanged: viewModelRead.onStartDateChanged,
     );
     final Widget durationField = NumberTextField(
       controller: viewModelRead.durationController,
       focusNode: viewModelRead.durationFocusNode,
       label: 'Duration (days)',
     );
-    final Widget endDateField = DateField(
-      label: 'To Date',
+    final Widget endDateResult = ResultsCard(
+      results: [
+        MapEntry(
+          'To Date',
+          dateToString(context.watch<DateCalculatorViewModel>().endDate),
+        ),
+      ],
     );
 
     return Scaffold(
@@ -32,12 +40,35 @@ class DateCalculatorScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              startDateField,
-              durationField,
-              endDateField,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 15,
+                    children: [
+                      startDateField,
+                      durationField,
+                      endDateResult,
+                    ],
+                  ),
+                ),
+              ),
+              if (context
+                  .watch<DateCalculatorViewModel>()
+                  .durationFocusNode
+                  .hasFocus)
+                Expanded(
+                  child: NumericKeypad(
+                    controller: viewModelRead.durationController,
+                    focusNode: viewModelRead.durationFocusNode,
+                    onValueChanged: (double? val) =>
+                        viewModelRead.onDurationChanged(val?.toInt()),
+                    integersOnly: true,
+                    maxIntegers: 4,
+                  ),
+                ),
             ],
           ),
         ),

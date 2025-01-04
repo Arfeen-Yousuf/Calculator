@@ -92,8 +92,11 @@ class MyApp extends StatelessWidget {
           ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColorsDark.primary,
+          foregroundColor: AppColorsLight.primary,
         ),
+      ),
+      datePickerTheme: const DatePickerThemeData(
+        backgroundColor: AppColorsLight.scaffoldBackground,
       ),
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(
@@ -104,7 +107,6 @@ class MyApp extends StatelessWidget {
           primaryText: AppColorsLight.primaryText,
           optionsBackground: AppColorsLight.optionsBackground,
           resultsBackground: AppColorsLight.resultsBackground,
-          hintText: AppColorsLight.hintText,
 
           //Calculator page
           result: AppColorsLight.result,
@@ -147,7 +149,6 @@ class MyApp extends StatelessWidget {
           primaryText: AppColorsDark.primaryText,
           optionsBackground: AppColorsDark.optionsBackground,
           resultsBackground: AppColorsDark.resultsBackground,
-          hintText: AppColorsDark.hintText,
 
           //Calculator page
           result: AppColorsDark.result,

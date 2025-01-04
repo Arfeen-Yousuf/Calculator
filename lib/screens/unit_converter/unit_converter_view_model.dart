@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +111,7 @@ class UnitConverterViewModel extends ChangeNotifier {
 
   void onValueChanged(double? value) {
     if (_currentFocusNode == focusNode1) {
+      log('Controller 1 value $value');
       //Value of first controller changed
       final convertedValue = value?.convertFromTo(_unit1, _unit2);
       _setControllerValue(
@@ -116,6 +119,7 @@ class UnitConverterViewModel extends ChangeNotifier {
         value: convertedValue,
       );
     } else if (_currentFocusNode == focusNode2) {
+      log('Controller 2 value $value');
       //Value of second controller changed
       final convertedValue = value?.convertFromTo(_unit2, _unit1);
       _setControllerValue(

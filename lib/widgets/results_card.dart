@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ResultsCard extends StatelessWidget {
   const ResultsCard({super.key, required this.results});
 
-  final List<MapEntry<String, double?>> results;
+  final List<MapEntry<String, Object?>> results;
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +38,17 @@ class ResultsCard extends StatelessWidget {
             child: Column(
               spacing: 8,
               children: results.map((entry) {
+                final entryValue = entry.value;
+                final String? entryValueStr = (entryValue is double)
+                    ? entryValue.toStringAsFixed(2)
+                    : entryValue?.toString();
+
                 return Row(
                   children: [
                     Text(entry.key, style: keyTextStyle),
                     const Spacer(),
                     Text(
-                      entry.value?.toStringAsFixed(2) ?? '--',
+                      entryValueStr ?? '--',
                       style: valueTextStyle,
                     ),
                   ],

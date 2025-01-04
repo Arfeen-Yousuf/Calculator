@@ -15,13 +15,17 @@ class NumericKeypad extends StatelessWidget {
     this.onValueChanged,
     this.allowNegativeNumbers = true,
     this.percentageOnly = false,
+    this.integersOnly = false,
+    this.maxIntegers = 12,
   });
 
   final TextEditingController controller;
   final FocusNode? focusNode;
-  final void Function(double?)? onValueChanged;
+  final ValueChanged<double?>? onValueChanged;
   final bool allowNegativeNumbers;
   final bool percentageOnly;
+  final bool integersOnly;
+  final int maxIntegers;
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +65,13 @@ class NumericKeypad extends StatelessWidget {
       backgroundColor: appColors.primary,
       largeFontSize: true,
     );
-    final dotButton = GridButton(
-      onPressed: addDot,
-      text: '.',
-      largeFontSize: true,
-    );
+    final dotButton = integersOnly
+        ? Container()
+        : GridButton(
+            onPressed: addDot,
+            text: '.',
+            largeFontSize: true,
+          );
     final toogleSignButton = GridButton(
         onPressed: allowNegativeNumbers ? toogleSign : null,
         text: '+/${CalculatorConstants.subtraction}',
@@ -143,8 +149,8 @@ class NumericKeypad extends StatelessWidget {
           ? text.substring(1)
           : text;
 
-      if (textWithoutSign.length >= 12) {
-        showToast('You can enter upto 12 integers.');
+      if (textWithoutSign.length >= maxIntegers) {
+        showToast('You can enter upto $maxIntegers integers.');
         return;
       }
       if (percentageOnly && textWithoutSign.length >= 2) {
@@ -188,8 +194,8 @@ class NumericKeypad extends StatelessWidget {
       final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
           ? text.substring(1)
           : text;
-      if (textWithoutSign.length >= 11) {
-        showToast('You can enter upto 12 integers.');
+      if (textWithoutSign.length >= maxIntegers) {
+        showToast('You can enter upto $maxIntegers integers.');
         return;
       }
     } else {
@@ -250,7 +256,13 @@ class NumericKeypad extends StatelessWidget {
   void backspace() {
     final text = controller.text;
     if (text.isEmpty) return;
+    if (text.length == 1) clear();
+
     controller.text = text.substring(0, text.length - 1);
+    if (controller.text == CalculatorConstants.subtraction) {
+      onValueChanged?.call(null);
+      return;
+    }
 
     finalStep();
   }
