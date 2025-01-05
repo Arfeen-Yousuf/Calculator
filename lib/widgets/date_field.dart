@@ -88,7 +88,6 @@ class DateField extends StatelessWidget {
       lastDate: DateTime(2100, 12, 31),
     );
     if (pickedDate != null) onDateTimeChanged(pickedDate);
-    log('View model date picked $pickedDate');
     */
   }
 

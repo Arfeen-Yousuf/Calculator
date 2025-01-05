@@ -57,7 +57,6 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? primaryText,
     Color? optionsBackground,
     Color? resultsBackground,
-    Color? hintText,
 
     // Calculator Page
     Color? result,
