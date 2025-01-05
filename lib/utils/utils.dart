@@ -21,7 +21,10 @@ final List<String> months = List.generate(
   (index) => DateFormat.MMM().format(DateTime(0, index + 1)),
 );
 
-String dateToString(DateTime date) => DateFormat('MMM dd, yyyy').format(date);
+String? dateToString(DateTime? date) {
+  if (date == null) return null;
+  return DateFormat('MMM dd, yyyy').format(date);
+}
 
 ///Format a number upto 5 decimal places
 final numberFormatter = NumberFormat('#,##0.#####');
