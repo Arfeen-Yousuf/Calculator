@@ -11,6 +11,7 @@ import 'screens/calculator/calculator_view_model.dart';
 import 'screens/date_calculator/duration/date_duration_calculator_view_model.dart';
 import 'screens/date_calculator/from_to/date_from_to_calculator_view_model.dart';
 import 'screens/discount_calculator/discount_calculator_view_model.dart';
+import 'screens/fuel_calculator/fuel_calculator_view_model.dart';
 import 'screens/unit_converter/unit_converter_view_model.dart';
 import 'utils/constants.dart';
 
@@ -61,6 +62,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => DateDurationCalculatorViewModel(),
         ),
+        ChangeNotifierProvider(create: (_) => FuelCalculatorViewModel()),
       ],
       child: const MyApp(),
     ),

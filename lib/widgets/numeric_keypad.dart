@@ -145,9 +145,10 @@ class NumericKeypad extends StatelessWidget {
 
     final dotIndex = text.indexOf('.');
     if (dotIndex == -1) {
-      final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
+      String textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
           ? text.substring(1)
           : text;
+      textWithoutSign = textWithoutSign.replaceAll(',', '');
 
       if (textWithoutSign.length >= maxIntegers) {
         showToast('You can enter upto $maxIntegers integers.');
@@ -194,13 +195,13 @@ class NumericKeypad extends StatelessWidget {
       final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
           ? text.substring(1)
           : text;
-      if (textWithoutSign.length >= maxIntegers) {
+      if (textWithoutSign.replaceAll(',', '').length >= maxIntegers - 1) {
         showToast('You can enter upto $maxIntegers integers.');
         return;
       }
     } else {
       final decimalPart = text.substring(dotIndex + 1);
-      if (decimalPart.length >= 9) {
+      if (decimalPart.length >= 10) {
         showToast('You can enter upto 10 decimals.');
         return;
       }

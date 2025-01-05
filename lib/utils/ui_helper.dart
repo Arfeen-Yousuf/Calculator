@@ -1,12 +1,14 @@
+import 'dart:math';
+
 import 'package:calculator/app/colors.dart';
 import 'package:flutter/material.dart';
 
-Future<int?> showOptionsBottomSheet(
+Future<int?> showOptionsBottomSheet<T>(
   BuildContext context, {
   String? title,
-  Map<String, Widget?>? leading,
-  required List<String> options,
-  String? currentOption,
+  Map<T, Widget?>? leading,
+  required List<T> options,
+  T? currentOption,
   required void Function(int index) onOptionSelected,
 }) {
   final isLightTheme = Theme.of(context).brightness == Brightness.light;
@@ -19,7 +21,7 @@ Future<int?> showOptionsBottomSheet(
     builder: (BuildContext context) {
       return LayoutBuilder(builder: (context, constraints) {
         return Container(
-          height: constraints.maxHeight * 0.7,
+          height: min(50 + options.length * 66, constraints.maxHeight * 0.7),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: appColors.scaffoldBackground,
@@ -58,7 +60,7 @@ Future<int?> showOptionsBottomSheet(
                   child: ListView.separated(
                     itemCount: options.length,
                     itemBuilder: (_, index) {
-                      final String option = options[index];
+                      final T option = options[index];
                       final textStyle =
                           TextTheme.of(context).titleMedium?.copyWith(
                                 color: (currentOption == option)
@@ -69,7 +71,7 @@ Future<int?> showOptionsBottomSheet(
 
                       return ListTile(
                         leading: leading?[option],
-                        title: Text(option),
+                        title: Text('$option'),
                         selected: (currentOption == option),
                         selectedColor: appColors.primary,
                         titleTextStyle: textStyle,
