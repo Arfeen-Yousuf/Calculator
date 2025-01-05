@@ -3,22 +3,29 @@ import 'package:flutter/material.dart';
 
 import 'number_text_field.dart';
 
-class TextFieldWithOptions extends StatelessWidget {
+class TextFieldWithOptions<T> extends StatelessWidget {
+  ///[labelGenerator] allow showing different labels for different options
   const TextFieldWithOptions({
     super.key,
     this.controller,
     this.focusNode,
     this.title,
+    this.hintText,
     required this.currentOption,
     required this.options,
     required this.onOptionSelected,
+    this.labelGenerator,
   });
 
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final String? title;
-  final String currentOption;
-  final List<String> options;
+  final String? hintText;
+
+  final String? Function(T)? labelGenerator;
+
+  final T currentOption;
+  final List<T> options;
   final void Function(int index) onOptionSelected;
 
   @override
@@ -35,7 +42,7 @@ class TextFieldWithOptions extends StatelessWidget {
             enableFeedback: false,
           ),
           label: Text(
-            currentOption,
+            labelGenerator?.call(currentOption) ?? '$currentOption',
             style: TextTheme.of(context).labelMedium?.copyWith(fontSize: 18),
           ),
           icon: const Icon(
@@ -47,6 +54,7 @@ class TextFieldWithOptions extends StatelessWidget {
         NumberTextField(
           controller: controller,
           focusNode: focusNode,
+          hintText: hintText,
         ),
       ],
     );

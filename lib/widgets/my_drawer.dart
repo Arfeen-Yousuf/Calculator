@@ -1,6 +1,7 @@
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/screens/date_calculator/date_calculator_screen.dart';
 import 'package:calculator/screens/discount_calculator/discount_calculator_screen.dart';
+import 'package:calculator/screens/fuel_calculator/fuel_calculator_screen.dart';
 import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -47,6 +48,11 @@ class MyDrawer extends StatelessWidget {
             title: 'Date Calculator',
             destination: DateCalculatorScreen(),
           ),
+          const _DrawerListTile(
+            leadingSvgIconData: SvgIconData.fuel,
+            title: 'Fuel Calculator',
+            destination: FuelCalculatorScreen(),
+          ),
         ],
       ),
     );
@@ -67,7 +73,10 @@ class _DrawerListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: SvgIcon(leadingSvgIconData),
+      leading: SvgIcon(
+        leadingSvgIconData,
+        size: 25,
+      ),
       title: Text(title),
       onTap: () {
         Navigator.pop(context);
