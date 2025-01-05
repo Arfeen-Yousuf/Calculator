@@ -1,74 +1,30 @@
-import 'package:calculator/utils/utils.dart';
-import 'package:calculator/widgets/date_field.dart';
-import 'package:calculator/widgets/number_text_field.dart';
-import 'package:calculator/widgets/numeric_keypad.dart';
-import 'package:calculator/widgets/results_card.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'date_calculator_view_model.dart';
+import 'duration/date_duration_calculator_screen_body.dart';
+import 'from_to/date_from_to_calculator_screen_body.dart';
 
 class DateCalculatorScreen extends StatelessWidget {
   const DateCalculatorScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final viewModelRead = context.read<DateCalculatorViewModel>();
-
-    final Widget startDateField = DateField(
-      label: 'From Date',
-      dateTime: viewModelRead.startDate,
-      onDateTimeChanged: viewModelRead.onStartDateChanged,
-    );
-    final Widget durationField = NumberTextField(
-      controller: viewModelRead.durationController,
-      focusNode: viewModelRead.durationFocusNode,
-      label: 'Duration (days)',
-    );
-    final Widget endDateResult = ResultsCard(
-      results: [
-        MapEntry(
-          'To Date',
-          dateToString(context.watch<DateCalculatorViewModel>().endDate),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Date Calculator'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Duration'),
+              Tab(text: 'From/To'),
+            ],
+          ),
         ),
-      ],
-    );
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Date Calculator'),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
+        body: const SafeArea(
+          child: TabBarView(
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    spacing: 15,
-                    children: [
-                      startDateField,
-                      durationField,
-                      endDateResult,
-                    ],
-                  ),
-                ),
-              ),
-              if (context
-                  .watch<DateCalculatorViewModel>()
-                  .durationFocusNode
-                  .hasFocus)
-                Expanded(
-                  child: NumericKeypad(
-                    controller: viewModelRead.durationController,
-                    focusNode: viewModelRead.durationFocusNode,
-                    onValueChanged: (double? val) =>
-                        viewModelRead.onDurationChanged(val?.toInt()),
-                    integersOnly: true,
-                    maxIntegers: 4,
-                  ),
-                ),
+              DateDurationCalculatorScreenBody(),
+              DateFromToCalculatorScreenBody(),
             ],
           ),
         ),

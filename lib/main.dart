@@ -5,10 +5,11 @@ import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'app/colors.dart';
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
-import 'app/colors.dart';
-import 'screens/date_calculator/date_calculator_view_model.dart';
+import 'screens/date_calculator/duration/date_duration_calculator_view_model.dart';
+import 'screens/date_calculator/from_to/date_from_to_calculator_view_model.dart';
 import 'screens/discount_calculator/discount_calculator_view_model.dart';
 import 'screens/unit_converter/unit_converter_view_model.dart';
 import 'utils/constants.dart';
@@ -56,7 +57,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CalculatorViewModel()),
         ChangeNotifierProvider(create: (_) => UnitConverterViewModel()),
         ChangeNotifierProvider(create: (_) => DiscountCalculatorViewModel()),
-        ChangeNotifierProvider(create: (_) => DateCalculatorViewModel()),
+        ChangeNotifierProvider(create: (_) => DateFromToCalculatorViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => DateDurationCalculatorViewModel(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -97,6 +101,11 @@ class MyApp extends StatelessWidget {
       ),
       datePickerTheme: const DatePickerThemeData(
         backgroundColor: AppColorsLight.scaffoldBackground,
+      ),
+      tabBarTheme: const TabBarTheme(
+        labelColor: AppColorsLight.primary,
+        indicatorColor: AppColorsLight.primary,
+        dividerHeight: 0,
       ),
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(
@@ -139,6 +148,11 @@ class MyApp extends StatelessWidget {
         style: TextButton.styleFrom(
           foregroundColor: AppColorsDark.primary,
         ),
+      ),
+      tabBarTheme: const TabBarTheme(
+        labelColor: AppColorsLight.primary,
+        indicatorColor: AppColorsLight.primary,
+        dividerHeight: 0,
       ),
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(

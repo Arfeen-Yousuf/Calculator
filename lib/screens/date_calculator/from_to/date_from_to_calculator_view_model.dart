@@ -1,17 +1,14 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
-class DateCalculatorViewModel extends ChangeNotifier {
-  DateCalculatorViewModel() {
-    durationFocusNode.addListener(() => notifyListeners());
+class DateFromToCalculatorViewModel extends ChangeNotifier {
+  DateFromToCalculatorViewModel() {
+    durationFocusNode.addListener(notifyListeners);
   }
 
   DateTime? _startDate;
   DateTime? get startDate => _startDate;
   void onStartDateChanged(DateTime? date) {
     _startDate = date;
-    log('View model new From Date $date');
     notifyListeners();
   }
 
@@ -21,7 +18,6 @@ class DateCalculatorViewModel extends ChangeNotifier {
   int? _duration;
   void onDurationChanged(int? duration) {
     _duration = duration;
-    log('View model new Duration $duration');
     notifyListeners();
   }
 
