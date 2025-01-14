@@ -11,6 +11,8 @@ class UnitConverterViewModel extends ChangeNotifier {
 
     focusNode1.addListener(_onFocusNodeChanged);
     focusNode2.addListener(_onFocusNodeChanged);
+
+    _conversionFormula = _computeConversionFormula();
   }
 
   @override
@@ -34,7 +36,7 @@ class UnitConverterViewModel extends ChangeNotifier {
   final focusNode2 = FocusNode();
 
   //Length, mass, volume, time, data etc
-  PROPERTY _property = PROPERTY.mass;
+  PROPERTY _property = PROPERTY.length;
   PROPERTY get property => _property;
   void setProperty(PROPERTY newVal) {
     _property = newVal;
@@ -55,7 +57,8 @@ class UnitConverterViewModel extends ChangeNotifier {
     allUnitsMapSymbols = newUnitsMapSymbols;
 
     _unit1 = allUnits.first;
-    _unit2 = allUnits.first;
+    _unit2 = allUnits[1];
+    _conversionFormula = _computeConversionFormula();
 
     textEditingController1.clear();
     textEditingController2.clear();
@@ -63,34 +66,28 @@ class UnitConverterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Enum> allUnits = MASS.values;
-  Map<dynamic, String>? allUnitsMapSymbols = Mass().mapSymbols;
+  List<Enum> allUnits = LENGTH.values;
+  Map<dynamic, String>? allUnitsMapSymbols = Length().mapSymbols;
 
-  Enum _unit1 = MASS.values[0];
-  Enum _unit2 = MASS.values[0];
+  Enum _unit1 = LENGTH.values[0];
+  Enum _unit2 = LENGTH.values[1];
   Enum get unit1 => _unit1;
   Enum get unit2 => _unit2;
 
-  void onUnitType1Changed(Enum massType) {
-    _unit1 = massType;
+  String? _conversionFormula;
+  String? get conversionFormula => _conversionFormula;
+  String? _computeConversionFormula() {
+    final unit1Str = allUnitsMapSymbols?[_unit1] ?? enumToNormal(_unit1);
+    final unit2Str = allUnitsMapSymbols?[_unit2] ?? enumToNormal(_unit2);
+    final conversionFactor = 1.convertFromTo(_unit1, _unit2)!;
 
-    //Value of first controller changed
-    final text = textEditingController1.text
-        .replaceAll(',', '')
-        .replaceAll(CalculatorConstants.subtraction, '-');
-
-    final value = double.tryParse(text);
-    final convertedValue = value?.convertFromTo(_unit1, _unit2);
-    _setControllerValue(
-      textEditingController2,
-      value: convertedValue,
-    );
-
-    notifyListeners();
+    return (_property == PROPERTY.temperature)
+        ? null
+        : '1 $unit1Str = ${roundToDecimalPlaces(conversionFactor, 7)} $unit2Str';
   }
 
-  void onUnitType2Changed(Enum massType) {
-    _unit2 = massType;
+  void onUnitType1Changed(Enum unitType) {
+    _unit1 = unitType;
 
     //Value of first controller changed
     final text = textEditingController2.text
@@ -103,6 +100,26 @@ class UnitConverterViewModel extends ChangeNotifier {
       textEditingController1,
       value: convertedValue,
     );
+    _conversionFormula = _computeConversionFormula();
+
+    notifyListeners();
+  }
+
+  void onUnitType2Changed(Enum unitType) {
+    _unit2 = unitType;
+
+    //Value of first controller changed
+    final text = textEditingController1.text
+        .replaceAll(',', '')
+        .replaceAll(CalculatorConstants.subtraction, '-');
+
+    final value = double.tryParse(text);
+    final convertedValue = value?.convertFromTo(_unit1, _unit2);
+    _setControllerValue(
+      textEditingController2,
+      value: convertedValue,
+    );
+    _conversionFormula = _computeConversionFormula();
 
     notifyListeners();
   }

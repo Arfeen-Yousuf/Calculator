@@ -13,10 +13,10 @@ class ExpressionEvaluator {
 
   num calculateResult(
     String? expr, {
-    bool angleInDegree = false,
+    required bool angleInDegree,
     int precision = 10,
   }) {
-    dev.log('Expression Evaluating $expr');
+    dev.log('Expression Evaluating $expr , Degrees: $angleInDegree');
     if (expr == null || expr.isEmpty) return double.nan;
 
     //Replace the function names and constants

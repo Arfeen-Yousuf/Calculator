@@ -1,7 +1,7 @@
 const String nanString = 'NaN';
 
 class Constants {
-  static const int historyLogsPerPage = 5;
+  static const int historyLogsPerPage = 50;
 }
 
 class CalculatorConstants {
@@ -73,10 +73,10 @@ class ScientificFunctions {
   static const String naturalLogarithm = 'ln';
   static const List<String> logarithms = [logarithm, naturalLogarithm];
 
-  static const absolute = 'abs';
+  static const String absolute = 'abs';
   static const List<String> others = [absolute];
 
-  static final functionNames = [
+  static final List<String> functionNames = [
     ...roots,
     round,
     ...trigonometric,

@@ -40,7 +40,7 @@ bool isSimpleNumber(String str) {
   return !invalidCharacterRegExp.hasMatch(str);
 }
 
-double? roundToDecimalPlaces(
+double roundToDecimalPlaces(
   double value,
   int decimalPlaces,
 ) =>

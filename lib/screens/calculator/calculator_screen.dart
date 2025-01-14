@@ -82,8 +82,8 @@ class CalculatorScreen extends StatelessWidget {
     );
 
     late final angleButton = GridButton(
-      onPressed: viewModelRead.toogleRadians,
-      text: viewModelRead.radians ? 'RAD' : 'DEG',
+      onPressed: viewModelRead.toogleAngleInDegree,
+      text: viewModelRead.angleInDegree ? 'RAD' : 'DEG',
       foregroundColor: appColors.toogleRadiansButtonForeground,
     );
 

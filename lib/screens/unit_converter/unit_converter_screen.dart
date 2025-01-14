@@ -117,6 +117,17 @@ class UnitConverterScreen extends StatelessWidget {
                       onOptionSelected: (ind) =>
                           _onOption2Changed(context, index: ind),
                     ),
+                    if (context
+                            .watch<UnitConverterViewModel>()
+                            .conversionFormula !=
+                        null)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          viewModelRead.conversionFormula!,
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
                   ],
                 ),
               ),

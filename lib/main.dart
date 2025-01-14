@@ -41,7 +41,7 @@ void main() async {
   );
 
   HistoryDatabaseManager.db = db;
-  int totalHistoryLogs = await HistoryDatabaseManager.historyLogsCount();
+  final totalHistoryLogs = await HistoryDatabaseManager.historyLogsCount();
   final initialHistoryLogs = await HistoryDatabaseManager.historyLogs(
     limit: Constants.historyLogsPerPage,
   );

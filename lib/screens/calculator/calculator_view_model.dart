@@ -22,7 +22,10 @@ class CalculatorViewModel extends ChangeNotifier {
   get isScientific => _isScientific;
   void toogleScientific() {
     _isScientific = !_isScientific;
-    _result = _evaluator.calculateResult(textEditingController.text);
+    _result = _evaluator.calculateResult(
+      textEditingController.text,
+      angleInDegree: _angleInDegree,
+    );
     notifyListeners();
   }
 
@@ -33,13 +36,13 @@ class CalculatorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _radians = false;
-  bool get radians => _radians;
-  void toogleRadians() {
-    _radians = !_radians;
+  bool _angleInDegree = true;
+  bool get angleInDegree => _angleInDegree;
+  void toogleAngleInDegree() {
+    _angleInDegree = !_angleInDegree;
     _result = _evaluator.calculateResult(
       textEditingController.text,
-      angleInDegree: !_radians,
+      angleInDegree: _angleInDegree,
     );
     notifyListeners();
   }
@@ -285,7 +288,10 @@ class CalculatorViewModel extends ChangeNotifier {
     }
 
     dev.log('Calculating');
-    _result = _evaluator.calculateResult(textEditingController.text);
+    _result = _evaluator.calculateResult(
+      textEditingController.text,
+      angleInDegree: _angleInDegree,
+    );
     notifyListeners();
 
     focusNode.unfocus();
@@ -391,7 +397,10 @@ class CalculatorViewModel extends ChangeNotifier {
       return {'add': '${CalculatorConstants.space}$op'};
     });
 
-    _result = _evaluator.calculateResult(textEditingController.text);
+    _result = _evaluator.calculateResult(
+      textEditingController.text,
+      angleInDegree: _angleInDegree,
+    );
     notifyListeners();
   }
 
