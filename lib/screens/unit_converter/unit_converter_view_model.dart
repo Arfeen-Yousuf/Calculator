@@ -12,7 +12,7 @@ class UnitConverterViewModel extends ChangeNotifier {
     focusNode1.addListener(_onFocusNodeChanged);
     focusNode2.addListener(_onFocusNodeChanged);
 
-    _conversionFormula = _computeConversionFormula();
+    _computeConversionFormula();
   }
 
   @override
@@ -58,7 +58,7 @@ class UnitConverterViewModel extends ChangeNotifier {
 
     _unit1 = allUnits.first;
     _unit2 = allUnits[1];
-    _conversionFormula = _computeConversionFormula();
+    _computeConversionFormula();
 
     textEditingController1.clear();
     textEditingController2.clear();
@@ -76,12 +76,12 @@ class UnitConverterViewModel extends ChangeNotifier {
 
   String? _conversionFormula;
   String? get conversionFormula => _conversionFormula;
-  String? _computeConversionFormula() {
+  void _computeConversionFormula() {
     final unit1Str = allUnitsMapSymbols?[_unit1] ?? enumToNormal(_unit1);
     final unit2Str = allUnitsMapSymbols?[_unit2] ?? enumToNormal(_unit2);
     final conversionFactor = 1.convertFromTo(_unit1, _unit2)!;
 
-    return (_property == PROPERTY.temperature)
+    _conversionFormula = (_property == PROPERTY.temperature)
         ? null
         : '1 $unit1Str = ${roundToDecimalPlaces(conversionFactor, 7)} $unit2Str';
   }
@@ -100,7 +100,7 @@ class UnitConverterViewModel extends ChangeNotifier {
       textEditingController1,
       value: convertedValue,
     );
-    _conversionFormula = _computeConversionFormula();
+    _computeConversionFormula();
 
     notifyListeners();
   }
@@ -119,7 +119,7 @@ class UnitConverterViewModel extends ChangeNotifier {
       textEditingController2,
       value: convertedValue,
     );
-    _conversionFormula = _computeConversionFormula();
+    _computeConversionFormula();
 
     notifyListeners();
   }

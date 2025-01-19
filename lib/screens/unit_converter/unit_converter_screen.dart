@@ -124,7 +124,7 @@ class UnitConverterScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          viewModelRead.conversionFormula!,
+                          '${viewModelRead.conversionFormula!}\n(Rounded to 7 decimals)',
                           textAlign: TextAlign.end,
                         ),
                       ),

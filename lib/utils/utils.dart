@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 void showToast(String msg) => Fluttertoast.showToast(
       msg: msg,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 2,
       fontSize: 16,

@@ -24,42 +24,65 @@ class CalculatorScreen extends StatelessWidget {
       icon: const Icon(Icons.history_rounded),
     );
 
-    final textField = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: LayoutBuilder(builder: (context, constraints) {
-        return TextField(
+    final textField = LayoutBuilder(builder: (context, constraints) {
+      final textLength = viewModelRead.textEditingController.text.length;
+
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          //horizontal: 12,
+          vertical: 20,
+        ),
+        //color: Colors.yellow,
+        child: TextField(
           controller: viewModelRead.textEditingController,
           textAlign: TextAlign.right,
           autofocus: true,
           keyboardType: TextInputType.none,
           decoration: null,
           cursorColor: appColors.primary,
-          style: TextStyle(fontSize: constraints.maxHeight / 5),
+          style: TextStyle(
+            fontSize: constraints.maxWidth / ((textLength < 15) ? 8 : 12),
+          ),
           maxLines: null,
           focusNode: viewModelRead.focusNode,
-        );
-      }),
-    );
+        ),
+      );
+    });
 
     final viewModelResult = context.watch<CalculatorViewModel>().result;
-    final bool showResult =
-        !(isSimpleNumber(viewModelRead.textEditingController.text) ||
-            viewModelResult.toString().contains(nanString) ||
-            viewModelResult == double.infinity ||
-            viewModelResult == double.negativeInfinity);
-    final Widget result = !showResult
-        ? const SizedBox()
-        : FittedBox(
-            child: GestureDetector(
-              onLongPress: () async => await copyTextToClipboard(
-                numberFormatter.format(viewModelResult),
-              ),
-              child: Text(
-                numberFormatter.format(viewModelResult),
-                style: TextStyle(color: appColors.result),
-              ),
+    final viewModelError = context.watch<CalculatorViewModel>().hasError;
+
+    final Widget resultOrError;
+    if (viewModelError) {
+      resultOrError = const Text(
+        'Invalid Format',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: 24,
+        ),
+      );
+    } else {
+      final bool showResult =
+          !(isSimpleNumber(viewModelRead.textEditingController.text) ||
+              viewModelResult.toString().contains(nanString) ||
+              viewModelResult == double.infinity ||
+              viewModelResult == double.negativeInfinity);
+      if (!showResult) {
+        resultOrError = const SizedBox();
+      } else {
+        resultOrError = FittedBox(
+          child: GestureDetector(
+            onLongPress: () async => await copyTextToClipboard(
+              numberFormatter.format(viewModelResult),
             ),
-          );
+            child: Text(
+              numberFormatter.format(viewModelResult),
+              style: TextStyle(color: appColors.result),
+            ),
+          ),
+        );
+      }
+    }
 
     final toogleScientificButton = ElevatedButton.icon(
       onPressed: viewModelRead.toogleScientific,
@@ -106,15 +129,18 @@ class CalculatorScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 flex: 3,
-                child: textField,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: textField,
+                ),
               ),
-              Expanded(child: result),
+              Expanded(child: resultOrError),
               Expanded(
                 child: Row(
                   children: [

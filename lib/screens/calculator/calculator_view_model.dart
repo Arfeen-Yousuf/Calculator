@@ -14,6 +14,13 @@ import 'package:provider/provider.dart';
 import 'formatters/thousands_formatter.dart';
 
 class CalculatorViewModel extends ChangeNotifier {
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
+
   final textEditingController = TextEditingController();
   final focusNode = FocusNode();
   final _evaluator = ExpressionEvaluator();
@@ -53,11 +60,12 @@ class CalculatorViewModel extends ChangeNotifier {
   num _result = double.nan;
   num get result => _result;
 
-  @override
-  void dispose() {
-    textEditingController.dispose();
-    focusNode.dispose();
-    super.dispose();
+  bool _hasError = false;
+  bool get hasError => _hasError;
+  void _setError(bool error) {
+    _hasError = error;
+    if (error) showToast('Invalid Format.');
+    notifyListeners();
   }
 
   static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
@@ -65,6 +73,7 @@ class CalculatorViewModel extends ChangeNotifier {
   void clear() {
     textEditingController.clear();
     _result = double.nan;
+    _hasError = false;
     notifyListeners();
   }
 
@@ -82,7 +91,7 @@ class CalculatorViewModel extends ChangeNotifier {
     }
 
     if (_result.toString().contains(nanString)) {
-      showToast('Invalid Format.');
+      _setError(true);
       return;
     }
 
@@ -139,6 +148,8 @@ class CalculatorViewModel extends ChangeNotifier {
       Map<String, Object> Function(String beforeCursor, String afterCursor)
           function,
       {bool backPressed = false}) {
+    _hasError = false;
+
     final text = textEditingController.text;
 
     int cursorPos = textEditingController.selection.base.offset;
@@ -171,7 +182,7 @@ class CalculatorViewModel extends ChangeNotifier {
         textBefore = text.substring(0, cursorPos);
         textAfter = text.substring(cursorPos);
       } else {
-        showToast('Invalid Format');
+        showToast('Invalid Format.');
         return;
       }
     }
@@ -362,7 +373,7 @@ class CalculatorViewModel extends ChangeNotifier {
 
       if (beforeCursor.isEmpty) {
         if (op != CalculatorConstants.subtraction) {
-          showToast('Invalid Format');
+          showToast('Invalid Format.');
           return {};
         }
 
@@ -384,13 +395,13 @@ class CalculatorViewModel extends ChangeNotifier {
                 '${CalculatorConstants.space}${CalculatorConstants.subtraction}$afterCursor'
           };
         } else {
-          showToast('InvalidFormat');
+          showToast('Invalid Format.');
           return {};
         }
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('InvalidFormat');
+        showToast('Invalid Format.');
         return {};
       }
 
@@ -463,7 +474,7 @@ class CalculatorViewModel extends ChangeNotifier {
               !isDigit(firstChar) &&
               firstChar != ')') ||
           (firstChar == '.' && (isDigit(lastChar) || _isConstant(lastChar)))) {
-        showToast('InvalidFormat');
+        showToast('Invalid Format.');
         return {};
       }
 
@@ -523,7 +534,7 @@ class CalculatorViewModel extends ChangeNotifier {
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('InvalidFormat');
+        showToast('Invalid Format.');
       }
 
       return {};
@@ -535,13 +546,13 @@ class CalculatorViewModel extends ChangeNotifier {
       if (afterCursor.startsWith('.') && beforeCursor.isNotEmpty) {
         final lastChar = beforeCursor[beforeCursor.length - 1];
         if (lastChar == '.' || _isUnaryOperator(lastChar) || lastChar == ')') {
-          showToast('InvalidFormat');
+          showToast('Invalid Format.');
           return {};
         }
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('InvalidFormat');
+        showToast('Invalid Format.');
         return {};
       }
 
@@ -584,13 +595,13 @@ class CalculatorViewModel extends ChangeNotifier {
       if (afterCursor.startsWith('.') && beforeCursor.isNotEmpty) {
         final lastChar = beforeCursor[beforeCursor.length - 1];
         if (lastChar == '.' || _isUnaryOperator(lastChar) || lastChar == ')') {
-          showToast('InvalidFormat');
+          showToast('Invalid Format.');
           return {};
         }
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('InvalidFormat');
+        showToast('Invalid Format.');
         return {};
       }
 
