@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:calculator/app/colors.dart';
 import 'package:calculator/enums/history_log_action.dart';
 import 'package:calculator/screens/history/history_screen.dart';
 import 'package:calculator/screens/history/history_view_model.dart';
@@ -10,6 +11,7 @@ import 'package:calculator/utils/expression_evaluator.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rich_text_controller/rich_text_controller.dart';
 
 import 'formatters/thousands_formatter.dart';
 
@@ -21,7 +23,26 @@ class CalculatorViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  final textEditingController = TextEditingController();
+  final textEditingController = RichTextController(
+    onMatch: (List<String> matches) {},
+    targetMatches: <String>{
+      CalculatorConstants.percentage,
+      CalculatorConstants.division,
+      CalculatorConstants.multiplication,
+      CalculatorConstants.subtraction,
+      CalculatorConstants.addition,
+      CalculatorConstants.power,
+    }
+        .map(
+          (char) => MatchTargetItem(
+            text: char,
+            allowInlineMatching: true,
+            style: const TextStyle(color: AppColorsLight.primary),
+          ),
+        )
+        .toList(),
+  );
+
   final focusNode = FocusNode();
   final _evaluator = ExpressionEvaluator();
 
@@ -306,7 +327,9 @@ class CalculatorViewModel extends ChangeNotifier {
     notifyListeners();
 
     focusNode.unfocus();
-    focusNode.requestFocus();
+    Future.delayed(const Duration(milliseconds: 5), () {
+      focusNode.requestFocus();
+    });
   }
 
   void addDigit(int digit) {

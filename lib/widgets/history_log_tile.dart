@@ -40,7 +40,9 @@ class HistoryLogTile extends StatelessWidget {
 
   void showHistoryLogOptions(BuildContext context) async {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    final String formattedResult = numberFormatter.format(historyLog.result);
 
     final replaceButton = ListTile(
       title: const Text('Replace'),
@@ -59,7 +61,7 @@ class HistoryLogTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       onTap: () async {
         await copyTextToClipboard(
-          'Expression:\n${historyLog.expression}\nResult:\n${historyLog.result}',
+          'Expression:\n${historyLog.expression}\nResult:\n$formattedResult',
         );
         showToast('Expression and result copied.');
       },
@@ -79,7 +81,20 @@ class HistoryLogTile extends StatelessWidget {
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (BuildContext context) {
+      builder: (context) {
+        final expressionWidget = Text(
+          historyLog.expression,
+          style: TextTheme.of(context).titleLarge,
+        );
+        final resultWidget = Text(
+          formattedResult,
+          style: TextTheme.of(context).titleLarge?.copyWith(
+                color: appColors.primary,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+        );
+
         return Wrap(
           children: [
             Container(
@@ -127,18 +142,8 @@ class HistoryLogTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          historyLog.expression,
-                          style: TextTheme.of(context).titleLarge,
-                        ),
-                        Text(
-                          numberFormatter.format(historyLog.result),
-                          style: TextTheme.of(context).titleLarge?.copyWith(
-                                color: appColors.primary,
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
+                        expressionWidget,
+                        resultWidget,
                       ],
                     ),
                   ),

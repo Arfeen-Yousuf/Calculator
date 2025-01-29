@@ -1,3 +1,4 @@
+import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
@@ -24,30 +25,20 @@ class CalculatorScreen extends StatelessWidget {
       icon: const Icon(Icons.history_rounded),
     );
 
-    final textField = LayoutBuilder(builder: (context, constraints) {
-      final textLength = viewModelRead.textEditingController.text.length;
-
-      return Container(
-        padding: const EdgeInsets.symmetric(
-          //horizontal: 12,
-          vertical: 20,
-        ),
-        //color: Colors.yellow,
-        child: TextField(
-          controller: viewModelRead.textEditingController,
-          textAlign: TextAlign.right,
-          autofocus: true,
-          keyboardType: TextInputType.none,
-          decoration: null,
-          cursorColor: appColors.primary,
-          style: TextStyle(
-            fontSize: constraints.maxWidth / ((textLength < 15) ? 8 : 12),
-          ),
-          maxLines: null,
-          focusNode: viewModelRead.focusNode,
-        ),
-      );
-    });
+    final textField = AutoSizeTextField(
+      controller: viewModelRead.textEditingController,
+      textAlign: TextAlign.right,
+      autofocus: true,
+      keyboardType: TextInputType.none,
+      decoration: const InputDecoration(border: InputBorder.none),
+      cursorColor: appColors.primary,
+      style: const TextStyle(
+        fontSize: 50,
+      ),
+      minFontSize: 30,
+      //maxLines: null,
+      focusNode: viewModelRead.focusNode,
+    );
 
     final viewModelResult = context.watch<CalculatorViewModel>().result;
     final viewModelError = context.watch<CalculatorViewModel>().hasError;
@@ -136,7 +127,7 @@ class CalculatorScreen extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: Align(
-                  alignment: Alignment.bottomCenter,
+                  alignment: Alignment.centerRight,
                   child: textField,
                 ),
               ),

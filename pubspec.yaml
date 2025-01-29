@@ -38,12 +38,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.1.2
   intl: ^0.20.1
-  rich_text_controller: ^2.0.1
+  rich_text_controller: ^3.0.1
   fluttertoast: ^8.2.10
   sqflite: ^2.4.1
   path: ^1.9.0
   units_converter: ^3.0.2
   flutter_svg: ^2.0.16
+  auto_size_text_field: ^2.2.4
 
 dev_dependencies:
   flutter_test:
