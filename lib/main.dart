@@ -109,6 +109,10 @@ class MyApp extends StatelessWidget {
         indicatorColor: AppColorsLight.primary,
         dividerHeight: 0,
       ),
+      cardTheme: const CardTheme(
+        color: AppColorsLight.resultsBackground,
+        elevation: 0,
+      ),
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(
           //General
@@ -155,6 +159,10 @@ class MyApp extends StatelessWidget {
         labelColor: AppColorsLight.primary,
         indicatorColor: AppColorsLight.primary,
         dividerHeight: 0,
+      ),
+      cardTheme: const CardTheme(
+        color: AppColorsDark.resultsBackground,
+        elevation: 0,
       ),
       extensions: <ThemeExtension<dynamic>>[
         const AppColors(

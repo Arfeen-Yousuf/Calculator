@@ -1,82 +1,89 @@
-const String nanString = 'NaN';
+const nanString = 'NaN';
 
 class Constants {
-  static const int historyLogsPerPage = 50;
+  static const packageName = 'com.arfeen.calculator';
+  static const appUrl =
+      'https://play.google.com/store/apps/details?id=$packageName';
+  static const privacyPolicyUrl =
+      'https://github.com/Arfeen-Yousuf/calculator-privacy-policy'
+      '/blob/main/privacy-policy.html';
+
+  static const historyLogsPerPage = 50;
 }
 
 class CalculatorConstants {
-  static const String addition = '+';
-  static const String subtraction = '\u2212';
-  static const String multiplication = '×';
-  static const String division = '÷';
-  static const String percentage = '%';
-  static const String power = '^';
-  static const String space = '\u200A';
-  static const String factorial = '!';
+  static const addition = '+';
+  static const subtraction = '\u2212';
+  static const multiplication = '×';
+  static const division = '÷';
+  static const percentage = '%';
+  static const power = '^';
+  static const space = '\u200A';
+  static const factorial = '!';
 
-  static const List<String> unaryOperators = [percentage, factorial];
+  static const unaryOperators = [percentage, factorial];
 }
 
 class ScientificConstants {
-  static const String pi = 'π';
-  static const String eular = '\u0117'; //'\u212F';
-  static const String phi = '\u03D5';
+  static const pi = 'π';
+  static const eular = '\u0117'; //'\u212F';
+  static const phi = '\u03D5';
 
   static final constants = [pi, eular, phi];
 }
 
 class ScientificFunctions {
-  static const String squareRoot = '\u221A';
-  static const String cubeRoot = '\u221B';
-  static const List<String> roots = [squareRoot, cubeRoot];
+  static const squareRoot = '\u221A';
+  static const cubeRoot = '\u221B';
+  static const roots = <String>[squareRoot, cubeRoot];
 
-  static const String round = 'round';
+  static const round = 'round';
 
   //Trigonometric
-  static const String sine = 'sin';
-  static const String cosine = 'cos';
-  static const String tangent = 'tan';
-  static const List<String> trigonometric = [sine, cosine, tangent];
+  static const sine = 'sin';
+  static const cosine = 'cos';
+  static const tangent = 'tan';
+  static const trigonometric = <String>[sine, cosine, tangent];
 
   //Trigonometric inverses
-  static const String sineInverse = 'sin⁻¹';
-  static const String cosineInverse = 'cos⁻¹';
-  static const String tangentInverse = 'tan⁻¹';
-  static const List<String> trigonometricInverses = [
+  static const sineInverse = 'sin⁻¹';
+  static const cosineInverse = 'cos⁻¹';
+  static const tangentInverse = 'tan⁻¹';
+  static const trigonometricInverses = <String>[
     sineInverse,
     cosineInverse,
     tangentInverse
   ];
 
   //Hyperbolic
-  static const String sineHyperbolic = 'sinh';
-  static const String cosineHyperbolic = 'cosh';
-  static const String tangentHyperbolic = 'tanh';
-  static const List<String> hyperbolics = [
+  static const sineHyperbolic = 'sinh';
+  static const cosineHyperbolic = 'cosh';
+  static const tangentHyperbolic = 'tanh';
+  static const hyperbolics = <String>[
     sineHyperbolic,
     cosineHyperbolic,
     tangentHyperbolic
   ];
 
   //Hyperbolic inverses
-  static const String sineHyperbolicInverse = 'sinh⁻¹';
-  static const String cosineHyperbolicInverse = 'cosh⁻¹';
-  static const String tangentHyperbolicInverse = 'tanh⁻¹';
-  static const List<String> hyperbolicInverses = [
+  static const sineHyperbolicInverse = 'sinh⁻¹';
+  static const cosineHyperbolicInverse = 'cosh⁻¹';
+  static const tangentHyperbolicInverse = 'tanh⁻¹';
+  static const hyperbolicInverses = <String>[
     sineHyperbolicInverse,
     cosineHyperbolicInverse,
     tangentHyperbolicInverse
   ];
 
   //Logarithms
-  static const String logarithm = 'log';
-  static const String naturalLogarithm = 'ln';
-  static const List<String> logarithms = [logarithm, naturalLogarithm];
+  static const logarithm = 'log';
+  static const naturalLogarithm = 'ln';
+  static const logarithms = <String>[logarithm, naturalLogarithm];
 
-  static const String absolute = 'abs';
-  static const List<String> others = [absolute];
+  static const absolute = 'abs';
+  static const others = <String>[absolute];
 
-  static final List<String> functionNames = [
+  static final functionNames = <String>[
     ...roots,
     round,
     ...trigonometric,
