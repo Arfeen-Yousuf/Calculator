@@ -14,16 +14,17 @@ class CalculatorButtonGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final appColors = Theme.of(context).extension<AppColors>()!;
     final viewModelRead = context.read<CalculatorViewModel>();
 
     final resetButton = GridButton(
-        onPressed: viewModelRead.clear,
-        text: 'C',
-        foregroundColor: appColors.primary,
-        backgroundColor: isLightTheme
-            ? appColors.primary?.withAlpha(25)
-            : AppColorsDark.gridButtonDefaultBackground);
+      onPressed: viewModelRead.clear,
+      text: 'C',
+      foregroundColor: appColors.primary,
+      backgroundColor: isLightTheme
+          ? appColors.primary?.withAlpha(25)
+          : AppColorsDark.gridButtonDefaultBackground,
+    );
     final bracketsButton = GridButton(
         onPressed: viewModelRead.addBracket,
         text: '( )',

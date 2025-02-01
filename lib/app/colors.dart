@@ -9,7 +9,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.scaffoldBackground,
     required this.primaryText,
     required this.optionsBackground,
-    required this.resultsBackground,
+    required this.cardBackground,
 
     // Calculator Page
     required this.result,
@@ -19,11 +19,6 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.gridButtonText,
     required this.gridScientificButtonBackground,
     required this.swapScientificButtonBackground,
-    required this.toogleRadiansButtonForeground,
-    required this.expressionTextFieldOperator,
-
-    //History Page
-    required this.historyTileResult,
   });
 
   //General
@@ -32,7 +27,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? scaffoldBackground;
   final Color? primaryText;
   final Color? optionsBackground;
-  final Color? resultsBackground;
+  final Color? cardBackground;
 
   // Calculator Page
   final Color? result;
@@ -42,11 +37,6 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? gridButtonText;
   final Color? gridScientificButtonBackground;
   final Color? swapScientificButtonBackground;
-  final Color? toogleRadiansButtonForeground;
-  final Color? expressionTextFieldOperator;
-
-  //History Page
-  final Color? historyTileResult;
 
   @override
   AppColors copyWith({
@@ -56,7 +46,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? scaffoldBackground,
     Color? primaryText,
     Color? optionsBackground,
-    Color? resultsBackground,
+    Color? cardBackground,
 
     // Calculator Page
     Color? result,
@@ -79,7 +69,7 @@ class AppColors extends ThemeExtension<AppColors> {
       scaffoldBackground: scaffoldBackground ?? this.scaffoldBackground,
       primaryText: primaryText ?? this.primaryText,
       optionsBackground: optionsBackground ?? this.optionsBackground,
-      resultsBackground: resultsBackground ?? this.resultsBackground,
+      cardBackground: cardBackground ?? this.cardBackground,
 
       // Calculator Page
       result: result ?? this.result,
@@ -94,13 +84,6 @@ class AppColors extends ThemeExtension<AppColors> {
           gridScientificButtonBackground ?? this.gridScientificButtonBackground,
       swapScientificButtonBackground:
           swapScientificButtonBackground ?? this.swapScientificButtonBackground,
-      toogleRadiansButtonForeground:
-          toogleRadiansButtonForeground ?? this.toogleRadiansButtonForeground,
-      expressionTextFieldOperator:
-          expressionTextFieldOperator ?? this.expressionTextFieldOperator,
-
-      //History Page
-      historyTileResult: historyTileResult ?? this.historyTileResult,
     );
   }
 
@@ -119,8 +102,7 @@ class AppColors extends ThemeExtension<AppColors> {
       primaryText: Color.lerp(primaryText, other.primaryText, t),
       optionsBackground:
           Color.lerp(optionsBackground, other.optionsBackground, t),
-      resultsBackground:
-          Color.lerp(resultsBackground, other.resultsBackground, t),
+      cardBackground: Color.lerp(cardBackground, other.cardBackground, t),
 
       // Calculator Page
       result: Color.lerp(result, other.result, t),
@@ -150,72 +132,41 @@ class AppColors extends ThemeExtension<AppColors> {
         other.swapScientificButtonBackground,
         t,
       ),
-      toogleRadiansButtonForeground: Color.lerp(
-        toogleRadiansButtonForeground,
-        other.toogleRadiansButtonForeground,
-        t,
-      ),
-      expressionTextFieldOperator: Color.lerp(
-        expressionTextFieldOperator,
-        other.expressionTextFieldOperator,
-        t,
-      ),
-
-      //History Page
-      historyTileResult: Color.lerp(
-        historyTileResult,
-        other.historyTileResult,
-        t,
-      ),
     );
   }
 }
 
 class AppColorsLight {
   // General
-  static const Color primary = Colors.orange;
-  static const Color appBarBackground = Colors.white;
-  static const Color scaffoldBackground = Colors.white;
-  static const Color primaryText = Colors.black;
-  static const Color optionsBackground = Color(0xFFF1F1F1);
-  static const Color resultsBackground = Color(0xFFF1F1F1);
+  static const appBarBackground = Colors.white;
+  static const scaffoldBackground = Colors.white;
+  static const primaryText = Colors.black;
+  static const optionsBackground = Color(0xFFF1F1F1);
+  static const cardBackground = Color(0xFFF1F1F1);
 
   // Calculator Page
-  static const Color result = Color(0xFFAFAFAF);
-  static const Color toogleScientificButtonBackground = Color(0xFFF2F4F3);
-  static const Color gridButtonDefaultBackground = Color(0xFFF2F4F3);
-  static const Color gridButtonDefaultForeground = Colors.black;
-  static const Color gridButtonText = Colors.black;
-  static const Color gridScientificButtonBackground = Color(0xFFE2E8E6);
-  static const Color swapScientificButtonBackground = Color(0xFFE2E8E6);
-  static const Color toogleRadiansButtonForeground = primary;
-
-  static const Color expressionTextFieldOperator = primary;
-
-  //History Page
-  static const Color historyTileResult = primary;
+  static const result = Color(0xFFAFAFAF);
+  static const toogleScientificButtonBackground = Color(0xFFF2F4F3);
+  static const gridButtonDefaultBackground = Color(0xFFF2F4F3);
+  static const gridButtonDefaultForeground = Colors.black;
+  static const gridButtonText = Colors.black;
+  static const gridScientificButtonBackground = Color(0xFFE2E8E6);
+  static const swapScientificButtonBackground = Color(0xFFE2E8E6);
 }
 
 class AppColorsDark {
   // General
-  static const Color primary = Colors.orange;
-  static const Color appBarBackground = Color(0xFF141118);
-  static const Color primaryText = Colors.white;
-  static const Color optionsBackground = Color(0xFF222222);
-  static const Color resultsBackground = Color(0xFF222222);
+  static const appBarBackground = Color(0xFF141118);
+  static const primaryText = Colors.white;
+  static const optionsBackground = Color(0xFF222222);
+  static const cardBackground = Color(0xFF222222);
 
   // Calculator Page
-  static const Color result = Color(0xFFAFAFAF);
-  static const Color toogleScientificButtonBackground = Color(0xFF1D1B20);
-  static const Color gridButtonDefaultBackground = Color(0xFF1D1B20);
-  static const Color gridButtonDefaultForeground = Colors.black;
-  static const Color gridButtonText = Colors.white;
-  static const Color gridScientificButtonBackground = Color(0xFF1D1B20);
-  static const Color swapScientificButtonBackground = Color(0xFF1D1B20);
-  static const Color toogleRadiansButtonForeground = primary;
-
-  static const Color expressionTextFieldOperator = primary;
-
-  //History Page
-  static const Color historyTileResult = primary;
+  static const result = Color(0xFFAFAFAF);
+  static const toogleScientificButtonBackground = Color(0xFF1D1B20);
+  static const gridButtonDefaultBackground = Color(0xFF1D1B20);
+  static const gridButtonDefaultForeground = Colors.black;
+  static const gridButtonText = Colors.white;
+  static const gridScientificButtonBackground = Color(0xFF1D1B20);
+  static const swapScientificButtonBackground = Color(0xFF1D1B20);
 }

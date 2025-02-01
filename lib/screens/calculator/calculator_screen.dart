@@ -36,7 +36,6 @@ class CalculatorScreen extends StatelessWidget {
         fontSize: 50,
       ),
       minFontSize: 30,
-      //maxLines: null,
       focusNode: viewModelRead.focusNode,
     );
 
@@ -98,7 +97,7 @@ class CalculatorScreen extends StatelessWidget {
     late final angleButton = GridButton(
       onPressed: viewModelRead.toogleAngleInDegree,
       text: viewModelRead.angleInDegree ? 'RAD' : 'DEG',
-      foregroundColor: appColors.toogleRadiansButtonForeground,
+      foregroundColor: appColors.primary,
     );
 
     final backspaceButton = InkWell(

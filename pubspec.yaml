@@ -47,6 +47,7 @@ dependencies:
   auto_size_text_field: ^2.2.4
   url_launcher: ^6.3.1
   share_plus: ^10.1.4
+  shared_preferences: ^2.5.1
 
 dev_dependencies:
   flutter_test:

@@ -7,8 +7,6 @@ import 'package:calculator/widgets/primary_filled_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'dart:developer' as dev;
-
 Future<int?> showOptionsBottomSheet<T>(
   BuildContext context, {
   String? title,
@@ -80,17 +78,24 @@ Future<int?> showOptionsBottomSheet<T>(
   );
 }
 
-Future<T?> showValuePicker<T>(
+///Looks for [initialIndex] before [initialValue]
+Future<int?> showValuePicker<T>(
   BuildContext context, {
   String? title,
   required List<T> values,
-  int initialIndex = 0,
+  int? initialIndex,
+  T? initialValue,
 }) async {
   final appColors = Theme.of(context).extension<AppColors>()!;
 
-  int selectedIndex = initialIndex;
+  int selectedIndex = 0;
+  if (initialIndex != null) {
+    selectedIndex = initialIndex;
+  } else if (initialValue != null) {
+    selectedIndex = values.indexOf(initialValue);
+  }
 
-  final T? pickedOption = await showCupertinoModalPopup<T>(
+  final int? pickedIndex = await showCupertinoModalPopup<int>(
     context: context,
     builder: (_) => Container(
       padding: const EdgeInsets.all(12),
@@ -110,20 +115,15 @@ Future<T?> showValuePicker<T>(
             height: 250,
             child: CupertinoPicker(
               scrollController:
-                  FixedExtentScrollController(initialItem: initialIndex),
+                  FixedExtentScrollController(initialItem: selectedIndex),
               itemExtent: 40, // Height of each item
-              onSelectedItemChanged: (index) {
-                dev.log('Decimal $index');
-                selectedIndex = index;
-              },
+              onSelectedItemChanged: (index) => selectedIndex = index,
               children: List.generate(
                 values.length,
                 (index) => FittedBox(
                   child: Padding(
                     padding: const EdgeInsets.all(4),
-                    child: Text(
-                      '${values[index]}',
-                    ),
+                    child: Text('${values[index]}'),
                   ),
                 ),
               ),
@@ -141,8 +141,7 @@ Future<T?> showValuePicker<T>(
               Expanded(
                 child: PrimaryTextFilledButton(
                   text: 'Done',
-                  onPressed: () =>
-                      Navigator.pop<T>(context, values[selectedIndex]),
+                  onPressed: () => Navigator.pop<int>(context, selectedIndex),
                 ),
               ),
             ],
@@ -152,5 +151,5 @@ Future<T?> showValuePicker<T>(
     ),
   );
 
-  return pickedOption;
+  return pickedIndex;
 }

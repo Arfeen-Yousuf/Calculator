@@ -1,33 +1,16 @@
+import 'package:calculator/enums/theme_color.dart';
+import 'package:calculator/providers/settings_provider.dart';
 import 'package:calculator/utils/ui_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'package:calculator/widgets/settings_list_tile.dart';
 import 'package:calculator/widgets/safe_area_with_padding.dart';
+import 'package:provider/provider.dart';
 
-enum DarkMode {
-  auto,
-  light,
-  dark;
+final _themeLabels = ['Auto', 'Off', 'On']; //Order matters
 
-  @override
-  String toString() {
-    return switch (this) {
-      auto => 'Auto',
-      light => 'Light',
-      dark => 'Dark',
-    };
-  }
-}
-
-class DisplaySettingsScreen extends StatefulWidget {
+class DisplaySettingsScreen extends StatelessWidget {
   const DisplaySettingsScreen({super.key});
-
-  @override
-  State<DisplaySettingsScreen> createState() => _DisplaySettingsScreenState();
-}
-
-class _DisplaySettingsScreenState extends State<DisplaySettingsScreen> {
-  DarkMode darkMode = DarkMode.auto;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +37,8 @@ class _DisplaySettingsScreenState extends State<DisplaySettingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '$darkMode',
+                      _themeLabels[
+                          context.watch<SettingsProvider>().themeMode.index],
                       style: TextTheme.of(context).bodyLarge,
                     ),
                     const Icon(Icons.chevron_right),
@@ -63,13 +47,13 @@ class _DisplaySettingsScreenState extends State<DisplaySettingsScreen> {
               ),
               divider,
               SettingsListTile(
-                title: 'Theme',
-                onTap: () {},
+                title: 'Color',
+                onTap: () => _onThemeColorTap(context),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Orange',
+                      '${context.watch<SettingsProvider>().themeColor}',
                       style: TextTheme.of(context).bodyLarge,
                     ),
                     const Icon(Icons.chevron_right),
@@ -84,17 +68,38 @@ class _DisplaySettingsScreenState extends State<DisplaySettingsScreen> {
   }
 
   void _onDarkModeTap(BuildContext context) async {
-    final DarkMode? pickedDarkMode = await showValuePicker(
+    final themeProvider = context.read<SettingsProvider>();
+
+    const values = ThemeMode.values;
+    final pickedModeIndex = await showValuePicker<String>(
       context,
       title: 'Dark Mode',
-      values: DarkMode.values,
-      initialIndex: DarkMode.values.indexOf(darkMode),
+      values: _themeLabels,
+      initialIndex: themeProvider.themeMode.index,
     );
 
-    if (pickedDarkMode != null) {
-      setState(() {
-        darkMode = pickedDarkMode;
-      });
+    if (pickedModeIndex != null && context.mounted) {
+      await context
+          .read<SettingsProvider>()
+          .updateThemeMode(values[pickedModeIndex]);
+    }
+  }
+
+  void _onThemeColorTap(BuildContext context) async {
+    final themeProvider = context.read<SettingsProvider>();
+
+    const values = ThemeColor.values;
+    final pickedColorIndex = await showValuePicker<ThemeColor>(
+      context,
+      title: 'Color',
+      values: values,
+      initialIndex: themeProvider.themeColor.index,
+    );
+
+    if (pickedColorIndex != null && context.mounted) {
+      await context
+          .read<SettingsProvider>()
+          .updateThemeColor(values[pickedColorIndex]);
     }
   }
 }
