@@ -14,7 +14,6 @@ class ExpressionEvaluator {
   num calculateResult(
     String? expr, {
     required bool angleInDegree,
-    int precision = 10,
   }) {
     dev.log('Expression Evaluating $expr , Degrees: $angleInDegree');
     if (expr == null || expr.isEmpty) return double.nan;

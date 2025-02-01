@@ -1,20 +1,14 @@
+import 'package:calculator/providers/settings_provider.dart';
 import 'package:calculator/utils/ui_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'package:calculator/widgets/my_switch.dart';
 import 'package:calculator/widgets/settings_list_tile.dart';
 import 'package:calculator/widgets/safe_area_with_padding.dart';
+import 'package:provider/provider.dart';
 
-class CalculatorSettingsScreen extends StatefulWidget {
+class CalculatorSettingsScreen extends StatelessWidget {
   const CalculatorSettingsScreen({super.key});
-
-  @override
-  State<CalculatorSettingsScreen> createState() =>
-      _CalculatorSettingsScreenState();
-}
-
-class _CalculatorSettingsScreenState extends State<CalculatorSettingsScreen> {
-  int decimalPlaces = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +30,14 @@ class _CalculatorSettingsScreenState extends State<CalculatorSettingsScreen> {
             children: [
               SettingsListTile(
                 title: 'Keep the Last Record',
-                onTap: () {},
+                onTap: () => _onKeepLastRecordChanged(
+                  context,
+                  !context.watch<SettingsProvider>().keepLastRecord,
+                ),
                 trailing: MySwitch(
-                  onChanged: (value) {},
+                  value: context.watch<SettingsProvider>().keepLastRecord,
+                  onChanged: (newValue) =>
+                      _onKeepLastRecordChanged(context, newValue),
                 ),
               ),
               divider,
@@ -49,7 +48,7 @@ class _CalculatorSettingsScreenState extends State<CalculatorSettingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '$decimalPlaces',
+                      '${context.watch<SettingsProvider>().decimalPlaces}',
                       style: TextTheme.of(context).bodyLarge,
                     ),
                     const Icon(Icons.chevron_right),
@@ -64,17 +63,24 @@ class _CalculatorSettingsScreenState extends State<CalculatorSettingsScreen> {
   }
 
   void _onDecimalPlaceTap(BuildContext context) async {
+    final settingsProvider = context.read<SettingsProvider>();
+
     final int? pickedDecimal = await showValuePicker(
       context,
       title: 'Decimal Place',
       values: List.generate(11, (index) => index),
-      initialIndex: decimalPlaces,
+      initialIndex: settingsProvider.decimalPlaces,
     );
 
-    if (pickedDecimal != null) {
-      setState(() {
-        decimalPlaces = pickedDecimal;
-      });
+    if (pickedDecimal != null && context.mounted) {
+      await settingsProvider.updateDecimalPlaces(pickedDecimal);
     }
+  }
+
+  void _onKeepLastRecordChanged(
+    BuildContext context,
+    bool newValue,
+  ) async {
+    await context.read<SettingsProvider>().updateKeepLastRecord(newValue);
   }
 }

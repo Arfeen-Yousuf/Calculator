@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 
@@ -15,24 +16,36 @@ import 'package:rich_text_controller/rich_text_controller.dart';
 
 import 'formatters/thousands_formatter.dart';
 
-class CalculatorViewModel extends ChangeNotifier {
+class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
+  BuildContext context;
+
+  CalculatorViewModel(this.context) {
+    WidgetsBinding.instance.addObserver(this);
+    _initializeController(context);
+
+    // Listen for theme changes dynamically
+    final settingsProvider = context.read<SettingsProvider>();
+    settingsProvider.addListener(
+      () => _updateControllerTextStyles(context),
+    );
+
+    _setInitialExpression();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _textEditingController.dispose();
     focusNode.dispose();
     super.dispose();
   }
 
-  CalculatorViewModel(BuildContext context) {
-    _initializeController(context);
-
-    // Listen for theme changes dynamically
-    Provider.of<SettingsProvider>(
-      context,
-      listen: false,
-    ).addListener(
-      () => _updateControllerTextStyles(context),
-    );
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      saveExpression();
+    }
   }
 
   void _initializeController(
@@ -71,6 +84,36 @@ class CalculatorViewModel extends ChangeNotifier {
     );
     notifyListeners();
   }
+
+  Future<void> saveExpression() async {
+    final settingsProvider = context.read<SettingsProvider>();
+    if (settingsProvider.keepLastRecord) {
+      await settingsProvider.updateLastExpression(_textEditingController.text);
+    }
+
+    canPop = true;
+    notifyListeners();
+    Timer(
+      const Duration(seconds: 3),
+      () {
+        canPop = false;
+        notifyListeners();
+      },
+    );
+  }
+
+  void _setInitialExpression() {
+    final settingsProvider = context.read<SettingsProvider>();
+    if (settingsProvider.keepLastRecord) {
+      _textEditingController.text = settingsProvider.lastExpression;
+      _result = _evaluator.calculateResult(
+        _textEditingController.text,
+        angleInDegree: _angleInDegree,
+      );
+    }
+  }
+
+  bool canPop = false;
 
   late RichTextController _textEditingController;
   RichTextController get textEditingController => _textEditingController;
@@ -138,7 +181,7 @@ class CalculatorViewModel extends ChangeNotifier {
   void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
-  void computeResult(BuildContext context) {
+  void computeResult() {
     if (isSimpleNumber(_textEditingController.text)) {
       return;
     }

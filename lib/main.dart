@@ -59,20 +59,15 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => settingsController),
+        ChangeNotifierProvider(
+          create: (_) => settingsController,
+        ),
         ChangeNotifierProvider(
           create: (_) => HistoryViewModel(
             totalHistoryLogs: totalHistoryLogs,
             initialHistoryLogs: initialHistoryLogs,
           ),
         ),
-        ChangeNotifierProvider(create: (_) => UnitConverterViewModel()),
-        ChangeNotifierProvider(create: (_) => DiscountCalculatorViewModel()),
-        ChangeNotifierProvider(create: (_) => DateFromToCalculatorViewModel()),
-        ChangeNotifierProvider(
-          create: (_) => DateDurationCalculatorViewModel(),
-        ),
-        ChangeNotifierProvider(create: (_) => FuelCalculatorViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -84,14 +79,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Calculator App',
-      theme: lightThemeData(context),
-      darkTheme: darkThemeData(context),
-      themeMode: context.watch<SettingsProvider>().themeMode,
-      home: ChangeNotifierProvider(
-        create: (context) => CalculatorViewModel(context),
-        child: const CalculatorScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => CalculatorViewModel(context),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => UnitConverterViewModel(context),
+        ),
+        ChangeNotifierProvider(create: (_) => DiscountCalculatorViewModel()),
+        ChangeNotifierProvider(create: (_) => DateFromToCalculatorViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => DateDurationCalculatorViewModel(),
+        ),
+        ChangeNotifierProvider(create: (_) => FuelCalculatorViewModel()),
+      ],
+      child: MaterialApp(
+        title: 'Calculator App',
+        theme: lightThemeData(context),
+        darkTheme: darkThemeData(context),
+        themeMode: context.watch<SettingsProvider>().themeMode,
+        home: const CalculatorScreen(),
       ),
     );
   }
