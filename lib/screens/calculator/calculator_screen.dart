@@ -1,5 +1,6 @@
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/providers/settings_provider.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
@@ -36,7 +37,6 @@ class CalculatorScreen extends StatelessWidget {
         fontSize: 50,
       ),
       minFontSize: 30,
-      //maxLines: null,
       focusNode: viewModelRead.focusNode,
     );
 
@@ -61,13 +61,18 @@ class CalculatorScreen extends StatelessWidget {
       if (!showResult) {
         resultOrError = const SizedBox();
       } else {
+        final formattedResult = formatNumber(
+          viewModelResult,
+          decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+        );
+
         resultOrError = FittedBox(
           child: GestureDetector(
             onLongPress: () async => await copyTextToClipboard(
-              numberFormatter.format(viewModelResult),
+              formattedResult,
             ),
             child: Text(
-              numberFormatter.format(viewModelResult),
+              formattedResult,
               style: TextStyle(color: appColors.result),
             ),
           ),
@@ -98,7 +103,7 @@ class CalculatorScreen extends StatelessWidget {
     late final angleButton = GridButton(
       onPressed: viewModelRead.toogleAngleInDegree,
       text: viewModelRead.angleInDegree ? 'RAD' : 'DEG',
-      foregroundColor: appColors.toogleRadiansButtonForeground,
+      foregroundColor: appColors.primary,
     );
 
     final backspaceButton = InkWell(
@@ -111,7 +116,7 @@ class CalculatorScreen extends StatelessWidget {
       ),
     );
 
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(
           '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
@@ -156,6 +161,17 @@ class CalculatorScreen extends StatelessWidget {
         ),
       ),
       drawer: const MyDrawer(),
+    );
+
+    return PopScope(
+      canPop: !context.read<SettingsProvider>().keepLastRecord ||
+          context.watch<CalculatorViewModel>().canPop,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        showToast("Press 'Back' once more to exit");
+        await viewModelRead.saveExpression();
+      },
+      child: scaffold,
     );
   }
 }

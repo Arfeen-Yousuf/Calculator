@@ -2,6 +2,7 @@ import 'package:calculator/app/colors.dart';
 import 'package:calculator/screens/date_calculator/date_calculator_screen.dart';
 import 'package:calculator/screens/discount_calculator/discount_calculator_screen.dart';
 import 'package:calculator/screens/fuel_calculator/fuel_calculator_screen.dart';
+import 'package:calculator/screens/settings/settings_screen.dart';
 import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -52,6 +53,11 @@ class MyDrawer extends StatelessWidget {
             leadingSvgIconData: SvgIconData.fuel,
             title: 'Fuel Calculator',
             destination: FuelCalculatorScreen(),
+          ),
+          const _DrawerListTile(
+            leadingSvgIconData: SvgIconData.settings,
+            title: 'Settings',
+            destination: SettingsScreen(),
           ),
         ],
       ),

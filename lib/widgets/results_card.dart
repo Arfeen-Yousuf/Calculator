@@ -28,8 +28,6 @@ class ResultsCard extends StatelessWidget {
           style: resultsLabelTextStyle,
         ),
         Card(
-          color: appColors.resultsBackground,
-          elevation: 0,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 16,

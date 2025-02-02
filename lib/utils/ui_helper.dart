@@ -1,6 +1,10 @@
 import 'dart:math';
 
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/widgets/bottom_sheet_title.dart';
+import 'package:calculator/widgets/outlined_text_filled_button.dart';
+import 'package:calculator/widgets/primary_filled_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 Future<int?> showOptionsBottomSheet<T>(
@@ -11,8 +15,7 @@ Future<int?> showOptionsBottomSheet<T>(
   T? currentOption,
   required void Function(int index) onOptionSelected,
 }) {
-  final isLightTheme = Theme.of(context).brightness == Brightness.light;
-  final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+  final appColors = Theme.of(context).extension<AppColors>()!;
 
   return showModalBottomSheet<int?>(
     context: context,
@@ -35,25 +38,7 @@ Future<int?> showOptionsBottomSheet<T>(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  if (title != null)
-                    Text(
-                      title,
-                      style: TextTheme.of(context)
-                          .labelLarge
-                          ?.copyWith(fontSize: 20),
-                    ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.close,
-                      color: isLightTheme ? Colors.black : Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+              BottomSheetHeader(title: title),
               Expanded(
                 child: Scrollbar(
                   thumbVisibility: true,
@@ -91,4 +76,80 @@ Future<int?> showOptionsBottomSheet<T>(
       });
     },
   );
+}
+
+///Looks for [initialIndex] before [initialValue]
+Future<int?> showValuePicker<T>(
+  BuildContext context, {
+  String? title,
+  required List<T> values,
+  int? initialIndex,
+  T? initialValue,
+}) async {
+  final appColors = Theme.of(context).extension<AppColors>()!;
+
+  int selectedIndex = 0;
+  if (initialIndex != null) {
+    selectedIndex = initialIndex;
+  } else if (initialValue != null) {
+    selectedIndex = values.indexOf(initialValue);
+  }
+
+  final int? pickedIndex = await showCupertinoModalPopup<int>(
+    context: context,
+    builder: (_) => Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: appColors.scaffoldBackground,
+        borderRadius: const BorderRadiusDirectional.only(
+          topStart: Radius.circular(20),
+          topEnd: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BottomSheetHeader(title: title),
+          SizedBox(
+            height: 250,
+            child: CupertinoPicker(
+              scrollController:
+                  FixedExtentScrollController(initialItem: selectedIndex),
+              itemExtent: 40, // Height of each item
+              onSelectedItemChanged: (index) => selectedIndex = index,
+              children: List.generate(
+                values.length,
+                (index) => FittedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Text('${values[index]}'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedTextFilledButton(
+                  text: 'Cancel',
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: PrimaryTextFilledButton(
+                  text: 'Done',
+                  onPressed: () => Navigator.pop<int>(context, selectedIndex),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+
+  return pickedIndex;
 }

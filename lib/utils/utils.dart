@@ -35,6 +35,20 @@ final numberFormatterMedium = NumberFormat('#,##0.########');
 ///Format a number upto 10 decimal places
 final numberFormatterLong = NumberFormat('#,##0.############');
 
+NumberFormat createNumberFormat(int decimalPlaces) {
+  return (decimalPlaces == 0)
+      ? NumberFormat('#,##0')
+      : NumberFormat('#,##0.${'#' * decimalPlaces}');
+}
+
+String formatNumber(
+  num result, {
+  required int decimalPlaces,
+}) {
+  final numberFormat = createNumberFormat(decimalPlaces);
+  return numberFormat.format(result);
+}
+
 bool isSimpleNumber(String str) {
   final invalidCharacterRegExp = RegExp(r'[^0-9,\.]');
   return !invalidCharacterRegExp.hasMatch(str);

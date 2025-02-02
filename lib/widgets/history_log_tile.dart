@@ -30,9 +30,8 @@ class HistoryLogTile extends StatelessWidget {
         '= ${numberFormatter.format(historyLog.result)}',
         textAlign: TextAlign.end,
       ),
-      subtitleTextStyle: TextTheme.of(context)
-          .titleMedium
-          ?.copyWith(color: appColors.historyTileResult),
+      subtitleTextStyle:
+          TextTheme.of(context).titleMedium?.copyWith(color: appColors.primary),
       trailing: const Icon(Icons.chevron_right),
       onTap: () => showHistoryLogOptions(context),
     );

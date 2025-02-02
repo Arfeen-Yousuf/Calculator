@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 
-import 'package:calculator/app/colors.dart';
 import 'package:calculator/enums/history_log_action.dart';
+import 'package:calculator/providers/settings_provider.dart';
 import 'package:calculator/screens/history/history_screen.dart';
 import 'package:calculator/screens/history/history_view_model.dart';
 import 'package:calculator/services/history_database.dart';
@@ -15,33 +16,107 @@ import 'package:rich_text_controller/rich_text_controller.dart';
 
 import 'formatters/thousands_formatter.dart';
 
-class CalculatorViewModel extends ChangeNotifier {
+class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
+  BuildContext context;
+
+  CalculatorViewModel(this.context) {
+    WidgetsBinding.instance.addObserver(this);
+    _initializeController(context);
+
+    // Listen for theme changes dynamically
+    final settingsProvider = context.read<SettingsProvider>();
+    settingsProvider.addListener(
+      () => _updateControllerTextStyles(context),
+    );
+
+    _setInitialExpression();
+  }
+
   @override
   void dispose() {
-    textEditingController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _textEditingController.dispose();
     focusNode.dispose();
     super.dispose();
   }
 
-  final textEditingController = RichTextController(
-    onMatch: (List<String> matches) {},
-    targetMatches: <String>{
-      CalculatorConstants.percentage,
-      CalculatorConstants.division,
-      CalculatorConstants.multiplication,
-      CalculatorConstants.subtraction,
-      CalculatorConstants.addition,
-      CalculatorConstants.power,
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      saveExpression();
     }
-        .map(
-          (char) => MatchTargetItem(
-            text: char,
-            allowInlineMatching: true,
-            style: const TextStyle(color: AppColorsLight.primary),
-          ),
-        )
-        .toList(),
-  );
+  }
+
+  void _initializeController(
+    BuildContext context, {
+    String? initialText,
+  }) {
+    final settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
+
+    _textEditingController = RichTextController(
+      text: initialText,
+      onMatch: (List<String> matches) {},
+      targetMatches: <String>{
+        CalculatorConstants.percentage,
+        CalculatorConstants.division,
+        CalculatorConstants.multiplication,
+        CalculatorConstants.subtraction,
+        CalculatorConstants.addition,
+        CalculatorConstants.power,
+      }
+          .map(
+            (char) => MatchTargetItem(
+              text: char,
+              allowInlineMatching: true,
+              style: TextStyle(color: settingsProvider.themeColor.color),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  void _updateControllerTextStyles(BuildContext context) {
+    _initializeController(
+      context,
+      initialText: _textEditingController.text,
+    );
+    notifyListeners();
+  }
+
+  Future<void> saveExpression() async {
+    final settingsProvider = context.read<SettingsProvider>();
+    if (settingsProvider.keepLastRecord) {
+      await settingsProvider.updateLastExpression(_textEditingController.text);
+    }
+
+    canPop = true;
+    notifyListeners();
+    Timer(
+      const Duration(seconds: 3),
+      () {
+        canPop = false;
+        notifyListeners();
+      },
+    );
+  }
+
+  void _setInitialExpression() {
+    final settingsProvider = context.read<SettingsProvider>();
+    if (settingsProvider.keepLastRecord) {
+      _textEditingController.text = settingsProvider.lastExpression;
+      _result = _evaluator.calculateResult(
+        _textEditingController.text,
+        angleInDegree: _angleInDegree,
+      );
+    }
+  }
+
+  bool canPop = false;
+
+  late RichTextController _textEditingController;
+  RichTextController get textEditingController => _textEditingController;
 
   final focusNode = FocusNode();
   final _evaluator = ExpressionEvaluator();
@@ -51,7 +126,7 @@ class CalculatorViewModel extends ChangeNotifier {
   void toogleScientific() {
     _isScientific = !_isScientific;
     _result = _evaluator.calculateResult(
-      textEditingController.text,
+      _textEditingController.text,
       angleInDegree: _angleInDegree,
     );
     notifyListeners();
@@ -69,7 +144,7 @@ class CalculatorViewModel extends ChangeNotifier {
   void toogleAngleInDegree() {
     _angleInDegree = !_angleInDegree;
     _result = _evaluator.calculateResult(
-      textEditingController.text,
+      _textEditingController.text,
       angleInDegree: _angleInDegree,
     );
     notifyListeners();
@@ -92,7 +167,7 @@ class CalculatorViewModel extends ChangeNotifier {
   static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
 
   void clear() {
-    textEditingController.clear();
+    _textEditingController.clear();
     _result = double.nan;
     _hasError = false;
     notifyListeners();
@@ -106,8 +181,8 @@ class CalculatorViewModel extends ChangeNotifier {
   void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
-  void computeResult(BuildContext context) {
-    if (isSimpleNumber(textEditingController.text)) {
+  void computeResult() {
+    if (isSimpleNumber(_textEditingController.text)) {
       return;
     }
 
@@ -126,14 +201,14 @@ class CalculatorViewModel extends ChangeNotifier {
     }
 
     final newHistoryLog = HistoryLog(
-      expression: textEditingController.text,
+      expression: _textEditingController.text,
       result: _result,
     );
     context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
     if (_result >= 0) {
-      textEditingController.text = numberFormatter.format(_result);
+      _textEditingController.text = numberFormatter.format(_result);
     } else {
-      textEditingController.text = CalculatorConstants.space +
+      _textEditingController.text = CalculatorConstants.space +
           CalculatorConstants.subtraction +
           numberFormatter.format(-_result);
     }
@@ -155,7 +230,7 @@ class CalculatorViewModel extends ChangeNotifier {
     final historyLog = historyLogAction.$2;
     switch (historyLogAction.$1) {
       case HistoryLogAction.replace:
-        textEditingController.text = historyLog.expression;
+        _textEditingController.text = historyLog.expression;
         _result = historyLog.result.toDouble();
         notifyListeners();
       default:
@@ -171,9 +246,9 @@ class CalculatorViewModel extends ChangeNotifier {
       {bool backPressed = false}) {
     _hasError = false;
 
-    final text = textEditingController.text;
+    final text = _textEditingController.text;
 
-    int cursorPos = textEditingController.selection.base.offset;
+    int cursorPos = _textEditingController.selection.base.offset;
     if (cursorPos == -1) {
       cursorPos = 0;
     } else if (cursorPos > 0 &&
@@ -214,8 +289,8 @@ class CalculatorViewModel extends ChangeNotifier {
     if (action['replace'] != null) {
       String newText = action['replace'] as String;
       cursorPos = text.length - cursorPos;
-      textEditingController.text = newText;
-      textEditingController.selection = TextSelection.fromPosition(
+      _textEditingController.text = newText;
+      _textEditingController.selection = TextSelection.fromPosition(
           TextPosition(offset: newText.length - cursorPos));
       return;
     }
@@ -309,9 +384,9 @@ class CalculatorViewModel extends ChangeNotifier {
       return;
     }
 
-    textEditingController.text = newText;
+    _textEditingController.text = newText;
     if (charsAfterCursor < 0) charsAfterCursor = 0;
-    textEditingController.selection = TextSelection.fromPosition(
+    _textEditingController.selection = TextSelection.fromPosition(
         TextPosition(offset: newText.length - charsAfterCursor));
 
     final hasTrigonometricFunc = _containsTrigometricFunction(newText);
@@ -321,7 +396,7 @@ class CalculatorViewModel extends ChangeNotifier {
 
     dev.log('Calculating');
     _result = _evaluator.calculateResult(
-      textEditingController.text,
+      _textEditingController.text,
       angleInDegree: _angleInDegree,
     );
     notifyListeners();
@@ -432,7 +507,7 @@ class CalculatorViewModel extends ChangeNotifier {
     });
 
     _result = _evaluator.calculateResult(
-      textEditingController.text,
+      _textEditingController.text,
       angleInDegree: _angleInDegree,
     );
     notifyListeners();

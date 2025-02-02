@@ -1,10 +1,14 @@
+import 'package:calculator/providers/settings_provider.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:units_converter/units_converter.dart';
 
 class UnitConverterViewModel extends ChangeNotifier {
-  UnitConverterViewModel() {
+  BuildContext context;
+
+  UnitConverterViewModel(this.context) {
     _currentController = textEditingController1;
     _currentFocusNode = focusNode1;
     focusNode1.requestFocus();
@@ -166,7 +170,11 @@ class UnitConverterViewModel extends ChangeNotifier {
       return;
     }
 
-    final formattedValue = numberFormatterMedium.format(value);
+    final formattedValue = formatNumber(
+      value,
+      decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+    );
+
     controller.text = formattedValue.startsWith('-')
         ? CalculatorConstants.subtraction + formattedValue.substring(1)
         : formattedValue;

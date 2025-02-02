@@ -1,8 +1,8 @@
 import 'package:calculator/app/colors.dart';
 import 'package:flutter/material.dart';
 
-class PrimaryTextFilledButton extends StatelessWidget {
-  const PrimaryTextFilledButton({
+class OutlinedTextFilledButton extends StatelessWidget {
+  const OutlinedTextFilledButton({
     super.key,
     this.onPressed,
     required this.text,
@@ -16,18 +16,23 @@ class PrimaryTextFilledButton extends StatelessWidget {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    return FilledButton(
+    return OutlinedButton(
       onPressed: onPressed,
-      style: FilledButton.styleFrom(
+      style: OutlinedButton.styleFrom(
         textStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        foregroundColor: isLightTheme ? Colors.white : Colors.black,
-        backgroundColor: appColors.primary,
+        foregroundColor: isLightTheme ? appColors.primary : Colors.white,
+        backgroundColor: isLightTheme
+            ? appColors.scaffoldBackground
+            : appColors.gridButtonDefaultBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+        side: isLightTheme
+            ? BorderSide(color: Colors.grey[400]!)
+            : BorderSide.none,
         splashFactory: InkSplash.splashFactory,
       ),
       child: Padding(
