@@ -1,5 +1,9 @@
 const nanString = 'NaN';
 
+class AppStrings {
+  static const invalidFormat = 'Invalid format';
+}
+
 class Constants {
   static const packageName = 'com.arfeen.calculator';
   static const appUrl =

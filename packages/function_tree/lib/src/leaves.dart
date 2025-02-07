@@ -1,27 +1,26 @@
-import "base.dart" show Node;
-import "defs.dart" as defs;
+import 'package:decimal/decimal.dart';
+
+import 'base.dart' show Node;
+import 'defs.dart' as defs;
 
 abstract class Leaf extends Node {}
 
 /// A node representing a numeric constant.
 class ConstantLeaf extends Leaf {
-  static final ConstantLeaf zero = ConstantLeaf(0.0);
-  static final ConstantLeaf one = ConstantLeaf(1.0);
+  static final ConstantLeaf zero = ConstantLeaf(Decimal.zero);
+  static final ConstantLeaf one = ConstantLeaf(Decimal.one);
 
   ConstantLeaf(this.value);
-  final num value;
+  final Decimal value;
 
   @override
-  num call(Map<String, num> _) => value;
+  Decimal call(Map<String, Decimal> _) => value;
 
   @override
-  String toTeX() => "$value ";
+  String toTeX() => '$value ';
 
   @override
-  String representation([int indent = 0]) => "Constant $value";
-
-  @override
-  Node derivative(String _) => ConstantLeaf.zero;
+  String representation([int indent = 0]) => 'Constant $value';
 
   @override
   String toString() => value.toString();
@@ -32,19 +31,16 @@ class SpecialConstantLeaf extends Leaf {
   SpecialConstantLeaf(this.constant) : value = defs.constantMap[constant]!;
 
   final String constant;
-  final num value;
+  final Decimal value;
 
   @override
-  num call(Map<String, num> _) => value;
+  Decimal call(Map<String, Decimal> _) => value;
 
   @override
   String toTeX() => defs.constantLatexRepresentation[constant]!;
 
   @override
-  String representation([int indent = 0]) => "Special Constant $constant";
-
-  @override
-  Node derivative(String _) => ConstantLeaf.zero;
+  String representation([int indent = 0]) => 'Special Constant $constant';
 
   @override
   String toString() => constant;
@@ -57,17 +53,13 @@ class VariableLeaf extends Leaf {
   final String variable;
 
   @override
-  num call(Map<String, num> variables) => variables[variable]!;
+  Decimal call(Map<String, Decimal> variables) => variables[variable]!;
 
   @override
-  String toTeX() => "$variable ";
+  String toTeX() => '$variable ';
 
   @override
-  String representation([int indent = 0]) => "Variable $variable";
-
-  @override
-  Node derivative(String variableName) =>
-      variableName == variable ? ConstantLeaf.one : ConstantLeaf.zero;
+  String representation([int indent = 0]) => 'Variable $variable';
 
   @override
   String toString() => variable;

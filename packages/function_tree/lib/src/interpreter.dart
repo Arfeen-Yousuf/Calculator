@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 import "base.dart" show Node;
 import "branches.dart"
     show ParenthesisBranch, FunctionBranch, NegationBranch, AffirmationBranch;
@@ -19,7 +21,7 @@ import "defs.dart" as defs;
 Node parseString(String expression, List<String> variables) {
   // Check if numerical constant.
   {
-    final x = double.tryParse(expression);
+    final x = Decimal.tryParse(expression);
     if (x != null) {
       return ConstantLeaf(x);
     }
@@ -216,7 +218,7 @@ Node parseString(String expression, List<String> variables) {
       case NegationBranch():
         // Drop double negations.
         return peekAhead.child;
-      case ConstantLeaf(value: num v):
+      case ConstantLeaf(value: Decimal v):
         // Replace negations of constants with negative constants.
         return ConstantLeaf(-v);
       case _:
