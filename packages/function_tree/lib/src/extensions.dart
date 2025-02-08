@@ -54,6 +54,9 @@ final zero = Decimal.zero;
 final one = Decimal.one;
 final point5 = Decimal.parse('0.5');
 
+///For caching factorials. Uses cusom hash code
+final factorialMapping = <int, Decimal>{};
+
 double degreesToRadians(double degrees) {
   return (degrees * math.pi) / 180;
 }
@@ -214,6 +217,9 @@ extension DecimalExtensions on Decimal {
       );
     } else {
       //Deal with the positive Decimal here
+      if (factorialMapping.containsKey(customHash())) {
+        return factorialMapping[customHash()]!;
+      }
 
       Decimal integralPart = truncate();
       Decimal decimalPart = this - integralPart;
@@ -223,10 +229,14 @@ extension DecimalExtensions on Decimal {
         log('Factorial of $value');
 
         BigInt result = await _optimizedFactorial(value);
-        return Decimal.fromBigInt(result);
+        final decimalResult = Decimal.fromBigInt(result);
+        factorialMapping[decimalResult.hashCode] = decimalResult;
+        return decimalResult;
       } else {
         try {
-          return _gammaLanczos(this + Decimal.one);
+          final decimalResult = _gammaLanczos(this + Decimal.one);
+          factorialMapping[decimalResult.hashCode] = decimalResult;
+          return decimalResult;
         } on Exception {
           throw StateError(
             'Factorial domain error',
@@ -309,4 +319,6 @@ extension DecimalExtensions on Decimal {
     final results = await Future.wait([part1, part2, part3]);
     return results[0] * results[1] * results[2];
   }
+
+  int customHash() => toStringAsFixed(35).substring(0, 35).hashCode;
 }

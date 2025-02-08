@@ -19,7 +19,6 @@ class ExpressionEvaluator {
     String? expr, {
     required bool angleInDegree,
   }) async {
-    dev.log('Expression Evaluating $expr , Degrees: $angleInDegree');
     if (expr == null || expr.isEmpty) {
       throw ArgumentError('Expression must be non empty');
     }
@@ -30,6 +29,8 @@ class ExpressionEvaluator {
       throw ArgumentError(AppStrings.invalidFormat);
     }
 
+    expr = _removeFactorials(expr);
+    dev.log('Factorial removed: $expr');
     //Replace the function names and constants
     expr = _cleanExpression(expr);
     if (angleInDegree) expr = _degreeAngleExpression(expr);
@@ -43,7 +44,6 @@ class ExpressionEvaluator {
     //TODO: Resolve issue for (-4% etc
     expr = expr.replaceAll('(-', '(0-');
     expr = await _removePercentages(expr);
-    expr = _removeFactorials(expr);
 
     dev.log('Expression Interpreting $expr');
     try {
@@ -192,6 +192,7 @@ class ExpressionEvaluator {
   }
 
   String _removeFactorials(String expr) {
+    dev.log('Factorial removing from $expr');
     expr = expr.replaceAllMapped(
       RegExp(r'([0-9\.]+)!'),
       (match) {
@@ -199,6 +200,8 @@ class ExpressionEvaluator {
         return 'fact(${numStr.substring(0, numStr.length - 1)})';
       },
     );
+
+    dev.log('Factorial removing phase 1: $expr');
 
     int factInd = expr.indexOf('!');
     while (factInd != -1) {
@@ -211,24 +214,24 @@ class ExpressionEvaluator {
 
   ///Removes the factrial at the given [index] in [expr].
   ///Asssumes that a closing bracket appears before ! at [index - 1]
-  String _removeFactorialAtIndex(String expr, int index) {
-    int openBracketInd = _matchClosingBracket(
+  static String _removeFactorialAtIndex(String expr, int index) {
+    final openBracketInd = _matchClosingBracket(
       expr,
       index - 1,
     );
     if (openBracketInd == -1) {
-      throw ArgumentError('Expression must be non empty');
+      throw ArgumentError(AppStrings.invalidFormat);
     }
 
     final exprBeforeOpenBracket = expr.substring(0, openBracketInd);
 
     //Check if there is a function before the opening bracket
-    if (openBracketInd > 0 && exprBeforeOpenBracket[0].isAlphabet) {
-      final funcStr = _endsWithFunction(exprBeforeOpenBracket);
-      if (funcStr == null) {
-        throw ArgumentError(AppStrings.invalidFormat);
-      }
+    String? funcStr;
+    if (openBracketInd > 0) {
+      funcStr = _endsWithFunction(exprBeforeOpenBracket);
+    }
 
+    if (funcStr != null) {
       final exprBeforeFunc = expr.substring(
         0,
         openBracketInd - funcStr.length,
@@ -245,7 +248,7 @@ class ExpressionEvaluator {
 
   ///Returns the index of corresponding opening bracket if any.
   ///Else returns -1
-  int _matchClosingBracket(String expr, int closingBracketIndex) {
+  static int _matchClosingBracket(String expr, int closingBracketIndex) {
     int balanceBrackets = 1;
     int ind = closingBracketIndex - 1;
 
@@ -263,7 +266,7 @@ class ExpressionEvaluator {
     return -1;
   }
 
-  String? _endsWithFunction(String str) {
+  static String? _endsWithFunction(String str) {
     if (str.isEmpty) return null;
 
     String longest = '';
@@ -286,9 +289,9 @@ class ExpressionEvaluator {
     return longest.isEmpty ? null : longest;
   }
 
-  bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
+  static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
 
-  Decimal divideDecimals(Decimal d1, Decimal d2) {
+  static Decimal divideDecimals(Decimal d1, Decimal d2) {
     if (d2.sign == 0) throw ArgumentError("Can't divide by 0");
     if (d2 == Decimal.one) return d1;
     return (d1 / d2).toDecimal(scaleOnInfinitePrecision: 100);
