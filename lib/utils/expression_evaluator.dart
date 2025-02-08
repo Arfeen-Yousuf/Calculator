@@ -29,6 +29,7 @@ class ExpressionEvaluator {
       throw ArgumentError(AppStrings.invalidFormat);
     }
 
+    expr = expr.replaceAll(',', '').replaceAll(CalculatorConstants.space, '');
     expr = _removeFactorials(expr);
     dev.log('Factorial removed: $expr');
     //Replace the function names and constants
@@ -55,8 +56,6 @@ class ExpressionEvaluator {
 
   String _cleanExpression(String expr) {
     return expr
-        .replaceAll(',', '')
-        .replaceAll(CalculatorConstants.space, '')
         .replaceAll(CalculatorConstants.addition, '+')
         .replaceAll(CalculatorConstants.subtraction, '-')
         .replaceAll(CalculatorConstants.multiplication, '*')
