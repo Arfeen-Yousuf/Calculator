@@ -42,18 +42,28 @@ class CalculatorScreen extends StatelessWidget {
 
     final viewModelResult = context.watch<CalculatorViewModel>().result;
     final viewModelError = context.watch<CalculatorViewModel>().error;
+    final isCalculating = context.watch<CalculatorViewModel>().isCalculating;
 
     final Widget resultOrError;
 
-    if (viewModelError != null ||
+    if (isCalculating) {
+      resultOrError = FittedBox(
+        child: Text(
+          'Calculating',
+          style: TextStyle(color: appColors.result),
+        ),
+      );
+    } else if (viewModelError != null ||
         viewModelResult == null ||
         isSimpleNumber(viewModelRead.textEditingController.text)) {
       resultOrError = const SizedBox();
     } else {
-      final formattedResult = formatDecimal(
-        viewModelResult,
-        decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
-      );
+      final formattedResult = isCalculating
+          ? 'Calculating'
+          : formatDecimal(
+              viewModelResult,
+              decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+            );
 
       resultOrError = FittedBox(
         child: GestureDetector(

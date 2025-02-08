@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:calculator/enums/history_log_action.dart';
 import 'package:calculator/providers/settings_provider.dart';
@@ -122,10 +123,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   get isScientific => _isScientific;
   void toogleScientific() {
     _isScientific = !_isScientific;
-    // _result = _evaluator.calculateResult(
-    //   _textEditingController.text,
-    //   angleInDegree: _angleInDegree,
-    // );
     notifyListeners();
   }
 
@@ -148,6 +145,9 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   Decimal? _result;
   Decimal? get result => _result;
+
+  bool _isCalculating = false;
+  bool get isCalculating => _isCalculating;
 
   String? _error;
   String? get error => _error;
@@ -179,36 +179,16 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
 
-    // if (_result.toString().contains(nanString)) {
-    //   _setError(true);
-    //   return;
-    // }
-    // if (_result == double.infinity) {
-    //   showToast('Result too large to show.');
-    //   return;
-    // }
-    // if (_result == double.negativeInfinity) {
-    //   showToast('Result too small to show.');
-    //   return;
-    // }
-
     final newHistoryLog = HistoryLog(
       expression: _textEditingController.text,
       result: _result!.toDouble(),
     );
     context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
-    //if (_result! >= Decimal.zero) {
-    //_textEditingController.text = numberFormatter.format(_result);
     _textEditingController.text = formatDecimal(
       _result!,
       decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
     );
 
-    // } else {
-    //   _textEditingController.text = CalculatorConstants.space +
-    //       CalculatorConstants.subtraction +
-    //       numberFormatter.format(-_result!);
-    // }
     notifyListeners();
   }
 
@@ -816,22 +796,41 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _calculateResult() {
+    _calculateResultAsync();
+  }
+
+  void _calculateResultAsync() async {
+    _result = null;
+    _isCalculating = true;
+    dev.log('IsCalclating $_isCalculating');
+    notifyListeners();
+
+    String expr = _textEditingController.text;
+    Decimal? tempResult;
+    String? tempError;
+
     try {
-      _result = _evaluator.calculateResult(
-        _textEditingController.text,
+      tempResult = await _evaluator.calculateResult(
+        expr,
         angleInDegree: _angleInDegree,
       );
     } on Error catch (e) {
-      _result = null;
-      _error = switch (e) {
+      tempResult = null;
+      tempError = switch (e) {
         ArgumentError(:var message) => message,
         StateError(:var message) => message,
         _ => 'An error occurred.'
       };
     } on Exception {
-      _result = null;
-      _error = AppStrings.invalidFormat;
+      tempResult = null;
+      tempError = AppStrings.invalidFormat;
     }
-    notifyListeners();
+
+    if (_textEditingController.text == expr) {
+      _result = tempResult;
+      _isCalculating = false;
+      _error = tempError;
+      notifyListeners();
+    }
   }
 }

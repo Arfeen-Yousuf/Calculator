@@ -15,10 +15,10 @@ class ExpressionEvaluator {
   final numberFormatter = NumberFormat('#,##0.##########');
 
   ///May throw ArgumentError or StateError
-  Decimal calculateResult(
+  Future<Decimal> calculateResult(
     String? expr, {
     required bool angleInDegree,
-  }) {
+  }) async {
     dev.log('Expression Evaluating $expr , Degrees: $angleInDegree');
     if (expr == null || expr.isEmpty) {
       throw ArgumentError('Expression must be non empty');
@@ -42,7 +42,7 @@ class ExpressionEvaluator {
     if (expr.startsWith('-')) expr = '0$expr';
     //TODO: Resolve issue for (-4% etc
     expr = expr.replaceAll('(-', '(0-');
-    expr = _removePercentages(expr);
+    expr = await _removePercentages(expr);
     expr = _removeFactorials(expr);
 
     dev.log('Expression Interpreting $expr');
@@ -51,18 +51,6 @@ class ExpressionEvaluator {
     } on Exception {
       throw ArgumentError('Result outside of accepted range');
     }
-
-    // final tenPower15 = pow(10, 15);
-    // if (result > tenPower15) return double.infinity;
-    // if (result < -tenPower15) return double.negativeInfinity;
-    // if (result.abs() < pow(10, -8)) return 0;
-
-    // if (result.abs() > pow(10, 13)) {
-    //   dev.log('Large Result $result');
-    //   return (result.toDouble() * 1000).truncate() / 1000;
-    // }
-
-    //return result;
   }
 
   String _cleanExpression(String expr) {
@@ -120,17 +108,17 @@ class ExpressionEvaluator {
     return expr + (')' * bracketBalance);
   }
 
-  String _removePercentages(String expr) {
+  Future<String> _removePercentages(String expr) async {
     int index = expr.indexOf(CalculatorConstants.percentage);
     while (index != -1) {
-      expr = _removePercentageAtIndex(expr, index);
+      expr = await _removePercentageAtIndex(expr, index);
       index = expr.indexOf(CalculatorConstants.percentage);
     }
 
     return expr;
   }
 
-  String _removePercentageAtIndex(String expr, int index) {
+  Future<String> _removePercentageAtIndex(String expr, int index) async {
     //The index where percentage expressions starts
     int percentExprInd = index - 1;
     if (percentExprInd < 0) return '';
@@ -149,7 +137,8 @@ class ExpressionEvaluator {
       percentExprInd++;
     }
 
-    final percentExprResult = expr.substring(percentExprInd, index).interpret();
+    final percentExprResult =
+        await expr.substring(percentExprInd, index).interpret();
 
     //Now find the expression on which percentage is to be applied
     bool replaceWithDivision = false;
@@ -192,14 +181,11 @@ class ExpressionEvaluator {
 
     final appliedExprResult =
         expr.substring(appliedExprInd, percentExprInd - 1).interpret();
-    if (expr[percentExprInd - 1] == '-') {
+    String char = expr[percentExprInd - 1];
+    if (['-', '+'].contains(char)) {
       return '${expr.substring(0, appliedExprInd)}'
-          '($appliedExprResult*(1-${divideDecimals(percentExprResult, Decimal.fromInt(100))}))'
+          '($appliedExprResult*(1$char${divideDecimals(percentExprResult, Decimal.fromInt(100))}))'
           '${expr.substring(index + 1)}';
-    }
-
-    if (expr[percentExprInd - 1] == '+') {
-      return '${expr.substring(0, appliedExprInd)}($appliedExprResult*(1+${divideDecimals(percentExprResult, Decimal.fromInt(100))}))${expr.substring(index + 1)}';
     }
 
     return expr;
@@ -240,7 +226,7 @@ class ExpressionEvaluator {
     if (openBracketInd > 0 && exprBeforeOpenBracket[0].isAlphabet) {
       final funcStr = _endsWithFunction(exprBeforeOpenBracket);
       if (funcStr == null) {
-        throw ArgumentError('Expression must be non empty');
+        throw ArgumentError(AppStrings.invalidFormat);
       }
 
       final exprBeforeFunc = expr.substring(
@@ -248,10 +234,9 @@ class ExpressionEvaluator {
         openBracketInd - funcStr.length,
       );
       return '$exprBeforeFunc'
-          'fact(${expr.substring(exprBeforeFunc.length, index)})';
+          'fact(${expr.substring(exprBeforeFunc.length, index)})'
+          '${expr.substring(index + 1)}';
     } else {
-      //...sin(lkhf)!
-      //...fact(sin(lkhf))
       return '$exprBeforeOpenBracket'
           'fact${expr.substring(openBracketInd, index)}'
           '${expr.substring(index + 1)}';

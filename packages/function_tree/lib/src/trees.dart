@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 
 import 'base.dart' show Node;
@@ -64,10 +66,12 @@ class MultiVariableFunction extends FunctionTree {
   final Node _tree;
   Node get tree => _tree;
 
-  Decimal call(Map<String, Decimal> variables) =>
-      _tree(Map<String, Decimal>.fromIterable(
-          variables.keys.where((key) => _variablesToMap.contains(key)),
-          value: (key) => variables[key]!));
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final futureDecimal = _tree(Map<String, Decimal>.fromIterable(
+        variables.keys.where((key) => _variablesToMap.contains(key)),
+        value: (key) => variables[key]!));
+    return await futureDecimal;
+  }
 
   @override
   String get tex => cleanTeX(_tree.toTeX());
@@ -123,7 +127,10 @@ class SingleVariableFunction extends FunctionTree {
 
   String variable;
 
-  Decimal call(Decimal x) => _tree({variable: x});
+  FutureOr<Decimal> call(Decimal x) async {
+    final futureDecimal = _tree({variable: x});
+    return await futureDecimal;
+  }
 
   @override
   String get tex => cleanTeX(_tree.toTeX());

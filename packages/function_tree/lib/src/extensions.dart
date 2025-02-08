@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:isolate';
 import 'dart:math' as math;
 import 'package:decimal/decimal.dart';
 
@@ -37,12 +39,15 @@ extension FunctionTreeStringMethods on String {
   /// Example:
   ///
   ///     print("2 * pi".interpret()); // 6.283185307179586
-  Decimal interpret() => toSingleVariableFunction()(Decimal.zero);
+  FutureOr<Decimal> interpret() async {
+    final futureDecimal = toSingleVariableFunction()(Decimal.zero);
+    return await futureDecimal;
+  }
 }
 
 const maxPrecision = 100;
 final piThreshold = Decimal.parse('0.000000000000001');
-const maxFactorial = 300;
+const maxFactorial = 140;
 final e = numberToDecimal(math.e);
 final pi = numberToDecimal(math.pi);
 final zero = Decimal.zero;
@@ -64,11 +69,6 @@ double log10Double(double d) {
 Decimal numberToDecimal(num n) => Decimal.parse('$n');
 
 extension DecimalExtensions on Decimal {
-// Precomputed Factorials for efficiency
-  static final factorial100 = _computeFactorialSync(100);
-  static final factorial200 = factorial100 * _factorialRange(101, 200);
-  static final factorial300 = factorial200 * _factorialRange(201, 300);
-
   Decimal divide(Decimal divisor) {
     if (divisor.sign == 0) throw ArgumentError("Can't divide by 0");
     if (divisor == one) return this;
@@ -203,8 +203,7 @@ extension DecimalExtensions on Decimal {
     return numberToDecimal(d);
   }
 
-  Decimal factorial() {
-    log('Factorial of $this');
+  Future<Decimal> factorial() async {
     if (sign == 0) {
       return Decimal.one;
     } else if (sign == -1) {
@@ -223,8 +222,8 @@ extension DecimalExtensions on Decimal {
         int value = int.parse(toString());
         log('Factorial of $value');
 
-        Decimal result = _optimizedFactorial(value);
-        return result;
+        BigInt result = await _optimizedFactorial(value);
+        return Decimal.fromBigInt(result);
       } else {
         try {
           return _gammaLanczos(this + Decimal.one);
@@ -237,33 +236,16 @@ extension DecimalExtensions on Decimal {
     }
   }
 
-  static Decimal _optimizedFactorial(int n) {
-    BigInt result = switch (n) {
-      < 100 => _computeFactorialSync(n),
-      100 => factorial100,
-      < 200 => factorial100 * _factorialRange(101, n),
-      200 => factorial200,
-      < 300 => factorial200 * _factorialRange(201, n),
-      300 => factorial300,
-      _ => throw throw Exception(
-          'Result outside of accepted range',
-        )
-    };
-
-    return Decimal.fromBigInt(result);
-  }
-
-  static BigInt _computeFactorialSync(int n) {
-    return _factorialRange(1, n);
-  }
-
-  static BigInt _factorialRange(int start, int end) {
-    print('Facorial range $start to $end');
-    BigInt result = BigInt.one;
-    for (int i = start; i <= end; i++) {
-      result *= BigInt.from(i);
+  static FutureOr<BigInt> _optimizedFactorial(int n) {
+    if (n < 100) {
+      return _computeFactorialSync(n);
+    } else if (n <= maxFactorial) {
+      return _computeFactorialWithTwoIsolates(n);
+    } else {
+      throw Exception(
+        'Result outside of accepted range',
+      );
     }
-    return result;
   }
 
   static Decimal _gammaLanczos(Decimal d) {
@@ -292,5 +274,39 @@ extension DecimalExtensions on Decimal {
     final result = firstPart * a;
 
     return numberToDecimal(result);
+  }
+
+  static BigInt _computeFactorialSync(int n) {
+    return _factorialRange(1, n);
+  }
+
+  static BigInt _factorialRange(int start, int end) {
+    BigInt result = BigInt.one;
+    for (int i = start; i <= end; i++) {
+      result *= BigInt.from(i);
+    }
+    return result;
+  }
+
+  static Future<BigInt> _computeFactorialWithTwoIsolates(int n) async {
+    int mid = n ~/ 2;
+
+    final part1 = Isolate.run(() => _factorialRange(2, mid));
+    final part2 = Isolate.run(() => _factorialRange(mid + 1, n));
+
+    final results = await Future.wait([part1, part2]);
+    return results[0] * results[1];
+  }
+
+  static Future<BigInt> _computeFactorialWithThreeIsolates(int n) async {
+    int ind1 = n ~/ 3;
+    int ind2 = 2 * ind1;
+
+    final part1 = Isolate.run(() => _factorialRange(2, ind1));
+    final part2 = Isolate.run(() => _factorialRange(ind1 + 1, ind2));
+    final part3 = Isolate.run(() => _factorialRange(ind2 + 1, n));
+
+    final results = await Future.wait([part1, part2, part3]);
+    return results[0] * results[1] * results[2];
   }
 }

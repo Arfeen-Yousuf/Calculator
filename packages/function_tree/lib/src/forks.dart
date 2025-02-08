@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 import 'package:function_tree/src/extensions.dart';
 
@@ -31,8 +33,13 @@ abstract class Fork extends Node {
   });
 
   @override
-  Decimal call(Map<String, Decimal> variables) =>
-      definition(left(variables), right(variables));
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final result = definition(
+      await left(variables),
+      await right(variables),
+    );
+    return result;
+  }
 
   @override
   String toTeX() => generateTeX(left, right);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 
 import 'base.dart' show Node;
@@ -19,8 +21,11 @@ class FunctionBranch extends Branch {
   final String name;
 
   @override
-  Decimal call(Map<String, Decimal> variables) =>
-      defs.oneParameterFunctionMap[name]!(child(variables));
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final futureDecimal =
+        defs.oneParameterFunctionMap[name]!(await child(variables));
+    return await futureDecimal;
+  }
 
   @override
   String toTeX() => defs.oneParameterFunctionLatexRepresentation[name]!
@@ -43,7 +48,10 @@ class ParenthesisBranch extends Branch {
   }
 
   @override
-  Decimal call(Map<String, Decimal> variables) => child(variables);
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final futureDecimal = child(variables);
+    return await futureDecimal;
+  }
 
   @override
   String toTeX() => r'\left(C\right)'.replaceAll('C', child.toTeX());
@@ -65,7 +73,10 @@ class NegationBranch extends Branch {
   }
 
   @override
-  Decimal call(Map<String, Decimal> variables) => -child(variables);
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final result = await child(variables);
+    return -result;
+  }
 
   @override
   String toTeX() => '-${child.toTeX()}';
@@ -87,7 +98,10 @@ class AffirmationBranch extends Branch {
   }
 
   @override
-  Decimal call(Map<String, Decimal> variables) => child(variables);
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final futureDecimal = child(variables);
+    return await futureDecimal;
+  }
 
   @override
   String toTeX() => '+${child.toTeX()}';

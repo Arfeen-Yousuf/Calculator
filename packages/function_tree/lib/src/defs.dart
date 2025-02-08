@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:decimal/decimal.dart';
@@ -19,7 +20,8 @@ final Map<String, String> twoParameterFunctionLatexRepresentation = {
 };
 
 /// A mapping of string representations to functions.
-final Map<String, Decimal Function(Decimal)> oneParameterFunctionMap = {
+final Map<String, FutureOr<Decimal> Function(Decimal)> oneParameterFunctionMap =
+    {
   'sin': (x) => x.sin(radianMode: true),
   'cos': (x) => x.cos(radianMode: true),
   'tan': (x) => x.tan(radianMode: true),
