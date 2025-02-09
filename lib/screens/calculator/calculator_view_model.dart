@@ -367,7 +367,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _textEditingController.selection = TextSelection.fromPosition(
         TextPosition(offset: newText.length - charsAfterCursor));
 
-    final hasTrigonometricFunc = _containsTrigometricFunction(newText);
+    final hasTrigonometricFunc = containsTrigometricFunction(newText);
     if (hasTrigonometricFunc != _hasTrigonometricFunction) {
       _hasTrigonometricFunction = hasTrigonometricFunc;
     }
@@ -788,13 +788,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     return longest.isEmpty ? null : longest;
   }
 
-  static bool _containsTrigometricFunction(String newText) {
-    return [
-      ...ScientificFunctions.trigonometric,
-      ...ScientificFunctions.trigonometricInverses
-    ].any((func) => newText.contains('$func('));
-  }
-
   void _calculateResult() {
     _calculateResultAsync();
   }
@@ -805,32 +798,26 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     dev.log('IsCalclating $_isCalculating');
     notifyListeners();
 
-    String expr = _textEditingController.text;
-    Decimal? tempResult;
-    String? tempError;
-
     try {
-      tempResult = await _evaluator.calculateResult(
+      final expr = _textEditingController.text;
+      _result = await _evaluator.calculateResult(
         expr,
         angleInDegree: _angleInDegree,
       );
+      _error = null;
     } on Error catch (e) {
-      tempResult = null;
-      tempError = switch (e) {
+      _result = null;
+      _error = switch (e) {
         ArgumentError(:var message) => message,
         StateError(:var message) => message,
         _ => 'An error occurred.'
       };
     } on Exception {
-      tempResult = null;
-      tempError = AppStrings.invalidFormat;
+      _result = null;
+      _error = AppStrings.invalidFormat;
     }
 
-    if (_textEditingController.text == expr) {
-      _result = tempResult;
-      _isCalculating = false;
-      _error = tempError;
-      notifyListeners();
-    }
+    _isCalculating = false;
+    notifyListeners();
   }
 }

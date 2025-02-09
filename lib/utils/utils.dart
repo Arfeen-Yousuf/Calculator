@@ -132,6 +132,13 @@ bool isSimpleNumber(String str) {
   return !invalidCharacterRegExp.hasMatch(str);
 }
 
+bool containsTrigometricFunction(String newText) {
+  return [
+    ...ScientificFunctions.trigonometric,
+    ...ScientificFunctions.trigonometricInverses
+  ].any((func) => newText.contains('$func('));
+}
+
 double roundToDecimalPlaces(
   double value,
   int decimalPlaces,

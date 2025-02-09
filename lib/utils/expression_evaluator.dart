@@ -1,16 +1,13 @@
 import 'dart:developer' as dev;
-//import 'dart:math';
 
-//import 'package:calculator/utils/utils.dart';
-import 'package:calculator/extensions/string.dart';
 import 'package:decimal/decimal.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:intl/intl.dart';
 
 import 'constants.dart';
+import 'utils.dart';
 
 class ExpressionEvaluator {
-  //final numberRegExp = RegExp(r'\d+(\.\d+)?');
   //Allow upto 10 decimal points
   final numberFormatter = NumberFormat('#,##0.##########');
 
@@ -22,6 +19,7 @@ class ExpressionEvaluator {
     if (expr == null || expr.isEmpty) {
       throw ArgumentError('Expression must be non empty');
     }
+    final originalExpression = expr;
 
     //Percentage and factorial can not occur consecutively: !% or %!
     if (expr.contains('!${CalculatorConstants.percentage}') ||
@@ -31,7 +29,6 @@ class ExpressionEvaluator {
 
     expr = expr.replaceAll(',', '').replaceAll(CalculatorConstants.space, '');
     expr = _removeFactorials(expr);
-    dev.log('Factorial removed: $expr');
     //Replace the function names and constants
     expr = _cleanExpression(expr);
     if (angleInDegree) expr = _degreeAngleExpression(expr);
@@ -48,7 +45,11 @@ class ExpressionEvaluator {
 
     dev.log('Expression Interpreting $expr');
     try {
-      return expr.interpret();
+      Decimal result = await expr.interpret();
+      if (containsTrigometricFunction(originalExpression)) {
+        result = result.round(scale: 15);
+      }
+      return result;
     } on Exception {
       throw ArgumentError('Result outside of accepted range');
     }
@@ -191,7 +192,7 @@ class ExpressionEvaluator {
   }
 
   String _removeFactorials(String expr) {
-    dev.log('Factorial removing from $expr');
+    //Numbers
     expr = expr.replaceAllMapped(
       RegExp(r'([0-9\.]+)!'),
       (match) {
@@ -200,8 +201,12 @@ class ExpressionEvaluator {
       },
     );
 
-    dev.log('Factorial removing phase 1: $expr');
+    //Constants
+    for (final constant in ScientificConstants.constants) {
+      expr = expr.replaceAll('$constant!', 'fact($constant)');
+    }
 
+    //Functions
     int factInd = expr.indexOf('!');
     while (factInd != -1) {
       expr = _removeFactorialAtIndex(expr, factInd);

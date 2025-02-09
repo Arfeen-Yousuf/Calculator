@@ -45,17 +45,24 @@ extension FunctionTreeStringMethods on String {
   }
 }
 
-const maxPrecision = 100;
-final piThreshold = Decimal.parse('0.000000000000001');
-const maxFactorial = 140;
+const _maxPrecision = 100;
 final e = numberToDecimal(math.e);
 final pi = numberToDecimal(math.pi);
+final piThreshold = Decimal.parse('0.000000000000001');
 final zero = Decimal.zero;
 final one = Decimal.one;
-final point5 = Decimal.parse('0.5');
+final _point5 = Decimal.parse('0.5');
 
-///For caching factorials. Uses cusom hash code
-final factorialMapping = <int, Decimal>{};
+const _maxFactorial = 140;
+
+///For caching factorials of numbers with decimal parts.
+/// Uses custom hash code.
+final _decimalFactorialMap = <int, Decimal?>{};
+//For caching factorials of integers.
+final _integerFactorialMap = <int, BigInt>{
+  0: BigInt.zero,
+  1: BigInt.one,
+};
 
 double degreesToRadians(double degrees) {
   return (degrees * math.pi) / 180;
@@ -76,7 +83,7 @@ extension DecimalExtensions on Decimal {
     if (divisor.sign == 0) throw ArgumentError("Can't divide by 0");
     if (divisor == one) return this;
     return (this / divisor).toDecimal(
-      scaleOnInfinitePrecision: maxPrecision,
+      scaleOnInfinitePrecision: _maxPrecision,
     );
   }
 
@@ -141,11 +148,11 @@ extension DecimalExtensions on Decimal {
   }
 
   Decimal sinh() {
-    return (e.power(this) - e.power(-this)) * point5;
+    return (e.power(this) - e.power(-this)) * _point5;
   }
 
   Decimal cosh() {
-    return (e.power(this) + e.power(-this)) * point5;
+    return (e.power(this) + e.power(-this)) * _point5;
   }
 
   Decimal tanh() {
@@ -174,13 +181,13 @@ extension DecimalExtensions on Decimal {
     }
 
     Decimal d = (one + this).divide(one - this);
-    return point5 * d.ln();
+    return _point5 * d.ln();
   }
 
   /// Square Root
   Decimal sqrt() {
     if (sign == -1) throw StateError('\u221A is defined for positive numbers');
-    return power(point5);
+    return power(_point5);
   }
 
   /// Cube Root
@@ -207,49 +214,52 @@ extension DecimalExtensions on Decimal {
   }
 
   Future<Decimal> factorial() async {
-    if (sign == 0) {
-      return Decimal.one;
-    } else if (sign == -1) {
+    if (sign == -1) {
       throw StateError('Factorial is defined for non negative numbers');
-    } else if (this > Decimal.fromInt(maxFactorial)) {
-      throw StateError(
-        'Result outside of accepted range',
-      );
-    } else {
-      //Deal with the positive Decimal here
-      if (factorialMapping.containsKey(customHash())) {
-        return factorialMapping[customHash()]!;
+    }
+
+    if (isInteger) {
+      int value = int.parse(toString());
+      if (this > Decimal.fromInt(_maxFactorial)) {
+        throw StateError(
+          'Result outside of accepted range',
+        );
+      }
+      if (_integerFactorialMap.containsKey(value)) {
+        return Decimal.fromBigInt(_integerFactorialMap[value]!);
       }
 
-      Decimal integralPart = truncate();
-      Decimal decimalPart = this - integralPart;
+      BigInt result = await _optimizedFactorial(value);
+      _integerFactorialMap[value] = result;
+      return Decimal.fromBigInt(result);
+    } else {
+      final hash = customHash();
 
-      if (decimalPart.sign == 0) {
-        int value = int.parse(toString());
-        log('Factorial of $value');
-
-        BigInt result = await _optimizedFactorial(value);
-        final decimalResult = Decimal.fromBigInt(result);
-        factorialMapping[decimalResult.hashCode] = decimalResult;
-        return decimalResult;
-      } else {
-        try {
-          final decimalResult = _gammaLanczos(this + Decimal.one);
-          factorialMapping[decimalResult.hashCode] = decimalResult;
-          return decimalResult;
-        } on Exception {
+      if (_decimalFactorialMap.containsKey(hash)) {
+        if (_decimalFactorialMap[hash] == null) {
           throw StateError(
             'Factorial domain error',
           );
         }
+        return _decimalFactorialMap[hash]!;
+      }
+      try {
+        final decimalResult = _gammaLanczos(this + Decimal.one);
+        _decimalFactorialMap[hash] = decimalResult;
+        return decimalResult;
+      } on Exception {
+        _decimalFactorialMap[hash] = null;
+        throw StateError(
+          'Factorial domain error',
+        );
       }
     }
   }
 
   static FutureOr<BigInt> _optimizedFactorial(int n) {
-    if (n < 100) {
+    if (n < 80) {
       return _computeFactorialSync(n);
-    } else if (n <= maxFactorial) {
+    } else if (n <= _maxFactorial) {
       return _computeFactorialWithTwoIsolates(n);
     } else {
       throw Exception(
@@ -287,7 +297,13 @@ extension DecimalExtensions on Decimal {
   }
 
   static BigInt _computeFactorialSync(int n) {
-    return _factorialRange(1, n);
+    BigInt result = BigInt.one;
+    for (int i = 1; i <= n; i++) {
+      result *= BigInt.from(i);
+      _integerFactorialMap[i] = result;
+    }
+
+    return result;
   }
 
   static BigInt _factorialRange(int start, int end) {
@@ -299,10 +315,26 @@ extension DecimalExtensions on Decimal {
   }
 
   static Future<BigInt> _computeFactorialWithTwoIsolates(int n) async {
-    int mid = n ~/ 2;
+    //Iterate over the map and find appropriate base to start with
+    int base = 1;
+    _integerFactorialMap.keys.forEach((i) {
+      if (i < n && i > base) base = i;
+    });
 
-    final part1 = Isolate.run(() => _factorialRange(2, mid));
-    final part2 = Isolate.run(() => _factorialRange(mid + 1, n));
+    final part2 = await _computeFactorialRangeWithTwoIsolates(base + 1, n);
+    return _integerFactorialMap[base]! * part2;
+  }
+
+  static Future<BigInt> _computeFactorialRangeWithTwoIsolates(
+    int start,
+    int end,
+  ) async {
+    if (end < start) return BigInt.one;
+    if (start == end) return BigInt.from(start);
+
+    int mid = (start + end) ~/ 2;
+    final part1 = Isolate.run(() => _factorialRange(start, mid));
+    final part2 = Isolate.run(() => _factorialRange(mid + 1, end));
 
     final results = await Future.wait([part1, part2]);
     return results[0] * results[1];
