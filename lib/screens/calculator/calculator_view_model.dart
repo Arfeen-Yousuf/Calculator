@@ -179,15 +179,16 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
 
-    final newHistoryLog = HistoryLog(
-      expression: _textEditingController.text,
-      result: _result!.toDouble(),
-    );
-    context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
-    _textEditingController.text = formatDecimal(
+    final formattedResult = formatDecimal(
       _result!,
       decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
     );
+    final newHistoryLog = HistoryLog(
+      expression: _textEditingController.text,
+      result: formattedResult,
+    );
+    context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
+    _textEditingController.text = formattedResult;
 
     notifyListeners();
   }
