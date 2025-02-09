@@ -12,7 +12,7 @@ class HistoryLog {
   int? id;
   late DateTime dateTime;
   String expression;
-  num result;
+  String result;
 
   HistoryLog({
     this.id,
@@ -41,7 +41,7 @@ class HistoryLog {
       id: map[columnId] as int,
       dateTime: DateTime.parse(map[columnDateTime] as String),
       expression: map[columnExpression] as String,
-      result: map[columnResult] as num,
+      result: map[columnResult] as String,
     );
   }
 

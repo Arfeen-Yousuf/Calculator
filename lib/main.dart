@@ -41,7 +41,7 @@ void main() async {
             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnDateTime TEXT NOT NULL,
             $columnExpression TEXT NOT NULL, 
-            $columnResult REAL NOT NULL)
+            $columnResult TEXT NOT NULL)
         ''',
       );
     },

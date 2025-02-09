@@ -1,6 +1,10 @@
-import "base.dart" show Node;
-import "interpreter.dart" show parseString;
-import "helpers.dart" show cleanExpression, cleanTeX;
+import 'dart:async';
+
+import 'package:decimal/decimal.dart';
+
+import 'base.dart' show Node;
+import 'interpreter.dart' show parseString;
+import 'helpers.dart' show cleanExpression, cleanTeX;
 
 /// Parent for `SingleVariableFunction` and `MultiVariableFunction` classes.
 abstract class FunctionTree {
@@ -62,21 +66,18 @@ class MultiVariableFunction extends FunctionTree {
   final Node _tree;
   Node get tree => _tree;
 
-  num call(Map<String, num> variables) => _tree(Map<String, num>.fromIterable(
-      variables.keys.where((key) => _variablesToMap.contains(key)),
-      value: (key) => variables[key]!));
+  FutureOr<Decimal> call(Map<String, Decimal> variables) async {
+    final futureDecimal = _tree(Map<String, Decimal>.fromIterable(
+        variables.keys.where((key) => _variablesToMap.contains(key)),
+        value: (key) => variables[key]!));
+    return await futureDecimal;
+  }
 
   @override
   String get tex => cleanTeX(_tree.toTeX());
 
   @override
   String get representation => _tree.representation();
-
-  MultiVariableFunction partial(String variableName) =>
-      MultiVariableFunction.fromNode(
-        node: _tree.derivative(variableName),
-        withVariables: _variablesToMap,
-      );
 
   @override
   String toString() => _tree.toString();
@@ -112,12 +113,12 @@ class MultiVariableFunction extends FunctionTree {
 ///
 class SingleVariableFunction extends FunctionTree {
   SingleVariableFunction(
-      {required String fromExpression, String withVariable = "x"})
+      {required String fromExpression, String withVariable = 'x'})
       : _tree = parseString(cleanExpression(fromExpression), [withVariable]),
         variable = withVariable;
 
   SingleVariableFunction.fromNode(
-      {required Node node, String withVariable = "x"})
+      {required Node node, String withVariable = 'x'})
       : _tree = node,
         variable = withVariable;
 
@@ -126,19 +127,16 @@ class SingleVariableFunction extends FunctionTree {
 
   String variable;
 
-  num call(num x) => _tree({variable: x});
+  FutureOr<Decimal> call(Decimal x) async {
+    final futureDecimal = _tree({variable: x});
+    return await futureDecimal;
+  }
 
   @override
   String get tex => cleanTeX(_tree.toTeX());
 
   @override
   String get representation => _tree.representation();
-
-  SingleVariableFunction derivative(String variableName) =>
-      SingleVariableFunction.fromNode(
-        node: _tree.derivative(variableName),
-        withVariable: variable,
-      );
 
   @override
   String toString() => _tree.toString();

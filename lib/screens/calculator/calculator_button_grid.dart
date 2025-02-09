@@ -71,7 +71,7 @@ class CalculatorButtonGrid extends StatelessWidget {
       largeFontSize: true,
     );
     final equalsButton = GridButton(
-      onPressed: viewModelRead.computeResult,
+      onPressed: viewModelRead.onEqualPressed,
       text: '=',
       foregroundColor: Colors.white,
       backgroundColor: appColors.primary,

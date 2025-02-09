@@ -1,7 +1,7 @@
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/providers/settings_provider.dart';
-import 'package:calculator/utils/constants.dart';
+//import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
 import 'package:calculator/widgets/my_drawer.dart';
@@ -41,43 +41,41 @@ class CalculatorScreen extends StatelessWidget {
     );
 
     final viewModelResult = context.watch<CalculatorViewModel>().result;
-    final viewModelError = context.watch<CalculatorViewModel>().hasError;
+    final viewModelError = context.watch<CalculatorViewModel>().error;
+    final isCalculating = context.watch<CalculatorViewModel>().isCalculating;
 
     final Widget resultOrError;
-    if (viewModelError) {
-      resultOrError = const Text(
-        'Invalid Format',
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: 24,
+
+    if (isCalculating) {
+      resultOrError = FittedBox(
+        child: Text(
+          'Calculating',
+          style: TextStyle(color: appColors.result),
         ),
       );
+    } else if (viewModelError != null ||
+        viewModelResult == null ||
+        isSimpleNumber(viewModelRead.textEditingController.text)) {
+      resultOrError = const SizedBox();
     } else {
-      final bool showResult =
-          !(isSimpleNumber(viewModelRead.textEditingController.text) ||
-              viewModelResult.toString().contains(nanString) ||
-              viewModelResult == double.infinity ||
-              viewModelResult == double.negativeInfinity);
-      if (!showResult) {
-        resultOrError = const SizedBox();
-      } else {
-        final formattedResult = formatNumber(
-          viewModelResult,
-          decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
-        );
+      final formattedResult = isCalculating
+          ? 'Calculating'
+          : formatDecimal(
+              viewModelResult,
+              decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+            );
 
-        resultOrError = FittedBox(
-          child: GestureDetector(
-            onLongPress: () async => await copyTextToClipboard(
-              formattedResult,
-            ),
-            child: Text(
-              formattedResult,
-              style: TextStyle(color: appColors.result),
-            ),
+      resultOrError = FittedBox(
+        child: GestureDetector(
+          onLongPress: () async => await copyTextToClipboard(
+            formattedResult,
           ),
-        );
-      }
+          child: Text(
+            formattedResult,
+            style: TextStyle(color: appColors.result),
+          ),
+        ),
+      );
     }
 
     final toogleScientificButton = ElevatedButton.icon(

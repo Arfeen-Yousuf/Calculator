@@ -1,7 +1,7 @@
 /// Returns a sanitized version of `expression`.
 String cleanExpression(String expression) {
   final junk = RegExp(r"[^0-9a-zA-Z_.+\-/*%^(),]"),
-      factorial = RegExp(r"([0-9]+) *!");
+      factorial = RegExp(r"([0-9\.]+) *!");
   if (factorial.hasMatch(expression)) {
     expression = expression.replaceAllMapped(
         factorial, (match) => "fact(${match.group(1)!})");

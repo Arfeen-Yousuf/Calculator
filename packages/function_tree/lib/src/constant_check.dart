@@ -1,7 +1,7 @@
-import "base.dart" show Node;
-import "branches.dart" show Branch;
-import "forks.dart" show Fork;
-import "leaves.dart" show ConstantLeaf, SpecialConstantLeaf;
+import 'base.dart' show Node;
+import 'branches.dart' show Branch;
+import 'forks.dart' show Fork;
+import 'leaves.dart' show ConstantLeaf, SpecialConstantLeaf;
 
 bool isConstant(Node node) => switch (node) {
       ConstantLeaf() || SpecialConstantLeaf() => true,

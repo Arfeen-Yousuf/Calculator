@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:developer' as dev;
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:calculator/enums/history_log_action.dart';
 import 'package:calculator/providers/settings_provider.dart';
@@ -10,6 +10,7 @@ import 'package:calculator/services/history_database.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/expression_evaluator.dart';
 import 'package:calculator/utils/utils.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
@@ -106,10 +107,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     final settingsProvider = context.read<SettingsProvider>();
     if (settingsProvider.keepLastRecord) {
       _textEditingController.text = settingsProvider.lastExpression;
-      _result = _evaluator.calculateResult(
-        _textEditingController.text,
-        angleInDegree: _angleInDegree,
-      );
+      _calculateResult();
     }
   }
 
@@ -125,10 +123,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   get isScientific => _isScientific;
   void toogleScientific() {
     _isScientific = !_isScientific;
-    _result = _evaluator.calculateResult(
-      _textEditingController.text,
-      angleInDegree: _angleInDegree,
-    );
     notifyListeners();
   }
 
@@ -143,33 +137,27 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   bool get angleInDegree => _angleInDegree;
   void toogleAngleInDegree() {
     _angleInDegree = !_angleInDegree;
-    _result = _evaluator.calculateResult(
-      _textEditingController.text,
-      angleInDegree: _angleInDegree,
-    );
-    notifyListeners();
+    _calculateResult();
   }
 
   bool _hasTrigonometricFunction = false;
   bool get hasTrigonometricFunction => _hasTrigonometricFunction;
 
-  num _result = double.nan;
-  num get result => _result;
+  Decimal? _result;
+  Decimal? get result => _result;
 
-  bool _hasError = false;
-  bool get hasError => _hasError;
-  void _setError(bool error) {
-    _hasError = error;
-    if (error) showToast('Invalid Format.');
-    notifyListeners();
-  }
+  bool _isCalculating = false;
+  bool get isCalculating => _isCalculating;
+
+  String? _error;
+  String? get error => _error;
 
   static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
 
   void clear() {
     _textEditingController.clear();
-    _result = double.nan;
-    _hasError = false;
+    _result = null;
+    _error = null;
     notifyListeners();
   }
 
@@ -181,37 +169,27 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
-  void computeResult() {
+  void onEqualPressed() {
+    if (_error != null || _result == null) {
+      showToast(_error ?? AppStrings.invalidFormat);
+      return;
+    }
+
     if (isSimpleNumber(_textEditingController.text)) {
       return;
     }
 
-    if (_result.toString().contains(nanString)) {
-      _setError(true);
-      return;
-    }
-
-    if (_result == double.infinity) {
-      showToast('Result too large to show.');
-      return;
-    }
-    if (_result == double.negativeInfinity) {
-      showToast('Result too small to show.');
-      return;
-    }
-
+    final formattedResult = formatDecimal(
+      _result!,
+      decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+    );
     final newHistoryLog = HistoryLog(
       expression: _textEditingController.text,
-      result: _result,
+      result: formattedResult,
     );
     context.read<HistoryViewModel>().createHistoryLog(newHistoryLog);
-    if (_result >= 0) {
-      _textEditingController.text = numberFormatter.format(_result);
-    } else {
-      _textEditingController.text = CalculatorConstants.space +
-          CalculatorConstants.subtraction +
-          numberFormatter.format(-_result);
-    }
+    _textEditingController.text = formattedResult;
+
     notifyListeners();
   }
 
@@ -231,8 +209,8 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     switch (historyLogAction.$1) {
       case HistoryLogAction.replace:
         _textEditingController.text = historyLog.expression;
-        _result = historyLog.result.toDouble();
-        notifyListeners();
+        //_result =  historyLog.result;
+        _calculateResult();
       default:
     }
   }
@@ -241,10 +219,11 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   ///Handles cursor changes
   void _changeText(
-      Map<String, Object> Function(String beforeCursor, String afterCursor)
-          function,
-      {bool backPressed = false}) {
-    _hasError = false;
+    Map<String, Object> Function(String beforeCursor, String afterCursor)
+        function, {
+    bool backPressed = false,
+  }) {
+    _error = null;
 
     final text = _textEditingController.text;
 
@@ -278,7 +257,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         textBefore = text.substring(0, cursorPos);
         textAfter = text.substring(cursorPos);
       } else {
-        showToast('Invalid Format.');
+        showToast(AppStrings.invalidFormat);
         return;
       }
     }
@@ -389,22 +368,20 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _textEditingController.selection = TextSelection.fromPosition(
         TextPosition(offset: newText.length - charsAfterCursor));
 
-    final hasTrigonometricFunc = _containsTrigometricFunction(newText);
+    final hasTrigonometricFunc = containsTrigometricFunction(newText);
     if (hasTrigonometricFunc != _hasTrigonometricFunction) {
       _hasTrigonometricFunction = hasTrigonometricFunc;
     }
 
-    dev.log('Calculating');
-    _result = _evaluator.calculateResult(
-      _textEditingController.text,
-      angleInDegree: _angleInDegree,
-    );
-    notifyListeners();
-
     focusNode.unfocus();
-    Future.delayed(const Duration(milliseconds: 5), () {
-      focusNode.requestFocus();
-    });
+    Future.delayed(
+      const Duration(milliseconds: 5),
+      () {
+        focusNode.requestFocus();
+      },
+    );
+
+    _calculateResult();
   }
 
   void addDigit(int digit) {
@@ -471,7 +448,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
       if (beforeCursor.isEmpty) {
         if (op != CalculatorConstants.subtraction) {
-          showToast('Invalid Format.');
+          showToast(AppStrings.invalidFormat);
           return {};
         }
 
@@ -493,24 +470,20 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
                 '${CalculatorConstants.space}${CalculatorConstants.subtraction}$afterCursor'
           };
         } else {
-          showToast('Invalid Format.');
+          showToast(AppStrings.invalidFormat);
           return {};
         }
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('Invalid Format.');
+        showToast(AppStrings.invalidFormat);
         return {};
       }
 
       return {'add': '${CalculatorConstants.space}$op'};
     });
 
-    _result = _evaluator.calculateResult(
-      _textEditingController.text,
-      angleInDegree: _angleInDegree,
-    );
-    notifyListeners();
+    _calculateResult();
   }
 
   void addBracket() {
@@ -559,9 +532,13 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void _addUnaryOperator(String operator) {
     _changeText((String beforeCursor, String afterCursor) {
-      String lastChar =
-              beforeCursor.isEmpty ? '' : beforeCursor[beforeCursor.length - 1],
-          firstChar = afterCursor.isEmpty ? '' : afterCursor[0];
+      final lastChar =
+          beforeCursor.isEmpty ? '' : beforeCursor[beforeCursor.length - 1];
+      final firstChar = afterCursor.isEmpty ? '' : afterCursor[0];
+      if (_isUnaryOperator(lastChar) || _isUnaryOperator(firstChar)) {
+        showToast(AppStrings.invalidFormat);
+        return {};
+      }
       if (beforeCursor.isEmpty ||
           _isBinaryOperator(lastChar) ||
           lastChar == operator ||
@@ -572,7 +549,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
               !isDigit(firstChar) &&
               firstChar != ')') ||
           (firstChar == '.' && (isDigit(lastChar) || _isConstant(lastChar)))) {
-        showToast('Invalid Format.');
+        showToast(AppStrings.invalidFormat);
         return {};
       }
 
@@ -632,7 +609,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('Invalid Format.');
+        showToast(AppStrings.invalidFormat);
       }
 
       return {};
@@ -644,13 +621,13 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       if (afterCursor.startsWith('.') && beforeCursor.isNotEmpty) {
         final lastChar = beforeCursor[beforeCursor.length - 1];
         if (lastChar == '.' || _isUnaryOperator(lastChar) || lastChar == ')') {
-          showToast('Invalid Format.');
+          showToast(AppStrings.invalidFormat);
           return {};
         }
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('Invalid Format.');
+        showToast(AppStrings.invalidFormat);
         return {};
       }
 
@@ -693,13 +670,13 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       if (afterCursor.startsWith('.') && beforeCursor.isNotEmpty) {
         final lastChar = beforeCursor[beforeCursor.length - 1];
         if (lastChar == '.' || _isUnaryOperator(lastChar) || lastChar == ')') {
-          showToast('Invalid Format.');
+          showToast(AppStrings.invalidFormat);
           return {};
         }
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
-        showToast('Invalid Format.');
+        showToast(AppStrings.invalidFormat);
         return {};
       }
 
@@ -770,11 +747,12 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     );
   }
 
-  bool _isConstant(String str) => ScientificConstants.constants.contains(str);
-  bool _isUnaryOperator(String str) =>
+  static bool _isConstant(String str) =>
+      ScientificConstants.constants.contains(str);
+  static bool _isUnaryOperator(String str) =>
       CalculatorConstants.unaryOperators.contains(str);
 
-  bool _isBinaryOperator(String str) => <String>[
+  static bool _isBinaryOperator(String str) => <String>[
         CalculatorConstants.addition,
         CalculatorConstants.subtraction,
         CalculatorConstants.multiplication,
@@ -783,14 +761,14 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       ].contains(str);
 
   ///Tells if string [str] starts with a digit
-  bool _startsWithDigit(String str) =>
+  static bool _startsWithDigit(String str) =>
       (str.isNotEmpty && RegExp(r'^\d$').hasMatch(str[0]));
 
   ///Tells if string [str] ends with a digit
-  bool _endsWithDigit(String str) =>
+  static bool _endsWithDigit(String str) =>
       (str.isNotEmpty && RegExp(r'^\d$').hasMatch(str[str.length - 1]));
 
-  String? _startsWithFunction(String str) {
+  static String? _startsWithFunction(String str) {
     if (str.isEmpty) return null;
     for (final func in ScientificFunctions.functionNames) {
       if (str.startsWith(func)) return func;
@@ -798,7 +776,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     return null;
   }
 
-  String? _endsWithFunction(String str) {
+  static String? _endsWithFunction(String str) {
     if (str.isEmpty) return null;
 
     String longest = '';
@@ -811,10 +789,36 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     return longest.isEmpty ? null : longest;
   }
 
-  bool _containsTrigometricFunction(String newText) {
-    return [
-      ...ScientificFunctions.trigonometric,
-      ...ScientificFunctions.trigonometricInverses
-    ].any((func) => newText.contains('$func('));
+  void _calculateResult() {
+    _calculateResultAsync();
+  }
+
+  void _calculateResultAsync() async {
+    _result = null;
+    _isCalculating = true;
+    dev.log('IsCalclating $_isCalculating');
+    notifyListeners();
+
+    try {
+      final expr = _textEditingController.text;
+      _result = await _evaluator.calculateResult(
+        expr,
+        angleInDegree: _angleInDegree,
+      );
+      _error = null;
+    } on Error catch (e) {
+      _result = null;
+      _error = switch (e) {
+        ArgumentError(:var message) => message,
+        StateError(:var message) => message,
+        _ => 'An error occurred.'
+      };
+    } on Exception {
+      _result = null;
+      _error = AppStrings.invalidFormat;
+    }
+
+    _isCalculating = false;
+    notifyListeners();
   }
 }

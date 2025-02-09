@@ -1,8 +1,10 @@
+import 'dart:async';
+
+import 'package:decimal/decimal.dart';
+
 /// Base class for tree nodes.
 abstract class Node {
-  num call(Map<String, num> variableValues);
-
-  Node derivative(String variableName);
+  FutureOr<Decimal> call(Map<String, Decimal> variableValues);
 
   /// A TeX expression representing the node.
   String toTeX();

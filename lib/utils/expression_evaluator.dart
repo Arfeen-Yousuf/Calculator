@@ -1,27 +1,62 @@
 import 'dart:developer' as dev;
-import 'dart:math';
 
+import 'package:decimal/decimal.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:intl/intl.dart';
 
 import 'constants.dart';
+import 'utils.dart';
 
 class ExpressionEvaluator {
-  //final numberRegExp = RegExp(r'\d+(\.\d+)?');
   //Allow upto 10 decimal points
   final numberFormatter = NumberFormat('#,##0.##########');
 
-  num calculateResult(
+  ///May throw ArgumentError or StateError
+  Future<Decimal> calculateResult(
     String? expr, {
     required bool angleInDegree,
-  }) {
-    dev.log('Expression Evaluating $expr , Degrees: $angleInDegree');
-    if (expr == null || expr.isEmpty) return double.nan;
+  }) async {
+    if (expr == null || expr.isEmpty) {
+      throw ArgumentError('Expression must be non empty');
+    }
+    final originalExpression = expr;
 
+    //Percentage and factorial can not occur consecutively: !% or %!
+    if (expr.contains('!${CalculatorConstants.percentage}') ||
+        expr.contains('${CalculatorConstants.percentage}!')) {
+      throw ArgumentError(AppStrings.invalidFormat);
+    }
+
+    expr = expr.replaceAll(',', '').replaceAll(CalculatorConstants.space, '');
+    expr = _removeFactorials(expr);
     //Replace the function names and constants
-    expr = expr
-        .replaceAll(',', '')
-        .replaceAll(CalculatorConstants.space, '')
+    expr = _cleanExpression(expr);
+    if (angleInDegree) expr = _degreeAngleExpression(expr);
+
+    expr = _balanceBrackets(expr);
+    if (expr == null) {
+      throw ArgumentError('Brackets not balanced');
+    }
+
+    if (expr.startsWith('-')) expr = '0$expr';
+    //TODO: Resolve issue for (-4% etc
+    expr = expr.replaceAll('(-', '(0-');
+    expr = await _removePercentages(expr);
+
+    dev.log('Expression Interpreting $expr');
+    try {
+      Decimal result = await expr.interpret();
+      if (containsTrigometricFunction(originalExpression)) {
+        result = result.round(scale: 15);
+      }
+      return result;
+    } on Exception {
+      throw ArgumentError('Result outside of accepted range');
+    }
+  }
+
+  String _cleanExpression(String expr) {
+    return expr
         .replaceAll(CalculatorConstants.addition, '+')
         .replaceAll(CalculatorConstants.subtraction, '-')
         .replaceAll(CalculatorConstants.multiplication, '*')
@@ -48,36 +83,6 @@ class ExpressionEvaluator {
         .replaceAll(ScientificFunctions.naturalLogarithm, 'ln')
         .replaceAll(ScientificFunctions.logarithm, 'log10')
         .replaceAll(ScientificFunctions.absolute, 'abs');
-
-    if (angleInDegree) expr = _degreeAngleExpression(expr);
-
-    expr = _balanceBrackets(expr);
-    if (expr == null) return double.nan;
-
-    if (expr.startsWith('-')) expr = '0$expr';
-    expr = expr.replaceAll('(-', '(0-');
-    expr = _removePercentages(expr);
-
-    try {
-      dev.log('Expression Interpreting $expr');
-      final result = expr.interpret();
-
-      final tenPower15 = pow(10, 15);
-      if (result > tenPower15) return double.infinity;
-      if (result < -tenPower15) return double.negativeInfinity;
-      if (result.abs() < pow(10, -8)) return 0;
-
-      if (result.abs() > pow(10, 13)) {
-        dev.log('Large Result $result');
-        return (result.toDouble() * 1000).truncate() / 1000;
-      }
-
-      return result;
-    } on ArgumentError {
-      return double.nan;
-    } on Exception {
-      return double.nan;
-    }
   }
 
   String _degreeAngleExpression(String expr) {
@@ -103,17 +108,17 @@ class ExpressionEvaluator {
     return expr + (')' * bracketBalance);
   }
 
-  String _removePercentages(String expr) {
+  Future<String> _removePercentages(String expr) async {
     int index = expr.indexOf(CalculatorConstants.percentage);
     while (index != -1) {
-      expr = _removePercentageAtIndex(expr, index);
+      expr = await _removePercentageAtIndex(expr, index);
       index = expr.indexOf(CalculatorConstants.percentage);
     }
 
     return expr;
   }
 
-  String _removePercentageAtIndex(String expr, int index) {
+  Future<String> _removePercentageAtIndex(String expr, int index) async {
     //The index where percentage expressions starts
     int percentExprInd = index - 1;
     if (percentExprInd < 0) return '';
@@ -132,7 +137,8 @@ class ExpressionEvaluator {
       percentExprInd++;
     }
 
-    final percentExprResult = expr.substring(percentExprInd, index).interpret();
+    final percentExprResult =
+        await expr.substring(percentExprInd, index).interpret();
 
     //Now find the expression on which percentage is to be applied
     bool replaceWithDivision = false;
@@ -175,18 +181,78 @@ class ExpressionEvaluator {
 
     final appliedExprResult =
         expr.substring(appliedExprInd, percentExprInd - 1).interpret();
-    if (expr[percentExprInd - 1] == '-') {
-      return '${expr.substring(0, appliedExprInd)}($appliedExprResult*(1-${percentExprResult / 100}))${expr.substring(index + 1)}';
-    }
-
-    if (expr[percentExprInd - 1] == '+') {
-      return '${expr.substring(0, appliedExprInd)}($appliedExprResult*(1+${percentExprResult / 100}))${expr.substring(index + 1)}';
+    String char = expr[percentExprInd - 1];
+    if (['-', '+'].contains(char)) {
+      return '${expr.substring(0, appliedExprInd)}'
+          '($appliedExprResult*(1$char${divideDecimals(percentExprResult, Decimal.fromInt(100))}))'
+          '${expr.substring(index + 1)}';
     }
 
     return expr;
   }
 
-  int _matchClosingBracket(String expr, int closingBracketIndex) {
+  String _removeFactorials(String expr) {
+    //Numbers
+    expr = expr.replaceAllMapped(
+      RegExp(r'([0-9\.]+)!'),
+      (match) {
+        String numStr = match.group(0)!;
+        return 'fact(${numStr.substring(0, numStr.length - 1)})';
+      },
+    );
+
+    //Constants
+    for (final constant in ScientificConstants.constants) {
+      expr = expr.replaceAll('$constant!', 'fact($constant)');
+    }
+
+    //Functions
+    int factInd = expr.indexOf('!');
+    while (factInd != -1) {
+      expr = _removeFactorialAtIndex(expr, factInd);
+      factInd = expr.indexOf('!');
+    }
+
+    return expr;
+  }
+
+  ///Removes the factrial at the given [index] in [expr].
+  ///Asssumes that a closing bracket appears before ! at [index - 1]
+  static String _removeFactorialAtIndex(String expr, int index) {
+    final openBracketInd = _matchClosingBracket(
+      expr,
+      index - 1,
+    );
+    if (openBracketInd == -1) {
+      throw ArgumentError(AppStrings.invalidFormat);
+    }
+
+    final exprBeforeOpenBracket = expr.substring(0, openBracketInd);
+
+    //Check if there is a function before the opening bracket
+    String? funcStr;
+    if (openBracketInd > 0) {
+      funcStr = _endsWithFunction(exprBeforeOpenBracket);
+    }
+
+    if (funcStr != null) {
+      final exprBeforeFunc = expr.substring(
+        0,
+        openBracketInd - funcStr.length,
+      );
+      return '$exprBeforeFunc'
+          'fact(${expr.substring(exprBeforeFunc.length, index)})'
+          '${expr.substring(index + 1)}';
+    } else {
+      return '$exprBeforeOpenBracket'
+          'fact${expr.substring(openBracketInd, index)}'
+          '${expr.substring(index + 1)}';
+    }
+  }
+
+  ///Returns the index of corresponding opening bracket if any.
+  ///Else returns -1
+  static int _matchClosingBracket(String expr, int closingBracketIndex) {
     int balanceBrackets = 1;
     int ind = closingBracketIndex - 1;
 
@@ -204,7 +270,7 @@ class ExpressionEvaluator {
     return -1;
   }
 
-  String? _endsWithFunction(String str) {
+  static String? _endsWithFunction(String str) {
     if (str.isEmpty) return null;
 
     String longest = '';
@@ -227,5 +293,11 @@ class ExpressionEvaluator {
     return longest.isEmpty ? null : longest;
   }
 
-  bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
+  static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
+
+  static Decimal divideDecimals(Decimal d1, Decimal d2) {
+    if (d2.sign == 0) throw ArgumentError("Can't divide by 0");
+    if (d2 == Decimal.one) return d1;
+    return (d1 / d2).toDecimal(scaleOnInfinitePrecision: 100);
+  }
 }
