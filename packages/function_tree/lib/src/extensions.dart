@@ -262,7 +262,7 @@ extension DecimalExtensions on Decimal {
     } else if (n <= _maxFactorial) {
       return _computeFactorialWithTwoIsolates(n);
     } else {
-      throw Exception(
+      throw StateError(
         'Result outside of accepted range',
       );
     }

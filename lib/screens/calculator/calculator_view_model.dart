@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:developer' as dev;
 
 import 'package:calculator/enums/history_log_action.dart';
+import 'package:calculator/extensions/string.dart';
 import 'package:calculator/providers/settings_provider.dart';
 import 'package:calculator/screens/history/history_screen.dart';
 import 'package:calculator/screens/history/history_view_model.dart';
@@ -92,12 +92,12 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       await settingsProvider.updateLastExpression(_textEditingController.text);
     }
 
-    canPop = true;
+    _canPop = true;
     notifyListeners();
     Timer(
       const Duration(seconds: 3),
       () {
-        canPop = false;
+        _canPop = false;
         notifyListeners();
       },
     );
@@ -111,7 +111,8 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  bool canPop = false;
+  bool _canPop = false;
+  bool get canPop => _canPop;
 
   late RichTextController _textEditingController;
   RichTextController get textEditingController => _textEditingController;
@@ -152,22 +153,12 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   String? _error;
   String? get error => _error;
 
-  static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
-
   void clear() {
     _textEditingController.clear();
     _result = null;
     _error = null;
     notifyListeners();
   }
-
-  // Binary operators
-  void addDivision() => _addBinaryOperator(CalculatorConstants.division);
-  void addMultiplication() =>
-      _addBinaryOperator(CalculatorConstants.multiplication);
-  void addSubtraction() => _addBinaryOperator(CalculatorConstants.subtraction);
-  void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
-  void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
   void onEqualPressed() {
     if (_error != null || _result == null) {
@@ -193,6 +184,39 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  void _calculateResult() {
+    _calculateResultAsync();
+  }
+
+  void _calculateResultAsync() async {
+    _result = null;
+    _isCalculating = true;
+    dev.log('IsCalclating $_isCalculating');
+    notifyListeners();
+
+    try {
+      final expr = _textEditingController.text;
+      _result = await _evaluator.calculateResult(
+        expr,
+        angleInDegree: _angleInDegree,
+      );
+      _error = null;
+    } on Error catch (e) {
+      _result = null;
+      _error = switch (e) {
+        ArgumentError(:var message) => message,
+        StateError(:var message) => message,
+        _ => 'An error occurred.'
+      };
+    } on Exception {
+      _result = null;
+      _error = AppStrings.invalidFormat;
+    }
+
+    _isCalculating = false;
+    notifyListeners();
+  }
+
   Future<void> onHistoryButtonTapped(BuildContext context) async {
     final (HistoryLogAction, HistoryLog)? historyLogAction =
         await Navigator.of(context).push(
@@ -206,14 +230,19 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     final historyLog = historyLogAction.$2;
-    switch (historyLogAction.$1) {
-      case HistoryLogAction.replace:
-        _textEditingController.text = historyLog.expression;
-        //_result =  historyLog.result;
-        _calculateResult();
-      default:
+    if (historyLogAction.$1 == HistoryLogAction.replace) {
+      _textEditingController.text = historyLog.expression;
+      _calculateResult();
     }
   }
+
+  // Binary operators
+  void addDivision() => _addBinaryOperator(CalculatorConstants.division);
+  void addMultiplication() =>
+      _addBinaryOperator(CalculatorConstants.multiplication);
+  void addSubtraction() => _addBinaryOperator(CalculatorConstants.subtraction);
+  void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
+  void addPower() => _addBinaryOperator(CalculatorConstants.power);
 
   //TODO: Optimize the old business logic code below
 
@@ -230,9 +259,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     int cursorPos = _textEditingController.selection.base.offset;
     if (cursorPos == -1) {
       cursorPos = 0;
-    } else if (cursorPos > 0 &&
-        text[cursorPos - 1] == CalculatorConstants.space) {
-      cursorPos--;
     }
 
     String textBefore = text.substring(0, cursorPos),
@@ -270,7 +296,8 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       cursorPos = text.length - cursorPos;
       _textEditingController.text = newText;
       _textEditingController.selection = TextSelection.fromPosition(
-          TextPosition(offset: newText.length - cursorPos));
+        TextPosition(offset: newText.length - cursorPos),
+      );
       return;
     }
 
@@ -387,16 +414,13 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void addDigit(int digit) {
     _changeText(
       (String beforeCursor, String afterCursor) {
-        if (_endsWithDigit(beforeCursor) || _startsWithDigit(afterCursor)) {
+        if (beforeCursor.last.isDigit || afterCursor.first.isDigit) {
           return {'add': '$digit'};
         }
 
         if (afterCursor.startsWith('(') &&
             (beforeCursor.isEmpty || beforeCursor.endsWith('('))) {
-          return {
-            'add':
-                '$digit${CalculatorConstants.space}${CalculatorConstants.multiplication}'
-          };
+          return {'add': '$digit${CalculatorConstants.multiplication}'};
         }
 
         if (beforeCursor.isNotEmpty) {
@@ -404,10 +428,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
           if (_isUnaryOperator(lastChar) ||
               lastChar == ')' ||
               _isConstant(lastChar)) {
-            return {
-              'add':
-                  '${CalculatorConstants.space}${CalculatorConstants.multiplication}$digit'
-            };
+            return {'add': '${CalculatorConstants.multiplication}$digit'};
           }
           if (_endsWithFunction(beforeCursor) != null) {
             return {'add': '$digit'};
@@ -417,10 +438,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         if (afterCursor.isNotEmpty &&
             (_isConstant(afterCursor[0]) ||
                 _startsWithFunction(afterCursor) != null)) {
-          return {
-            'add':
-                '$digit${CalculatorConstants.space}${CalculatorConstants.multiplication}'
-          };
+          return {'add': '$digit${CalculatorConstants.multiplication}'};
         }
 
         return {'add': '$digit'};
@@ -430,20 +448,12 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void _addBinaryOperator(String op) {
     _changeText((String beforeCursor, String afterCursor) {
-      if (beforeCursor.isNotEmpty &&
-          _isBinaryOperator(beforeCursor[beforeCursor.length - 1])) {
-        return {
-          'replace': beforeCursor.substring(0, beforeCursor.length - 1) +
-              op +
-              afterCursor
-        };
+      if (_isBinaryOperator(beforeCursor.last)) {
+        return {'replace': beforeCursor.removeLast() + op + afterCursor};
       }
 
-      if (afterCursor.length >= 2 && _isBinaryOperator(afterCursor[1])) {
-        return {
-          'replace':
-              '$beforeCursor${CalculatorConstants.space}$op${afterCursor.substring(2)}'
-        };
+      if (afterCursor.isNotEmpty && _isBinaryOperator(afterCursor[0])) {
+        return {'replace': beforeCursor + op + afterCursor.substring(1)};
       }
 
       if (beforeCursor.isEmpty) {
@@ -453,22 +463,16 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         }
 
         if (afterCursor.isEmpty) {
-          return {
-            'replace':
-                '${CalculatorConstants.space}${CalculatorConstants.subtraction}'
-          };
+          return {'replace': CalculatorConstants.subtraction};
         }
 
         //beforeCursor is empty, afterCursor is not empty, op is minus
         final firstChar = afterCursor[0];
-        if (isDigit(firstChar) ||
+        if (firstChar.isDigit ||
             firstChar == '(' ||
             _isConstant(firstChar) ||
             _startsWithFunction(afterCursor) != null) {
-          return {
-            'replace':
-                '${CalculatorConstants.space}${CalculatorConstants.subtraction}$afterCursor'
-          };
+          return {'replace': '${CalculatorConstants.subtraction}$afterCursor'};
         } else {
           showToast(AppStrings.invalidFormat);
           return {};
@@ -480,7 +484,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         return {};
       }
 
-      return {'add': '${CalculatorConstants.space}$op'};
+      return {'add': op};
     });
 
     _calculateResult();
@@ -512,15 +516,12 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         return {'add': ')'};
       }
 
-      if (isDigit(lastChar) ||
+      if (lastChar.isDigit ||
           lastChar == '.' ||
           _isUnaryOperator(lastChar) ||
           lastChar == ')' ||
           _isConstant(lastChar)) {
-        return {
-          'add':
-              '${CalculatorConstants.space}${CalculatorConstants.multiplication}('
-        };
+        return {'add': '${CalculatorConstants.multiplication}('};
       }
 
       return {};
@@ -532,8 +533,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void _addUnaryOperator(String operator) {
     _changeText((String beforeCursor, String afterCursor) {
-      final lastChar =
-          beforeCursor.isEmpty ? '' : beforeCursor[beforeCursor.length - 1];
+      final lastChar = beforeCursor.last;
       final firstChar = afterCursor.isEmpty ? '' : afterCursor[0];
       if (_isUnaryOperator(lastChar) || _isUnaryOperator(firstChar)) {
         showToast(AppStrings.invalidFormat);
@@ -546,9 +546,9 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
           _endsWithFunction(beforeCursor) != null ||
           (lastChar == '.' &&
               firstChar != '' &&
-              !isDigit(firstChar) &&
+              !firstChar.isDigit &&
               firstChar != ')') ||
-          (firstChar == '.' && (isDigit(lastChar) || _isConstant(lastChar)))) {
+          (firstChar == '.' && (lastChar.isDigit || _isConstant(lastChar)))) {
         showToast(AppStrings.invalidFormat);
         return {};
       }
@@ -559,15 +559,14 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   void addDot() {
     _changeText((String beforeCursor, String afterCursor) {
-      String lastChar =
-              beforeCursor.isEmpty ? '' : beforeCursor[beforeCursor.length - 1],
-          firstChar = afterCursor.isEmpty ? '' : afterCursor[0];
+      String lastChar = beforeCursor.last;
+      String firstChar = afterCursor.first;
 
       if (lastChar == '.' || firstChar == '.') {
         return {};
       }
 
-      if (isDigit(lastChar) || isDigit(firstChar)) {
+      if (lastChar.isDigit || firstChar.isDigit) {
         int numScanIndex = beforeCursor.length - 1;
         while (numScanIndex >= 0 &&
             RegExp(r'[\d,]').hasMatch(beforeCursor[numScanIndex])) {
@@ -587,8 +586,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
           return {};
         }
 
-        if (!isDigit(lastChar)) return {'add': '0.'};
-        return {'add': '.'};
+        return {'add': lastChar.isDigit ? '.' : '0.'};
       }
 
       if (beforeCursor.isEmpty ||
@@ -602,10 +600,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       if (_isUnaryOperator(lastChar) ||
           lastChar == ')' ||
           _isConstant(lastChar)) {
-        return {
-          'add':
-              '${CalculatorConstants.space}${CalculatorConstants.multiplication}0.'
-        };
+        return {'add': '${CalculatorConstants.multiplication}0.'};
       }
 
       if (_endsWithFunction(beforeCursor) != null) {
@@ -619,7 +614,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void addConstant(String constant) {
     _changeText((String beforeCursor, String afterCursor) {
       if (afterCursor.startsWith('.') && beforeCursor.isNotEmpty) {
-        final lastChar = beforeCursor[beforeCursor.length - 1];
+        final lastChar = beforeCursor.last;
         if (lastChar == '.' || _isUnaryOperator(lastChar) || lastChar == ')') {
           showToast(AppStrings.invalidFormat);
           return {};
@@ -634,7 +629,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       bool leftMul = false;
       if (beforeCursor.isNotEmpty) {
         final lastChar = beforeCursor[beforeCursor.length - 1];
-        leftMul = (isDigit(lastChar) ||
+        leftMul = (lastChar.isDigit ||
             lastChar == '.' ||
             _isUnaryOperator(lastChar) ||
             lastChar == ')' ||
@@ -644,7 +639,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       bool rightMul = false;
       if (afterCursor.isNotEmpty) {
         final firstChar = afterCursor[0];
-        rightMul = (isDigit(firstChar) ||
+        rightMul = (firstChar.isDigit ||
             firstChar == '.' ||
             firstChar == '(' ||
             _isConstant(firstChar) ||
@@ -653,12 +648,10 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
       String toAdd = constant;
       if (leftMul) {
-        toAdd =
-            '${CalculatorConstants.space}${CalculatorConstants.multiplication}$toAdd';
+        toAdd = '${CalculatorConstants.multiplication}$toAdd';
       }
       if (rightMul) {
-        toAdd +=
-            '${CalculatorConstants.space}${CalculatorConstants.multiplication}';
+        toAdd += CalculatorConstants.multiplication;
       }
 
       return {'add': toAdd};
@@ -668,7 +661,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void addFunction(String func) {
     _changeText((String beforeCursor, String afterCursor) {
       if (afterCursor.startsWith('.') && beforeCursor.isNotEmpty) {
-        final lastChar = beforeCursor[beforeCursor.length - 1];
+        final lastChar = beforeCursor.last;
         if (lastChar == '.' || _isUnaryOperator(lastChar) || lastChar == ')') {
           showToast(AppStrings.invalidFormat);
           return {};
@@ -683,7 +676,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       bool leftMul = false;
       if (beforeCursor.isNotEmpty) {
         final lastChar = beforeCursor[beforeCursor.length - 1];
-        leftMul = (isDigit(lastChar) ||
+        leftMul = (lastChar.isDigit ||
             lastChar == '.' ||
             _isUnaryOperator(lastChar) ||
             lastChar == ')' ||
@@ -692,8 +685,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
       String toAdd = func;
       if (leftMul) {
-        toAdd =
-            '${CalculatorConstants.space}${CalculatorConstants.multiplication}$toAdd';
+        toAdd = '${CalculatorConstants.multiplication}$toAdd';
       }
       if (afterCursor.isEmpty || afterCursor[0] != '(') toAdd += '(';
 
@@ -709,8 +701,8 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         }
 
         final beforeLength = beforeCursor.length;
-        String lastChar = beforeCursor[beforeLength - 1];
-        if (isDigit(lastChar) ||
+        String lastChar = beforeCursor.last;
+        if (lastChar.isDigit ||
             lastChar == '.' ||
             _isUnaryOperator(lastChar) ||
             lastChar == ')' ||
@@ -719,13 +711,13 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         }
 
         if (_isBinaryOperator(lastChar)) {
-          return {'remove': min(beforeLength, 2)};
+          return {'remove': 1};
         }
 
         int index = beforeLength;
         if (lastChar == '(') {
           index--;
-          beforeCursor = beforeCursor.substring(0, beforeLength - 1);
+          beforeCursor = beforeCursor.removeLast();
         }
 
         final String? beforeEndsWithFunction = _endsWithFunction(beforeCursor);
@@ -760,14 +752,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
         CalculatorConstants.power
       ].contains(str);
 
-  ///Tells if string [str] starts with a digit
-  static bool _startsWithDigit(String str) =>
-      (str.isNotEmpty && RegExp(r'^\d$').hasMatch(str[0]));
-
-  ///Tells if string [str] ends with a digit
-  static bool _endsWithDigit(String str) =>
-      (str.isNotEmpty && RegExp(r'^\d$').hasMatch(str[str.length - 1]));
-
   static String? _startsWithFunction(String str) {
     if (str.isEmpty) return null;
     for (final func in ScientificFunctions.functionNames) {
@@ -787,38 +771,5 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     return longest.isEmpty ? null : longest;
-  }
-
-  void _calculateResult() {
-    _calculateResultAsync();
-  }
-
-  void _calculateResultAsync() async {
-    _result = null;
-    _isCalculating = true;
-    dev.log('IsCalclating $_isCalculating');
-    notifyListeners();
-
-    try {
-      final expr = _textEditingController.text;
-      _result = await _evaluator.calculateResult(
-        expr,
-        angleInDegree: _angleInDegree,
-      );
-      _error = null;
-    } on Error catch (e) {
-      _result = null;
-      _error = switch (e) {
-        ArgumentError(:var message) => message,
-        StateError(:var message) => message,
-        _ => 'An error occurred.'
-      };
-    } on Exception {
-      _result = null;
-      _error = AppStrings.invalidFormat;
-    }
-
-    _isCalculating = false;
-    notifyListeners();
   }
 }

@@ -27,10 +27,13 @@ class ExpressionEvaluator {
       throw ArgumentError(AppStrings.invalidFormat);
     }
 
-    expr = expr.replaceAll(',', '').replaceAll(CalculatorConstants.space, '');
+    expr = expr.replaceAll(',', '');
+    expr = _removeImplicitMultiplications(expr);
+    dev.log('Implicit Muls removed $expr');
     expr = _removeFactorials(expr);
     //Replace the function names and constants
     expr = _cleanExpression(expr);
+    dev.log('Cleaned Expression $expr');
     if (angleInDegree) expr = _degreeAngleExpression(expr);
 
     expr = _balanceBrackets(expr);
@@ -51,7 +54,7 @@ class ExpressionEvaluator {
       }
       return result;
     } on Exception {
-      throw ArgumentError('Result outside of accepted range');
+      throw const FormatException(AppStrings.invalidFormat);
     }
   }
 
@@ -83,6 +86,31 @@ class ExpressionEvaluator {
         .replaceAll(ScientificFunctions.naturalLogarithm, 'ln')
         .replaceAll(ScientificFunctions.logarithm, 'log10')
         .replaceAll(ScientificFunctions.absolute, 'abs');
+  }
+
+  ///Remove implicit multiplications between constants and numbers
+  String _removeImplicitMultiplications(String expr) {
+    RegExp pattern = RegExp(
+      r'([0-9\.]*[\u03C0\u0117\u03D5]+[0-9\.]*)+',
+      unicode: true,
+    );
+
+    return expr.replaceAllMapped(pattern, (match) {
+      final matchedStr = match.group(0)!;
+
+      List<String> numbers = matchedStr.split(
+        RegExp(
+          r'[\u03C0\u0117\u03D5]',
+          unicode: true,
+        ),
+      )..removeWhere((str) => str.isEmpty);
+      List<String> constants =
+          matchedStr.replaceAll(RegExp(r'[0-9\.]+'), '').split('');
+
+      String joinedStr = (numbers + constants).join('*');
+
+      return '($joinedStr)';
+    });
   }
 
   String _degreeAngleExpression(String expr) {

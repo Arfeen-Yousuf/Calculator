@@ -60,8 +60,8 @@ String formatDecimal(
 
   //If the decimal is too large or small, return scientific notation
   final tenPower15 = Decimal.ten.pow(15).toDecimal();
-  late final tenPowerMinus8 = Decimal.ten.pow(-8).toDecimal();
-  if (absoluteVal > tenPower15 || absoluteVal < tenPowerMinus8) {
+  late final tenPowerMinus6 = Decimal.ten.pow(-6).toDecimal();
+  if (absoluteVal > tenPower15 || absoluteVal < tenPowerMinus6) {
     String absValStr = absoluteVal.toStringAsExponential(decimalPlaces);
 
     String basePart, expPart;

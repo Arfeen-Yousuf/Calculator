@@ -22,14 +22,15 @@ class CalculatorConstants {
   static const division = '÷';
   static const percentage = '%';
   static const power = '^';
-  static const space = '\u200A';
   static const factorial = '!';
 
   static const unaryOperators = [percentage, factorial];
 }
 
 class ScientificConstants {
-  static const pi = 'π';
+  //If you change these values, also change the values in
+  //_removeImplicitMultiplications method of ExpressionEvaluator class
+  static const pi = '\u03C0'; //'π;
   static const eular = '\u0117'; //'\u212F';
   static const phi = '\u03D5';
 

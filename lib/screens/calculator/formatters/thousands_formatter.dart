@@ -74,10 +74,6 @@ String formatWithComma(String input) {
   if (input.startsWith(CalculatorConstants.subtraction)) {
     isNegativeValue = true;
     input = input.substring(1);
-  } else if (input.startsWith(
-      '${CalculatorConstants.space}${CalculatorConstants.subtraction}')) {
-    input = input.substring(2);
-    isNegativeValue = true;
   } else {
     isNegativeValue = false;
   }
@@ -101,6 +97,6 @@ String formatWithComma(String input) {
   }
 
   return isNegativeValue
-      ? '${CalculatorConstants.space}${CalculatorConstants.subtraction}$formatted'
+      ? CalculatorConstants.subtraction + formatted
       : formatted;
 }
