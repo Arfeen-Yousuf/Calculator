@@ -2,11 +2,11 @@ import 'dart:developer';
 
 import 'package:sqflite/sqflite.dart';
 
-const String tableHistory = 'history';
-const String columnId = '_id';
-const String columnDateTime = '_dateTime';
-const String columnExpression = 'expression';
-const String columnResult = 'result';
+const tableHistory = 'history';
+const columnId = '_id';
+const columnDateTime = '_dateTime';
+const columnExpression = 'expression';
+const columnResult = 'result';
 
 class HistoryLog {
   int? id;
@@ -27,11 +27,9 @@ class HistoryLog {
     final Map<String, dynamic> map = {
       columnDateTime: '$dateTime',
       columnExpression: expression,
-      columnResult: result,
+      columnResult: result.toString(),
+      if (id != null) columnId: id,
     };
-    if (id != null) {
-      map[columnId] = id;
-    }
 
     return map;
   }
@@ -41,7 +39,7 @@ class HistoryLog {
       id: map[columnId] as int,
       dateTime: DateTime.parse(map[columnDateTime] as String),
       expression: map[columnExpression] as String,
-      result: map[columnResult] as String,
+      result: map[columnResult].toString(),
     );
   }
 
