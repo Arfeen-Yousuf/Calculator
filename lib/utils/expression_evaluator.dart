@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:calculator/extensions/string.dart';
 import 'package:decimal/decimal.dart';
 import 'package:function_tree/function_tree.dart';
 import 'package:intl/intl.dart';
@@ -162,14 +163,14 @@ class ExpressionEvaluator {
     } else {
       while (percentExprInd >= 0) {
         final char = expr[percentExprInd];
-        if (!(char == '.' || isDigit(char))) break;
+        if (!(char == '.' || char.isDigit)) break;
         percentExprInd--;
       }
 
       percentExprInd++;
     }
 
-    final percentExprResult =
+    final Decimal percentExprResult =
         await expr.substring(percentExprInd, index).interpret();
 
     //Now find the expression on which percentage is to be applied
@@ -211,8 +212,8 @@ class ExpressionEvaluator {
     }
     appliedExprInd++;
 
-    final appliedExprResult =
-        expr.substring(appliedExprInd, percentExprInd - 1).interpret();
+    final Decimal appliedExprResult =
+        await expr.substring(appliedExprInd, percentExprInd - 1).interpret();
     String char = expr[percentExprInd - 1];
     if (['-', '+'].contains(char)) {
       return '${expr.substring(0, appliedExprInd)}'
@@ -324,8 +325,6 @@ class ExpressionEvaluator {
 
     return longest.isEmpty ? null : longest;
   }
-
-  static bool isDigit(String str) => RegExp(r'^\d$').hasMatch(str);
 
   static Decimal divideDecimals(Decimal d1, Decimal d2) {
     if (d2.sign == 0) throw ArgumentError("Can't divide by 0");
