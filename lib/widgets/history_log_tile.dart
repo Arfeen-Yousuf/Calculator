@@ -92,70 +92,72 @@ class HistoryLogTile extends StatelessWidget {
               ),
         );
 
-        return Wrap(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: appColors.scaffoldBackground,
-                borderRadius: const BorderRadiusDirectional.only(
-                  topStart: Radius.circular(20),
-                  topEnd: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        DateFormat('HH:mm, MMM dd, yyyy')
-                            .format(historyLog.dateTime),
-                        style: TextTheme.of(context)
-                            .labelLarge
-                            ?.copyWith(fontSize: 20),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(
-                          Icons.close,
-                          color: isLightTheme ? Colors.black : Colors.white,
-                        ),
-                      ),
-                    ],
+        return SafeArea(
+          child: Wrap(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: appColors.scaffoldBackground,
+                  borderRadius: const BorderRadiusDirectional.only(
+                    topStart: Radius.circular(20),
+                    topEnd: Radius.circular(20),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.inverseSurface,
-                        width: 0.5,
-                      ),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
                       children: [
-                        expressionWidget,
-                        resultWidget,
+                        Text(
+                          DateFormat('HH:mm, MMM dd, yyyy')
+                              .format(historyLog.dateTime),
+                          style: TextTheme.of(context)
+                              .labelLarge
+                              ?.copyWith(fontSize: 20),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.close,
+                            color: isLightTheme ? Colors.black : Colors.white,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      replaceButton,
-                      copyResultButton,
-                      deleteButton,
-                    ],
-                  ),
-                ],
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.inverseSurface,
+                          width: 0.5,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          expressionWidget,
+                          resultWidget,
+                        ],
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        replaceButton,
+                        copyResultButton,
+                        deleteButton,
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
