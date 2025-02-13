@@ -213,6 +213,9 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
       _error = AppStrings.invalidFormat;
     }
 
+    if (_error == 'Invalid value') {
+      _error = AppStrings.invalidFormat;
+    }
     _isCalculating = false;
     notifyListeners();
   }

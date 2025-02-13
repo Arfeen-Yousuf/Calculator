@@ -97,56 +97,58 @@ Future<int?> showValuePicker<T>(
 
   final int? pickedIndex = await showCupertinoModalPopup<int>(
     context: context,
-    builder: (_) => Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: appColors.scaffoldBackground,
-        borderRadius: const BorderRadiusDirectional.only(
-          topStart: Radius.circular(20),
-          topEnd: Radius.circular(20),
+    builder: (_) => SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: appColors.scaffoldBackground,
+          borderRadius: const BorderRadiusDirectional.only(
+            topStart: Radius.circular(20),
+            topEnd: Radius.circular(20),
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          BottomSheetHeader(title: title),
-          SizedBox(
-            height: 250,
-            child: CupertinoPicker(
-              scrollController:
-                  FixedExtentScrollController(initialItem: selectedIndex),
-              itemExtent: 40, // Height of each item
-              onSelectedItemChanged: (index) => selectedIndex = index,
-              children: List.generate(
-                values.length,
-                (index) => FittedBox(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Text('${values[index]}'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            BottomSheetHeader(title: title),
+            SizedBox(
+              height: 250,
+              child: CupertinoPicker(
+                scrollController:
+                    FixedExtentScrollController(initialItem: selectedIndex),
+                itemExtent: 40, // Height of each item
+                onSelectedItemChanged: (index) => selectedIndex = index,
+                children: List.generate(
+                  values.length,
+                  (index) => FittedBox(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Text('${values[index]}'),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedTextFilledButton(
-                  text: 'Cancel',
-                  onPressed: () => Navigator.pop(context),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedTextFilledButton(
+                    text: 'Cancel',
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: PrimaryTextFilledButton(
-                  text: 'Done',
-                  onPressed: () => Navigator.pop<int>(context, selectedIndex),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: PrimaryTextFilledButton(
+                    text: 'Done',
+                    onPressed: () => Navigator.pop<int>(context, selectedIndex),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     ),
   );

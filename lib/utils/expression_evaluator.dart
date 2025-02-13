@@ -125,15 +125,19 @@ class ExpressionEvaluator {
   }
 
   String? _balanceBrackets(String expr) {
-    //Check for bracket balancing
-    int bracketBalance =
-        '('.allMatches(expr).length - ')'.allMatches(expr).length;
-    //If right brackets are greater than left brackets, then the expression
-    //is surely invalid
-    if (bracketBalance < 0) return null;
+    int level = 0;
+    for (int i = 0; i < expr.length; i++) {
+      if (expr[i] == '(') {
+        level++;
+      } else if (expr[i] == ')') {
+        level--;
+        //Check if the brackets cause an invalid expression
+        if (level < 0) return null;
+      }
+    }
 
     //Else add the remaining right brackets to the expression
-    return expr + (')' * bracketBalance);
+    return expr + (')' * level);
   }
 
   Future<String> _removePercentages(String expr) async {

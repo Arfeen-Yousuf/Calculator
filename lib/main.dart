@@ -1,6 +1,7 @@
 import 'package:calculator/screens/history/history_view_model.dart';
 import 'package:calculator/services/history_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -19,6 +20,8 @@ import 'utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //For android 15+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
