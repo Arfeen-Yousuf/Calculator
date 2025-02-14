@@ -19,7 +19,7 @@ class DateDurationCalculatorScreenBody extends StatelessWidget {
       onDateTimeChanged: viewModelRead.onStartDateChanged,
     );
     final Widget endDateField = DateField(
-      label: 'From Date',
+      label: 'To Date',
       dateTime: viewModel.endDate,
       onDateTimeChanged: viewModelRead.onEndDateChanged,
     );
