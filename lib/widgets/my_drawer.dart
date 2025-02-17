@@ -1,9 +1,6 @@
 import 'package:calculator/app/colors.dart';
-import 'package:calculator/screens/date_calculator/date_calculator_screen.dart';
-import 'package:calculator/screens/discount_calculator/discount_calculator_screen.dart';
-import 'package:calculator/screens/fuel_calculator/fuel_calculator_screen.dart';
-import 'package:calculator/screens/settings/settings_screen.dart';
-import 'package:calculator/screens/unit_converter/unit_converter_screen.dart';
+import 'package:calculator/screens/home/home_screen.dart';
+import 'package:calculator/utils/screen_data.dart';
 import 'package:flutter/material.dart';
 
 import 'svg_icon.dart';
@@ -15,51 +12,51 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
+    final screensData = ScreenData.screens;
+
     return Drawer(
       backgroundColor: appColors.scaffoldBackground,
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
       // space to fit everything.
-      child: ListView(
-        // Important: Remove any padding from the ListView.
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            child: Align(
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(
+            vertical: 0,
+            horizontal: 8,
+          ),
+          children: [
+            const SizedBox(height: 30),
+            Align(
               alignment: Alignment.bottomLeft,
               child: Icon(
                 Icons.calculate,
-                size: 50,
+                size: 70,
                 color: appColors.primary,
               ),
             ),
-          ),
-          const _DrawerListTile(
-            leadingSvgIconData: SvgIconData.ruler,
-            title: 'Unit Converter',
-            destination: UnitConverterScreen(),
-          ),
-          const _DrawerListTile(
-            leadingSvgIconData: SvgIconData.discount,
-            title: 'Discount Calculator',
-            destination: DiscountCalculatorScreen(),
-          ),
-          const _DrawerListTile(
-            leadingSvgIconData: SvgIconData.calendar,
-            title: 'Date Calculator',
-            destination: DateCalculatorScreen(),
-          ),
-          const _DrawerListTile(
-            leadingSvgIconData: SvgIconData.fuel,
-            title: 'Fuel Calculator',
-            destination: FuelCalculatorScreen(),
-          ),
-          const _DrawerListTile(
-            leadingSvgIconData: SvgIconData.settings,
-            title: 'Settings',
-            destination: SettingsScreen(),
-          ),
-        ],
+            const SizedBox(height: 35),
+            _DrawerListTile(screenData: ScreenData.home),
+            _DrawerListTile(screenData: ScreenData.settings),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 16,
+              ),
+              child: Text(
+                'Calculators',
+                style: TextStyle(
+                  color: appColors.primary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            ...screensData.map(
+              (screenData) => _DrawerListTile(screenData: screenData),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -67,29 +64,43 @@ class MyDrawer extends StatelessWidget {
 
 class _DrawerListTile extends StatelessWidget {
   const _DrawerListTile({
-    required this.leadingSvgIconData,
-    required this.title,
-    required this.destination,
+    required this.screenData,
   });
 
-  final SvgIconData leadingSvgIconData;
-  final String title;
-  final Widget destination;
+  final ScreenData screenData;
 
   @override
   Widget build(BuildContext context) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    final destinationRoute = (screenData.screen.key as ValueKey<String>).value;
+    final selected = (currentRoute == destinationRoute);
+
     return ListTile(
+      selected: selected,
+      selectedColor: appColors.primaryText,
+      selectedTileColor: appColors.selectedDrawerTile,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       leading: SvgIcon(
-        leadingSvgIconData,
+        screenData.svgIconData,
+        color: appColors.primary,
         size: 25,
       ),
-      title: Text(title),
+      title: Text(screenData.title),
       onTap: () {
+        if (currentRoute == destinationRoute) {
+          return;
+        }
+
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => destination),
-        );
+        if (currentRoute == HomeScreen.route) {
+          Navigator.pushNamed(context, destinationRoute);
+        } else {
+          Navigator.pushReplacementNamed(context, destinationRoute);
+        }
       },
     );
   }

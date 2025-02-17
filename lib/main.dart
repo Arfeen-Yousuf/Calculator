@@ -1,5 +1,3 @@
-import 'package:calculator/screens/history/history_view_model.dart';
-import 'package:calculator/services/history_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
@@ -10,18 +8,26 @@ import 'app/colors.dart';
 import 'providers/settings_provider.dart';
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
+import 'screens/date_calculator/date_calculator_screen.dart';
 import 'screens/date_calculator/duration/date_duration_calculator_view_model.dart';
 import 'screens/date_calculator/from_to/date_from_to_calculator_view_model.dart';
+import 'screens/discount_calculator/discount_calculator_screen.dart';
 import 'screens/discount_calculator/discount_calculator_view_model.dart';
+import 'screens/fuel_calculator/fuel_calculator_screen.dart';
 import 'screens/fuel_calculator/fuel_calculator_view_model.dart';
+import 'screens/history/history_view_model.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'screens/unit_converter/unit_converter_screen.dart';
 import 'screens/unit_converter/unit_converter_view_model.dart';
+import 'services/history_database.dart';
 import 'services/settings_service.dart';
 import 'utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //For android 15+
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
@@ -102,7 +108,17 @@ class MyApp extends StatelessWidget {
         theme: lightThemeData(context),
         darkTheme: darkThemeData(context),
         themeMode: context.watch<SettingsProvider>().themeMode,
-        home: const CalculatorScreen(),
+        initialRoute: HomeScreen.route,
+        routes: {
+          HomeScreen.route: (context) => const HomeScreen(),
+          CalculatorScreen.route: (context) => const CalculatorScreen(),
+          UnitConverterScreen.route: (context) => const UnitConverterScreen(),
+          DiscountCalculatorScreen.route: (context) =>
+              const DiscountCalculatorScreen(),
+          DateCalculatorScreen.route: (context) => const DateCalculatorScreen(),
+          FuelCalculatorScreen.route: (context) => const FuelCalculatorScreen(),
+          SettingsScreen.route: (context) => const SettingsScreen(),
+        },
       ),
     );
   }
@@ -149,6 +165,13 @@ class MyApp extends StatelessWidget {
           optionsBackground: AppColorsLight.optionsBackground,
           cardBackground: AppColorsLight.cardBackground,
 
+          //Home Page
+          homeBackground: AppColorsLight.homeBackground,
+          homeTile: AppColorsLight.homeTile,
+
+          //Drawer
+          selectedDrawerTile: AppColorsLight.selectedDrawerTile,
+
           //Calculator page
           result: AppColorsLight.result,
           toogleScientificButtonBackground:
@@ -194,6 +217,13 @@ class MyApp extends StatelessWidget {
           primaryText: AppColorsDark.primaryText,
           optionsBackground: AppColorsDark.optionsBackground,
           cardBackground: AppColorsDark.cardBackground,
+
+          //Drawer
+          selectedDrawerTile: AppColorsDark.selectedDrawerTile,
+
+          //Home Page
+          homeBackground: null,
+          homeTile: AppColorsDark.homeTile,
 
           //Calculator page
           result: AppColorsDark.result,

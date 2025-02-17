@@ -1,4 +1,5 @@
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/widgets/my_drawer.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
 import 'package:calculator/widgets/results_card.dart';
 import 'package:calculator/widgets/text_field_with_options.dart';
@@ -9,7 +10,10 @@ import 'package:units_converter/units_converter.dart';
 import 'fuel_calculator_view_model.dart';
 
 class FuelCalculatorScreen extends StatelessWidget {
-  const FuelCalculatorScreen({super.key});
+  static const route = '/fuel-calculator';
+  static const _key = ValueKey(route);
+
+  const FuelCalculatorScreen() : super(key: _key);
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +79,7 @@ class FuelCalculatorScreen extends StatelessWidget {
     );
 
     return Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: const Text('Fuel Calculator'),
         actions: [popupMenuButton],

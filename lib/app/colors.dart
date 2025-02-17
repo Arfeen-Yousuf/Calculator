@@ -11,6 +11,13 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.optionsBackground,
     required this.cardBackground,
 
+    //Drawer
+    required this.selectedDrawerTile,
+
+    //Home Page
+    required this.homeBackground,
+    required this.homeTile,
+
     // Calculator Page
     required this.result,
     required this.toogleScientificButtonBackground,
@@ -28,6 +35,13 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? primaryText;
   final Color? optionsBackground;
   final Color? cardBackground;
+
+  //Drawer
+  final Color? selectedDrawerTile;
+
+  //Home Page
+  final Color? homeBackground;
+  final Color? homeTile;
 
   // Calculator Page
   final Color? result;
@@ -47,6 +61,13 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? primaryText,
     Color? optionsBackground,
     Color? cardBackground,
+
+    //Drawer
+    Color? selectedDrawerTile,
+
+    //Home Page
+    Color? homeBackground,
+    Color? homeTile,
 
     // Calculator Page
     Color? result,
@@ -70,6 +91,13 @@ class AppColors extends ThemeExtension<AppColors> {
       primaryText: primaryText ?? this.primaryText,
       optionsBackground: optionsBackground ?? this.optionsBackground,
       cardBackground: cardBackground ?? this.cardBackground,
+
+      //Drawer
+      selectedDrawerTile: selectedDrawerTile ?? this.selectedDrawerTile,
+
+      //Home Page
+      homeBackground: homeBackground ?? this.homeBackground,
+      homeTile: homeTile ?? this.homeTile,
 
       // Calculator Page
       result: result ?? this.result,
@@ -103,6 +131,14 @@ class AppColors extends ThemeExtension<AppColors> {
       optionsBackground:
           Color.lerp(optionsBackground, other.optionsBackground, t),
       cardBackground: Color.lerp(cardBackground, other.cardBackground, t),
+
+      //Drawer
+      selectedDrawerTile:
+          Color.lerp(selectedDrawerTile, other.selectedDrawerTile, t),
+
+      //Home Page
+      homeBackground: Color.lerp(homeBackground, other.homeBackground, t),
+      homeTile: Color.lerp(homeTile, other.homeTile, t),
 
       // Calculator Page
       result: Color.lerp(result, other.result, t),
@@ -144,6 +180,13 @@ class AppColorsLight {
   static const optionsBackground = Color(0xFFF1F1F1);
   static const cardBackground = Color(0xFFF1F1F1);
 
+  //Drawer
+  static const selectedDrawerTile = Color(0xFFF1F1F1);
+
+  //Home Page
+  static const homeBackground = Color(0xFFF2F4F3);
+  static const homeTile = Colors.white;
+
   // Calculator Page
   static const result = Color(0xFFAFAFAF);
   static const toogleScientificButtonBackground = Color(0xFFF2F4F3);
@@ -160,6 +203,12 @@ class AppColorsDark {
   static const primaryText = Colors.white;
   static const optionsBackground = Color(0xFF222222);
   static const cardBackground = Color(0xFF222222);
+
+  //Drawer
+  static const selectedDrawerTile = Color(0xFF333333);
+
+  //Home
+  static const homeTile = Color(0xFF1D1B20);
 
   // Calculator Page
   static const result = Color(0xFFAFAFAF);

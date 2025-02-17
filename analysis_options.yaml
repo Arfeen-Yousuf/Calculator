@@ -27,6 +27,8 @@ linter:
     - prefer_const_constructors
     - prefer_const_literals_to_create_immutables
     - prefer_const_declarations
+    - await_only_futures
+    - unawaited_futures
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

@@ -21,7 +21,7 @@ class GridButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final appColors = Theme.of(context).extension<AppColors>()!;
 
     return FilledButton(
       onPressed: onPressed,

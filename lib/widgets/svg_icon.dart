@@ -4,8 +4,10 @@ import 'package:flutter_svg/svg.dart';
 const _assetsBasePath = 'assets/svg_icons/';
 
 enum SvgIconData {
+  calculator('calculator'),
   calendar('calendar'),
   fuel('fuel'),
+  home('home'),
   length('length'),
   mass('mass'),
   area('area'),

@@ -1,5 +1,6 @@
 import 'package:calculator/services/network_services.dart';
 import 'package:calculator/utils/constants.dart';
+import 'package:calculator/widgets/my_drawer.dart';
 import 'package:calculator/widgets/safe_area_with_padding.dart';
 import 'package:calculator/widgets/settings_list_tile.dart';
 import 'package:calculator/widgets/svg_icon.dart';
@@ -10,7 +11,10 @@ import 'calculator_settings_screen.dart';
 import 'display_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  static const route = '/settings';
+  static const _key = ValueKey(route);
+
+  const SettingsScreen() : super(key: _key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,7 @@ class SettingsScreen extends StatelessWidget {
     );
 
     return Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: const Text('Settings'),
       ),
