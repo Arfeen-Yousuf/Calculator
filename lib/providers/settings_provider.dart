@@ -20,6 +20,7 @@ class SettingsProvider extends ChangeNotifier {
     _lastExpression =
         _keepLastRecord ? (await _settingsService.lastExpression()) : '';
     _decimalPlaces = await _settingsService.decimalPlaces();
+    _startUpCalculator = await _settingsService.startUpCalculator();
 
     notifyListeners();
   }
@@ -82,5 +83,17 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
 
     await _settingsService.updateDecimalPlaces(decimalPlaces);
+  }
+
+  late int _startUpCalculator;
+  int get startUpCalculator => _startUpCalculator;
+
+  /// Update and persist startup calculator setting based on the user's selection.
+  Future<void> updateStartUpCalculator(int startUpCalculator) async {
+    if (startUpCalculator == _startUpCalculator) return;
+    _startUpCalculator = startUpCalculator;
+    notifyListeners();
+
+    await _settingsService.updateStartUpCalculator(startUpCalculator);
   }
 }

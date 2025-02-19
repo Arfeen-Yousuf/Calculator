@@ -12,7 +12,10 @@ import 'calculator_button_grid.dart';
 import 'calculator_view_model.dart';
 
 class CalculatorScreen extends StatelessWidget {
-  const CalculatorScreen({super.key});
+  static const route = '/calculator';
+  static const _key = ValueKey(route);
+
+  const CalculatorScreen() : super(key: _key);
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +118,7 @@ class CalculatorScreen extends StatelessWidget {
     );
 
     final scaffold = Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: Text(
           '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
@@ -158,7 +162,6 @@ class CalculatorScreen extends StatelessWidget {
           ),
         ),
       ),
-      drawer: const MyDrawer(),
     );
 
     return PopScope(

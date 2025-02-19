@@ -1,5 +1,6 @@
 import 'package:calculator/services/network_services.dart';
 import 'package:calculator/utils/constants.dart';
+import 'package:calculator/widgets/my_drawer.dart';
 import 'package:calculator/widgets/safe_area_with_padding.dart';
 import 'package:calculator/widgets/settings_list_tile.dart';
 import 'package:calculator/widgets/svg_icon.dart';
@@ -8,9 +9,13 @@ import 'package:share_plus/share_plus.dart';
 
 import 'calculator_settings_screen.dart';
 import 'display_settings_screen.dart';
+import 'general_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  static const route = '/settings';
+  static const _key = ValueKey(route);
+
+  const SettingsScreen() : super(key: _key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +25,13 @@ class SettingsScreen extends StatelessWidget {
       endIndent: 18,
     );
 
-    final calcSettingsListTile = SettingsListTile(
+    final generalSettingsListTile = SettingsListTile(
       leading: SvgIconData.settings,
+      title: 'General Settings',
+      onTap: () => _onGeneralSettingsTap(context),
+    );
+    final calcSettingsListTile = SettingsListTile(
+      leading: SvgIconData.calculator,
       title: 'Calculator Settings',
       onTap: () => _onCalculatorSettingsTap(context),
     );
@@ -47,7 +57,14 @@ class SettingsScreen extends StatelessWidget {
       onTap: () async => await _onPrivacyPolicyTap(),
     );
 
+    final card1Settings = <SettingsListTile>[
+      generalSettingsListTile,
+      calcSettingsListTile,
+      displaySettingsListTile,
+    ];
+
     return Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: const Text('Settings'),
       ),
@@ -58,12 +75,11 @@ class SettingsScreen extends StatelessWidget {
             spacing: 20,
             children: [
               Card(
-                child: Column(
-                  children: [
-                    calcSettingsListTile,
-                    divider,
-                    displaySettingsListTile,
-                  ],
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: card1Settings.length,
+                  itemBuilder: (context, index) => card1Settings[index],
+                  separatorBuilder: (_, __) => divider,
                 ),
               ),
               Card(
@@ -99,6 +115,15 @@ class SettingsScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => const DisplaySettingsScreen(),
+      ),
+    );
+  }
+
+  void _onGeneralSettingsTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const GeneralSettingsScreen(),
       ),
     );
   }

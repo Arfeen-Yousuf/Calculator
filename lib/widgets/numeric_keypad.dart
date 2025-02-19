@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
@@ -280,11 +278,9 @@ class NumericKeypad extends StatelessWidget {
         .replaceAll(',', '')
         .replaceFirst(CalculatorConstants.subtraction, '-');
     final dotIndex = text.indexOf('.');
-    log('Final dot index $dotIndex');
 
     if (dotIndex == -1) {
       final value = int.parse(text);
-      log('Final An Integer $value');
       controller.text = (value < 0)
           ? '${CalculatorConstants.subtraction}${numberFormatter.format(-value)}'
           : numberFormatter.format(value);

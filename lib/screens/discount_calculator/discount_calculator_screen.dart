@@ -1,4 +1,5 @@
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/widgets/my_drawer.dart';
 import 'package:calculator/widgets/number_text_field.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
 import 'package:calculator/widgets/results_card.dart';
@@ -8,7 +9,10 @@ import 'package:provider/provider.dart';
 import 'discount_calculator_view_model.dart';
 
 class DiscountCalculatorScreen extends StatelessWidget {
-  const DiscountCalculatorScreen({super.key});
+  static const route = '/discount-calculator';
+  static const _key = ValueKey(route);
+
+  const DiscountCalculatorScreen() : super(key: _key);
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +51,7 @@ class DiscountCalculatorScreen extends StatelessWidget {
     );
 
     return Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: const Text('Discount Calculator'),
         actions: [

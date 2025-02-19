@@ -1,6 +1,7 @@
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/utils/ui_helper.dart';
 import 'package:calculator/utils/utils.dart';
+import 'package:calculator/widgets/my_drawer.dart';
 import 'package:calculator/widgets/numeric_keypad.dart';
 import 'package:calculator/widgets/svg_icon.dart';
 import 'package:calculator/widgets/text_field_with_options.dart';
@@ -11,7 +12,10 @@ import 'package:units_converter/units_converter.dart';
 import 'unit_converter_view_model.dart';
 
 class UnitConverterScreen extends StatelessWidget {
-  const UnitConverterScreen({super.key});
+  static const route = '/unit-converter';
+  static const _key = ValueKey(route);
+
+  const UnitConverterScreen() : super(key: _key);
 
   static const List<PROPERTY> properties = [
     PROPERTY.length,
@@ -77,6 +81,7 @@ class UnitConverterScreen extends StatelessWidget {
     );
 
     return Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: const Text('Unit Converter'),
       ),

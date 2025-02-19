@@ -8,12 +8,14 @@ class SettingsListTile extends StatelessWidget {
     super.key,
     this.leading,
     required this.title,
+    this.subtitle,
     this.onTap,
     this.trailing,
   });
 
   final SvgIconData? leading;
   final String title;
+  final String? subtitle;
   final VoidCallback? onTap;
   final Widget? trailing;
 
@@ -30,6 +32,7 @@ class SettingsListTile extends StatelessWidget {
             )
           : null,
       title: Text(title),
+      subtitle: (subtitle == null) ? null : Text(subtitle!),
       onTap: onTap,
       trailing: trailing,
     );
