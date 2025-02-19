@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/screens/home/home_screen.dart';
 import 'package:calculator/utils/screen_data.dart';
@@ -12,7 +14,7 @@ class MyDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    final screensData = ScreenData.screens;
+    final screensData = ScreenData.calculatorScreens;
 
     return Drawer(
       backgroundColor: appColors.scaffoldBackground,
@@ -91,15 +93,22 @@ class _DrawerListTile extends StatelessWidget {
       ),
       title: Text(screenData.title),
       onTap: () {
+        //Pop the drawer
+        Navigator.pop(context);
+
         if (currentRoute == destinationRoute) {
           return;
-        }
-
-        Navigator.pop(context);
-        if (currentRoute == HomeScreen.route) {
-          Navigator.pushNamed(context, destinationRoute);
+        } else if (currentRoute != HomeScreen.route &&
+            destinationRoute == HomeScreen.route) {
+          log('Route Going to home');
+          Navigator.pop(context);
+        } else if (currentRoute == HomeScreen.route &&
+            destinationRoute != HomeScreen.route) {
+          log('Route $destinationRoute pushed');
+          Navigator.restorablePushNamed(context, destinationRoute);
         } else {
-          Navigator.pushReplacementNamed(context, destinationRoute);
+          log('Route $destinationRoute replaced');
+          Navigator.restorablePushReplacementNamed(context, destinationRoute);
         }
       },
     );

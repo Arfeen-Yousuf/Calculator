@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import 'calculator_settings_screen.dart';
 import 'display_settings_screen.dart';
+import 'general_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const route = '/settings';
@@ -24,8 +25,13 @@ class SettingsScreen extends StatelessWidget {
       endIndent: 18,
     );
 
-    final calcSettingsListTile = SettingsListTile(
+    final generalSettingsListTile = SettingsListTile(
       leading: SvgIconData.settings,
+      title: 'General Settings',
+      onTap: () => _onGeneralSettingsTap(context),
+    );
+    final calcSettingsListTile = SettingsListTile(
+      leading: SvgIconData.calculator,
       title: 'Calculator Settings',
       onTap: () => _onCalculatorSettingsTap(context),
     );
@@ -51,6 +57,12 @@ class SettingsScreen extends StatelessWidget {
       onTap: () async => await _onPrivacyPolicyTap(),
     );
 
+    final card1Settings = <SettingsListTile>[
+      generalSettingsListTile,
+      calcSettingsListTile,
+      displaySettingsListTile,
+    ];
+
     return Scaffold(
       drawer: const MyDrawer(),
       appBar: AppBar(
@@ -63,12 +75,11 @@ class SettingsScreen extends StatelessWidget {
             spacing: 20,
             children: [
               Card(
-                child: Column(
-                  children: [
-                    calcSettingsListTile,
-                    divider,
-                    displaySettingsListTile,
-                  ],
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: card1Settings.length,
+                  itemBuilder: (context, index) => card1Settings[index],
+                  separatorBuilder: (_, __) => divider,
                 ),
               ),
               Card(
@@ -104,6 +115,15 @@ class SettingsScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => const DisplaySettingsScreen(),
+      ),
+    );
+  }
+
+  void _onGeneralSettingsTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const GeneralSettingsScreen(),
       ),
     );
   }

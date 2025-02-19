@@ -23,6 +23,7 @@ import 'screens/unit_converter/unit_converter_view_model.dart';
 import 'services/history_database.dart';
 import 'services/settings_service.dart';
 import 'utils/constants.dart';
+import 'utils/screen_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,6 +89,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final int startUpCalculator =
+        context.read<SettingsProvider>().startUpCalculator;
+    final String initialRoute = (startUpCalculator == 0)
+        ? ScreenData.home.route
+        : ScreenData.calculatorScreens[startUpCalculator - 1].route;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -108,7 +115,7 @@ class MyApp extends StatelessWidget {
         theme: lightThemeData(context),
         darkTheme: darkThemeData(context),
         themeMode: context.watch<SettingsProvider>().themeMode,
-        initialRoute: HomeScreen.route,
+        initialRoute: initialRoute,
         routes: {
           HomeScreen.route: (context) => const HomeScreen(),
           CalculatorScreen.route: (context) => const CalculatorScreen(),

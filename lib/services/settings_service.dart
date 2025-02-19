@@ -9,6 +9,7 @@ class SettingsService {
   static const themeColorKey = 'themeColor';
   static const keepLastRecordKey = 'keepLastRecord';
   static const decimalPlacesKey = 'decimalPlaces';
+  static const startUpCalculatorKey = 'startUpCalculator';
   static const lastExpressionKey = 'lastExp';
 
   /// Loads the User's preferred ThemeMode from storage.
@@ -61,6 +62,19 @@ class SettingsService {
   Future<void> updateDecimalPlaces(int decimalPlaces) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(decimalPlacesKey, decimalPlaces);
+  }
+
+  /// Loads the User's preferred last calculator from storage.
+  Future<int> startUpCalculator() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startUpCalculator = prefs.getInt(startUpCalculatorKey) ?? 0;
+    return startUpCalculator;
+  }
+
+  /// Persists the user's preferred start up calculator to storage.
+  Future<void> updateStartUpCalculator(int startUpCalculator) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(startUpCalculatorKey, startUpCalculator);
   }
 
   /// Loads the last expression from storage.

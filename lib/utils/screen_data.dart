@@ -12,14 +12,16 @@ class ScreenData {
   ScreenData._(
     this.svgIconData,
     this.title,
+    this.route,
     this.screen,
   );
 
   final SvgIconData svgIconData;
   final String title;
+  final String route;
   final Widget screen;
 
-  static final List<ScreenData> screens = List.unmodifiable([
+  static final List<ScreenData> calculatorScreens = List.unmodifiable([
     calculator,
     unitConverter,
     discountCalculator,
@@ -30,36 +32,43 @@ class ScreenData {
   static final home = ScreenData._(
     SvgIconData.home,
     'Home',
+    HomeScreen.route,
     const HomeScreen(),
   );
   static final calculator = ScreenData._(
     SvgIconData.calculator,
     'Basic Calculator',
+    CalculatorScreen.route,
     const CalculatorScreen(),
   );
   static final unitConverter = ScreenData._(
     SvgIconData.ruler,
     'Unit Converter',
+    UnitConverterScreen.route,
     const UnitConverterScreen(),
   );
   static final discountCalculator = ScreenData._(
     SvgIconData.discount,
     'Discount Calculator',
+    DiscountCalculatorScreen.route,
     const DiscountCalculatorScreen(),
   );
   static final dateCalculator = ScreenData._(
     SvgIconData.calendar,
     'Date Calculator',
+    DateCalculatorScreen.route,
     const DateCalculatorScreen(),
   );
   static final fuelCalculator = ScreenData._(
     SvgIconData.fuel,
     'Fuel Calculator',
+    FuelCalculatorScreen.route,
     const FuelCalculatorScreen(),
   );
   static final settings = ScreenData._(
     SvgIconData.settings,
     'Settings',
+    SettingsScreen.route,
     const SettingsScreen(),
   );
 }

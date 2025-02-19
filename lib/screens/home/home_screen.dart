@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
-    final screensData = ScreenData.screens;
+    final screensData = ScreenData.calculatorScreens;
 
     return Scaffold(
       drawer: const MyDrawer(),
@@ -53,14 +53,13 @@ class _HomeScreenListTile extends StatelessWidget {
     final destinationRoute = (screenData.screen.key as ValueKey<String>).value;
 
     return ListTile(
-      key: super.key,
       leading: SvgIcon(
         screenData.svgIconData,
         color: appColors.primary,
         size: 30,
       ),
       title: Text(screenData.title),
-      onTap: () => Navigator.pushNamed(
+      onTap: () => Navigator.restorablePushNamed(
         context,
         destinationRoute,
       ),
