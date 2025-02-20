@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# After upgradation from Flutter 3.27 to 3.29
+android/app/.cxx/
