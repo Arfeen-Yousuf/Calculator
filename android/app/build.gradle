@@ -34,23 +34,14 @@ android {
         versionCode = 11
         versionName = "1.1.0"
     }
-
-    signingConfigs {
-        release {
-            keyAlias = keystoreProperties['keyAlias']
-            keyPassword = keystoreProperties['keyPassword']
-            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword = keystoreProperties['storePassword']
-        }
-    }
-
+    
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug // Default debug signing
         }
         release {
-            signingConfig = signingConfigs.release
+            signingConfig signingConfigs.debug // Default debug signing
             minifyEnabled true // Enable R8 for shrinking
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
