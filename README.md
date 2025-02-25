@@ -20,11 +20,11 @@ The Calculator App is designed for everyday use, featuring essential calculation
 ## Installation
 1. Clone the repository:
    ```sh
-   git clone <repository-url>
+   git clone https://github.com/Arfeen-Yousuf/Calculator.git
    ```
 2. Navigate to the project directory:
    ```sh
-   cd calculator_app
+   cd Calculator
    ```
 3. Install dependencies:
    ```sh
