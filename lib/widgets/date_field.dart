@@ -63,9 +63,7 @@ class DateField extends StatelessWidget {
     );
   }
 
-  void _showDatePicker(BuildContext context) async {
-    //TODO: Decide between the two alternative choices
-
+  void _showDatePicker(BuildContext context) {
     _showDialog(
       context,
       CupertinoDatePicker(
@@ -80,15 +78,6 @@ class DateField extends StatelessWidget {
         onDateTimeChanged: onDateTimeChanged!,
       ),
     );
-
-    /*
-    final pickedDate = await showDatePicker(
-      context: context,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100, 12, 31),
-    );
-    if (pickedDate != null) onDateTimeChanged(pickedDate);
-    */
   }
 
   void _showDialog(BuildContext context, Widget child) {

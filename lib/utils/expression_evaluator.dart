@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:calculator/extensions/string.dart';
 import 'package:decimal/decimal.dart';
 import 'package:function_tree/function_tree.dart';
@@ -30,11 +28,9 @@ class ExpressionEvaluator {
 
     expr = expr.replaceAll(',', '');
     expr = _removeImplicitMultiplications(expr);
-    dev.log('Implicit Muls removed $expr');
     expr = _removeFactorials(expr);
     //Replace the function names and constants
     expr = _cleanExpression(expr);
-    dev.log('Cleaned Expression $expr');
     if (angleInDegree) expr = _degreeAngleExpression(expr);
 
     expr = _balanceBrackets(expr);
@@ -43,11 +39,19 @@ class ExpressionEvaluator {
     }
 
     if (expr.startsWith('-')) expr = '0$expr';
-    //TODO: Resolve issue for (-4% etc
+    // (-4.3432.9032% etc
+    expr = expr.replaceAllMapped(RegExp(r'\(-[0-9\.]+%'), (match) {
+      final matchedStr = match.group(0)!;
+      final numberPart = matchedStr.substring(
+        2,
+        matchedStr.length - 1,
+      );
+
+      return '(-($numberPart/100)';
+    });
     expr = expr.replaceAll('(-', '(0-');
     expr = await _removePercentages(expr);
 
-    dev.log('Expression Interpreting $expr');
     try {
       Decimal result = await expr.interpret();
       if (containsTrigometricFunction(originalExpression)) {

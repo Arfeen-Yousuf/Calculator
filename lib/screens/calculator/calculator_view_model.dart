@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as dev;
 
 import 'package:calculator/enums/history_log_action.dart';
 import 'package:calculator/extensions/string.dart';
@@ -106,7 +105,14 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void _setInitialExpression() {
     final settingsProvider = context.read<SettingsProvider>();
     if (settingsProvider.keepLastRecord) {
-      _textEditingController.text = settingsProvider.lastExpression;
+      final lastExpr = settingsProvider.lastExpression;
+      _textEditingController.text = lastExpr;
+      if (containsTrigometricFunction(lastExpr)) {
+        _isScientific = true;
+        _hasTrigonometricFunction = true;
+        notifyListeners();
+      }
+
       _calculateResult();
     }
   }
@@ -122,6 +128,12 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   bool _isScientific = false;
   get isScientific => _isScientific;
+  void setIsScientific(bool isScientific) {
+    if (_isScientific == isScientific) return;
+    _isScientific = isScientific;
+    notifyListeners();
+  }
+
   void toogleScientific() {
     _isScientific = !_isScientific;
     notifyListeners();
@@ -143,6 +155,11 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
 
   bool _hasTrigonometricFunction = false;
   bool get hasTrigonometricFunction => _hasTrigonometricFunction;
+  void setHasTrigometricFunc(bool value) {
+    if (_hasTrigonometricFunction == value) return;
+    _hasTrigonometricFunction = value;
+    notifyListeners();
+  }
 
   Decimal? _result;
   Decimal? get result => _result;
@@ -157,6 +174,7 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     _textEditingController.clear();
     _result = null;
     _error = null;
+    _hasTrigonometricFunction = false;
     notifyListeners();
   }
 
@@ -191,7 +209,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void _calculateResultAsync() async {
     _result = null;
     _isCalculating = true;
-    dev.log('IsCalclating $_isCalculating');
     notifyListeners();
 
     try {
@@ -246,8 +263,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
   void addSubtraction() => _addBinaryOperator(CalculatorConstants.subtraction);
   void addAddition() => _addBinaryOperator(CalculatorConstants.addition);
   void addPower() => _addBinaryOperator(CalculatorConstants.power);
-
-  //TODO: Optimize the old business logic code below
 
   ///Handles cursor changes
   void _changeText(

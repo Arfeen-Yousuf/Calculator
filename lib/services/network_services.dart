@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:calculator/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,7 +11,6 @@ class NetworkServices {
         mode: LaunchMode.externalApplication,
       );
     } else {
-      log('URL not opened');
       throw 'Could not open $url';
     }
   }

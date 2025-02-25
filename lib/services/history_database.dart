@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:sqflite/sqflite.dart';
 
 const tableHistory = 'history';
@@ -82,7 +80,6 @@ class HistoryDatabaseManager {
   ///Inserts a history log into the history table
   static Future<HistoryLog> insertHistoryLog(HistoryLog historyLog) async {
     historyLog.id = await db.insert(tableHistory, historyLog.toMap());
-    log('$historyLog inserted');
     return historyLog;
   }
 

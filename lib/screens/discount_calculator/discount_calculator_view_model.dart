@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 class DiscountCalculatorViewModel extends ChangeNotifier {
@@ -72,13 +70,10 @@ class DiscountCalculatorViewModel extends ChangeNotifier {
     if (_currentFocusNode == null) {
       return;
     } else if (_currentFocusNode == taxFocusNode) {
-      log('Discount Calculator: Tax $value');
       _taxPercentage = value;
     } else if (_currentFocusNode == priceFocusNode) {
-      log('Discount Calculator: Price $value');
       _originalPrice = value;
     } else if (_currentFocusNode == discountFocusNode) {
-      log('Discount Calculator: Discount $value');
       _discountPercentage = value;
     }
 

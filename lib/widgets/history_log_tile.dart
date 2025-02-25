@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/enums/history_log_action.dart';
+import 'package:calculator/screens/calculator/calculator_view_model.dart';
 import 'package:calculator/screens/history/history_view_model.dart';
 import 'package:calculator/services/history_database.dart';
 import 'package:calculator/utils/utils.dart';
@@ -45,12 +44,20 @@ class HistoryLogTile extends StatelessWidget {
       title: const Text('Replace'),
       leading: const Icon(Icons.swap_horiz_outlined),
       contentPadding: EdgeInsets.zero,
-      onTap: () => Navigator.of(context).pop<(HistoryLogAction, HistoryLog)>(
-        (
-          HistoryLogAction.replace,
-          historyLog,
-        ),
-      ),
+      onTap: () {
+        if (containsTrigometricFunction(historyLog.expression)) {
+          final calculatorViewModel = context.read<CalculatorViewModel>();
+          calculatorViewModel.setHasTrigometricFunc(true);
+          calculatorViewModel.setIsScientific(true);
+        }
+
+        Navigator.of(context).pop<(HistoryLogAction, HistoryLog)>(
+          (
+            HistoryLogAction.replace,
+            historyLog,
+          ),
+        );
+      },
     );
     final copyResultButton = ListTile(
       title: const Text('Copy result'),
@@ -162,9 +169,7 @@ class HistoryLogTile extends StatelessWidget {
       },
     );
 
-    log('HistoryLog in tile $modalOutput');
     if (modalOutput != null && context.mounted) {
-      log('HistoryLog in tile popped');
       Navigator.of(context).pop<(HistoryLogAction, HistoryLog)>(modalOutput);
     }
   }
