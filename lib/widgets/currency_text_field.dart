@@ -12,6 +12,7 @@ class CurrencyTextField extends StatelessWidget {
     this.title,
     this.hintText,
     required this.currency,
+    this.currencyFilter,
     required this.onCurrencySelected,
   });
 
@@ -20,11 +21,14 @@ class CurrencyTextField extends StatelessWidget {
   final String? title;
   final String? hintText;
   final Currency currency;
+  final List<String>? currencyFilter;
 
   final void Function(Currency currency) onCurrencySelected;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = TextTheme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,14 +44,14 @@ class CurrencyTextField extends StatelessWidget {
             TextSpan(
               text:
                   '${CurrencyUtils.currencyToEmoji(currency)} ${currency.code} ',
-              style: TextTheme.of(context).labelMedium?.copyWith(fontSize: 18),
+              style: textTheme.labelMedium?.copyWith(fontSize: 18),
               children: [
                 TextSpan(
                   text: '(${currency.name})',
-                  style: TextTheme.of(context).labelSmall?.copyWith(
-                        fontSize: 15,
-                        color: Colors.grey[500],
-                      ),
+                  style: textTheme.labelSmall?.copyWith(
+                    fontSize: 15,
+                    color: textTheme.labelSmall?.color?.withAlpha(170),
+                  ),
                 )
               ],
             ),
@@ -73,10 +77,13 @@ class CurrencyTextField extends StatelessWidget {
     showCurrencyPicker(
         context: context,
         theme: CurrencyPickerThemeData(
+          backgroundColor: appColors.scaffoldBackground,
           flagSize: 25,
           titleTextStyle: const TextStyle(fontSize: 17),
-          subtitleTextStyle:
-              TextStyle(fontSize: 15, color: Theme.of(context).hintColor),
+          subtitleTextStyle: TextStyle(
+            fontSize: 15,
+            color: Theme.of(context).hintColor,
+          ),
           bottomSheetHeight: MediaQuery.of(context).size.height * 0.8,
           //Optional. Styles the search field.
           inputDecoration: InputDecoration(
@@ -100,6 +107,7 @@ class CurrencyTextField extends StatelessWidget {
           ),
         ),
         onSelect: (currency) => onCurrencySelected(currency),
+        currencyFilter: currencyFilter,
         favorite: ['PKR', 'USD']);
   }
 }

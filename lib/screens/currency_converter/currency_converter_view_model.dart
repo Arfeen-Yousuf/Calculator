@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:calculator/providers/settings_provider.dart';
+import 'package:calculator/services/exchange_rate_services.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:currency_picker/currency_picker.dart';
@@ -24,6 +28,9 @@ Currency _usd = Currency.from(
 class CurrencyConverterViewModel extends ChangeNotifier {
   BuildContext context;
 
+  final _exchangeRates = ExchangeRateServices();
+  List<String>? get currencyFilter => _exchangeRates.rates?.keys.toList();
+
   CurrencyConverterViewModel(this.context) {
     _currentController = textEditingController1;
     _currentFocusNode = focusNode1;
@@ -32,7 +39,7 @@ class CurrencyConverterViewModel extends ChangeNotifier {
     focusNode1.addListener(_onFocusNodeChanged);
     focusNode2.addListener(_onFocusNodeChanged);
 
-    _computeConversionFormula();
+    fetchExchangeRates();
   }
 
   @override
@@ -43,6 +50,60 @@ class CurrencyConverterViewModel extends ChangeNotifier {
     focusNode2.dispose();
     super.dispose();
   }
+
+  Future<void> fetchExchangeRates() async {
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
+
+    try {
+      await _exchangeRates.fetchExchangeRates().timeout(
+        const Duration(seconds: 7, milliseconds: 500),
+        onTimeout: () {
+          throw TimeoutException('');
+        },
+      );
+    } on Exception catch (e) {
+      _isLoading = false;
+
+      if (e is SocketException) {
+        _errorWithDetails = (
+          'No Connection',
+          'Connection Error. \n'
+              'Check your internet and retry.',
+          Icons.wifi_off_outlined,
+        );
+      } else if (e is TimeoutException) {
+        _errorWithDetails = (
+          'Request Timed Out',
+          'The request took too long to respond. \n'
+              'Check your internet and retry.',
+          Icons.timer_off_outlined,
+        );
+      } else {
+        _errorWithDetails = (
+          'Oops!',
+          'Something unexpected occured.',
+          Icons.error_outline_outlined,
+        );
+      }
+
+      notifyListeners();
+      return;
+    }
+
+    _computeConversionFormula();
+    _isLoading = false;
+    _errorWithDetails = null;
+    notifyListeners();
+  }
+
+  bool _isLoading = true;
+  bool get isLoading => _isLoading;
+
+  (String, String, IconData)? _errorWithDetails;
+  (String, String, IconData)? get errorWithDetails => _errorWithDetails;
 
   TextEditingController? _currentController;
   TextEditingController? get currentController => _currentController;
@@ -61,10 +122,20 @@ class CurrencyConverterViewModel extends ChangeNotifier {
   Currency get currency1 => _currency1;
   Currency get currency2 => _currency2;
 
-  String? _conversionFormula;
+  DateTime? get updatedDate => _exchangeRates.dateTime;
+
+  String? _conversionFormula = '';
   String? get conversionFormula => _conversionFormula;
   void _computeConversionFormula() {
-    //TODO: Implement
+    double conversionFactor = _exchangeRates.convertCurrency(
+      amount: 1,
+      from: _currency1,
+      to: _currency2,
+    )!;
+    conversionFactor = (conversionFactor * 10000).round() / 10000;
+
+    _conversionFormula =
+        '1 ${currency1.code} ≈ $conversionFactor ${currency2.code}';
   }
 
   void onCurrency1Changed(Currency currency) {
@@ -76,7 +147,12 @@ class CurrencyConverterViewModel extends ChangeNotifier {
         .replaceAll(CalculatorConstants.subtraction, '-');
 
     final value = double.tryParse(text);
-    final convertedValue = value;
+    final convertedValue = _exchangeRates.convertCurrency(
+      amount: value,
+      from: _currency2,
+      to: _currency1,
+    );
+
     _setControllerValue(
       textEditingController1,
       value: convertedValue,
@@ -95,7 +171,12 @@ class CurrencyConverterViewModel extends ChangeNotifier {
         .replaceAll(CalculatorConstants.subtraction, '-');
 
     final value = double.tryParse(text);
-    final convertedValue = value;
+    final convertedValue = _exchangeRates.convertCurrency(
+      amount: value,
+      from: _currency1,
+      to: _currency2,
+    );
+
     _setControllerValue(
       textEditingController2,
       value: convertedValue,
@@ -108,16 +189,22 @@ class CurrencyConverterViewModel extends ChangeNotifier {
   void onValueChanged(double? value) {
     if (_currentFocusNode == focusNode1) {
       //Value of first controller changed
-      //TODO: Compute the converted value
-      final convertedValue = value;
+      final convertedValue = _exchangeRates.convertCurrency(
+        amount: value,
+        from: _currency1,
+        to: _currency2,
+      );
       _setControllerValue(
         textEditingController2,
         value: convertedValue,
       );
     } else if (_currentFocusNode == focusNode2) {
       //Value of second controller changed
-      //TODO: Compute the converted value
-      final convertedValue = value;
+      final convertedValue = _exchangeRates.convertCurrency(
+        amount: value,
+        from: _currency2,
+        to: _currency1,
+      );
       _setControllerValue(
         textEditingController1,
         value: convertedValue,
