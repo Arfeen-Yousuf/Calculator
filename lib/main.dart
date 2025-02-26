@@ -1,3 +1,4 @@
+import 'package:calculator/screens/currency_converter/currency_converter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
@@ -8,6 +9,7 @@ import 'app/colors.dart';
 import 'providers/settings_provider.dart';
 import 'screens/calculator/calculator_screen.dart';
 import 'screens/calculator/calculator_view_model.dart';
+import 'screens/currency_converter/currency_converter_view_model.dart';
 import 'screens/date_calculator/date_calculator_screen.dart';
 import 'screens/date_calculator/duration/date_duration_calculator_view_model.dart';
 import 'screens/date_calculator/from_to/date_from_to_calculator_view_model.dart';
@@ -103,6 +105,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => UnitConverterViewModel(context),
         ),
+        ChangeNotifierProvider(
+          create: (context) => CurrencyConverterViewModel(context),
+        ),
         ChangeNotifierProvider(create: (_) => DiscountCalculatorViewModel()),
         ChangeNotifierProvider(create: (_) => DateFromToCalculatorViewModel()),
         ChangeNotifierProvider(
@@ -120,6 +125,8 @@ class MyApp extends StatelessWidget {
           HomeScreen.route: (context) => const HomeScreen(),
           CalculatorScreen.route: (context) => const CalculatorScreen(),
           UnitConverterScreen.route: (context) => const UnitConverterScreen(),
+          CurrencyConverterScreen.route: (context) =>
+              const CurrencyConverterScreen(),
           DiscountCalculatorScreen.route: (context) =>
               const DiscountCalculatorScreen(),
           DateCalculatorScreen.route: (context) => const DateCalculatorScreen(),
