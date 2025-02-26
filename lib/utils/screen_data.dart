@@ -1,4 +1,5 @@
 import 'package:calculator/screens/calculator/calculator_screen.dart';
+import 'package:calculator/screens/currency_converter/currency_converter_screen.dart';
 import 'package:calculator/screens/date_calculator/date_calculator_screen.dart';
 import 'package:calculator/screens/discount_calculator/discount_calculator_screen.dart';
 import 'package:calculator/screens/fuel_calculator/fuel_calculator_screen.dart';
@@ -24,6 +25,7 @@ class ScreenData {
   static final List<ScreenData> calculatorScreens = List.unmodifiable([
     calculator,
     unitConverter,
+    currencyConverter,
     discountCalculator,
     dateCalculator,
     fuelCalculator
@@ -46,6 +48,12 @@ class ScreenData {
     'Unit Converter',
     UnitConverterScreen.route,
     const UnitConverterScreen(),
+  );
+  static final currencyConverter = ScreenData._(
+    SvgIconData.currency,
+    'Currency Converter',
+    CurrencyConverterScreen.route,
+    const CurrencyConverterScreen(),
   );
   static final discountCalculator = ScreenData._(
     SvgIconData.discount,

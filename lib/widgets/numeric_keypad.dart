@@ -277,6 +277,7 @@ class NumericKeypad extends StatelessWidget {
     final text = controller.text
         .replaceAll(',', '')
         .replaceFirst(CalculatorConstants.subtraction, '-');
+    if (text.isEmpty) return;
     final dotIndex = text.indexOf('.');
 
     if (dotIndex == -1) {

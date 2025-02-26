@@ -6,6 +6,7 @@ const _assetsBasePath = 'assets/svg_icons/';
 enum SvgIconData {
   calculator('calculator'),
   calendar('calendar'),
+  currency('currency'),
   fuel('fuel'),
   home('home'),
   length('length'),
