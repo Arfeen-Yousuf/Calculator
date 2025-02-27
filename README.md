@@ -5,6 +5,7 @@ The Calculator App is designed for everyday use, featuring essential calculation
 
 ## Features
 - **Basic Arithmetic**: Perform addition, subtraction, multiplication, and division.
+- **Currency Converter**: Convert currencies and check real-time exchange rates.
 - **Discount Calculator**: Easily compute discounts and final prices.
 - **Fuel Calculator**: Calculate fuel costs and consumption.
 - **Date Calculator**: Find the difference between dates.
