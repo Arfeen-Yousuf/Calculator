@@ -54,6 +54,7 @@ String formatNumber(
 String formatDecimal(
   Decimal d, {
   required int decimalPlaces,
+  required bool inScientificNotation,
 }) {
   if (d.sign == 0) return '0';
   Decimal absoluteVal = d.abs();
@@ -61,7 +62,8 @@ String formatDecimal(
   //If the decimal is too large or small, return scientific notation
   final tenPower15 = Decimal.ten.pow(15).toDecimal();
   late final tenPowerMinus6 = Decimal.ten.pow(-6).toDecimal();
-  if (absoluteVal > tenPower15 || absoluteVal < tenPowerMinus6) {
+  if (inScientificNotation &&
+      (absoluteVal > tenPower15 || absoluteVal < tenPowerMinus6)) {
     String absValStr = absoluteVal.toStringAsExponential(decimalPlaces);
 
     String basePart, expPart;

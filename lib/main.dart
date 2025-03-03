@@ -100,7 +100,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => CalculatorViewModel(context),
+          create: (context) => CalculatorViewModel(
+            context,
+            isInBottomSheet: false,
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) => UnitConverterViewModel(context),

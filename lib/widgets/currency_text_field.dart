@@ -75,39 +75,40 @@ class CurrencyTextField extends StatelessWidget {
     final appColors = Theme.of(context).extension<AppColors>()!;
 
     showCurrencyPicker(
-        context: context,
-        theme: CurrencyPickerThemeData(
-          backgroundColor: appColors.scaffoldBackground,
-          flagSize: 25,
-          titleTextStyle: const TextStyle(fontSize: 17),
-          subtitleTextStyle: TextStyle(
-            fontSize: 15,
-            color: Theme.of(context).hintColor,
-          ),
-          bottomSheetHeight: MediaQuery.of(context).size.height * 0.8,
-          //Optional. Styles the search field.
-          inputDecoration: InputDecoration(
-            hintText: 'Start typing to search',
-            prefixIcon: const Icon(Icons.search),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: appColors.primary ?? Colors.black,
-                width: 2.0,
-              ),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(10),
-              ),
+      context: context,
+      theme: CurrencyPickerThemeData(
+        backgroundColor: appColors.scaffoldBackground,
+        flagSize: 25,
+        titleTextStyle: const TextStyle(fontSize: 17),
+        subtitleTextStyle: TextStyle(
+          fontSize: 15,
+          color: Theme.of(context).hintColor,
+        ),
+        bottomSheetHeight: MediaQuery.of(context).size.height * 0.8,
+        //Optional. Styles the search field.
+        inputDecoration: InputDecoration(
+          hintText: 'Start typing to search',
+          prefixIcon: const Icon(Icons.search),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: appColors.primary ?? Colors.black,
+              width: 2.0,
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: appColors.primary ?? Colors.black,
-              ),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(10),
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: appColors.primary ?? Colors.black,
             ),
           ),
         ),
-        onSelect: (currency) => onCurrencySelected(currency),
-        currencyFilter: currencyFilter,
-        favorite: ['PKR', 'USD']);
+      ),
+      onSelect: (currency) => onCurrencySelected(currency),
+      currencyFilter: currencyFilter,
+      favorite: ['PKR', 'USD'],
+    );
   }
 }
