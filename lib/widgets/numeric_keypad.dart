@@ -1,9 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:calculator/app/colors.dart';
+import 'package:calculator/extensions/string.dart';
+import 'package:calculator/screens/calculator/calculator_screen.dart';
+import 'package:calculator/screens/calculator/calculator_view_model.dart';
 import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
-import 'package:flutter/material.dart';
 
+import 'bottom_sheet_header.dart';
 import 'grid_button.dart';
+import 'svg_icon.dart';
 
 class NumericKeypad extends StatelessWidget {
   const NumericKeypad({
@@ -28,7 +35,7 @@ class NumericKeypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final AppColors appColors = Theme.of(context).extension<AppColors>()!;
+    final appColors = Theme.of(context).extension<AppColors>()!;
 
     final digitButtons = List<GridButton>.generate(10, (index) {
       return GridButton(
@@ -36,14 +43,14 @@ class NumericKeypad extends StatelessWidget {
         text: '$index',
       );
     });
-    final twoZerosButton = GridButton(
+    late final twoZerosButton = GridButton(
       onPressed: addTwoZeros,
       text: '00',
     );
 
     final backspaceButton = GridButton(
       onPressed: backspace,
-      iconData: Icons.backspace,
+      iconData: Icons.backspace_outlined,
       foregroundColor: appColors.primary,
       backgroundColor: isLightTheme
           ? appColors.primary?.withAlpha(25)
@@ -70,13 +77,18 @@ class NumericKeypad extends StatelessWidget {
             text: '.',
             largeFontSize: true,
           );
-    final toogleSignButton = GridButton(
-        onPressed: allowNegativeNumbers ? toogleSign : null,
-        text: '+/${CalculatorConstants.subtraction}',
-        foregroundColor: appColors.primary,
-        backgroundColor: isLightTheme
-            ? appColors.primary?.withAlpha(25)
-            : AppColorsDark.gridButtonDefaultBackground);
+    late final toogleSignButton = GridButton(
+      onPressed: toogleSign,
+      text: '+/${CalculatorConstants.subtraction}',
+    );
+    final calculatorButton = GridButton(
+      onPressed: () async => _showCalculatorBottomSheet(context),
+      svgIconData: SvgIconData.calculate,
+      foregroundColor: appColors.primary,
+      backgroundColor: isLightTheme
+          ? appColors.primary?.withAlpha(25)
+          : AppColorsDark.gridButtonDefaultBackground,
+    );
 
     const rowItemsSpacing = 8.0;
 
@@ -96,10 +108,10 @@ class NumericKeypad extends StatelessWidget {
       digitButtons[1],
       digitButtons[2],
       digitButtons[3],
-      toogleSignButton,
+      calculatorButton,
     ];
     final row4Children = [
-      twoZerosButton,
+      allowNegativeNumbers ? toogleSignButton : twoZerosButton,
       digitButtons[0],
       dotButton,
       equalsButton,
@@ -191,7 +203,7 @@ class NumericKeypad extends StatelessWidget {
     final dotIndex = text.indexOf('.');
     if (dotIndex == -1) {
       final textWithoutSign = text.startsWith(CalculatorConstants.subtraction)
-          ? text.substring(1)
+          ? text.removeFirst()
           : text;
       if (textWithoutSign.replaceAll(',', '').length >= maxIntegers - 1) {
         showToast('You can enter upto $maxIntegers integers.');
@@ -257,7 +269,7 @@ class NumericKeypad extends StatelessWidget {
     if (text.isEmpty) return;
     if (text.length == 1) clear();
 
-    controller.text = text.substring(0, text.length - 1);
+    controller.text = text.removeLast();
     if (controller.text == CalculatorConstants.subtraction) {
       onValueChanged?.call(null);
       return;
@@ -289,6 +301,69 @@ class NumericKeypad extends StatelessWidget {
     } else {
       final value = double.tryParse(text);
       onValueChanged?.call(value);
+    }
+  }
+
+  void _showCalculatorBottomSheet(BuildContext context) async {
+    final appColors = Theme.of(context).extension<AppColors>()!;
+
+    final result = await showModalBottomSheet<String?>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (context) {
+        return SafeArea(
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Container(
+              height: constraints.maxHeight * 0.8,
+              padding: const EdgeInsets.only(top: 6, left: 8),
+              decoration: BoxDecoration(
+                color: appColors.scaffoldBackground,
+                borderRadius: const BorderRadiusDirectional.only(
+                  topStart: Radius.circular(20),
+                  topEnd: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const BottomSheetHeader(title: 'Calculator'),
+                  Expanded(
+                    child: ChangeNotifierProvider(
+                      create: (context) => CalculatorViewModel(
+                        context,
+                        isInBottomSheet: true,
+                      ),
+                      child: const CalculatorScreen(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
+
+    if (result != null) {
+      final text = result
+          .replaceAll(',', '')
+          .replaceFirst(CalculatorConstants.subtraction, '-');
+      if (text.isEmpty) return;
+      final value = double.parse(text);
+
+      if (percentageOnly && (value < 0 || value > 100)) {
+        showToast('Percentage must be in the range [0, 100].');
+      } else if (!allowNegativeNumbers && value < 0) {
+        showToast('Result must be positive.');
+      } else if (integersOnly && !(value.toInt() == value)) {
+        showToast('Result must be an integer.');
+      } else {
+        controller.text = result;
+        focusNode?.requestFocus();
+        await Future.delayed(const Duration(microseconds: 500));
+
+        onValueChanged?.call(value);
+      }
     }
   }
 }

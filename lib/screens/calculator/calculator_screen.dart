@@ -1,7 +1,6 @@
 import 'package:auto_size_text_field/auto_size_text_field.dart';
 import 'package:calculator/app/colors.dart';
 import 'package:calculator/providers/settings_provider.dart';
-//import 'package:calculator/utils/constants.dart';
 import 'package:calculator/utils/utils.dart';
 import 'package:calculator/widgets/grid_button.dart';
 import 'package:calculator/widgets/my_drawer.dart';
@@ -24,7 +23,7 @@ class CalculatorScreen extends StatelessWidget {
 
     final viewModelRead = context.read<CalculatorViewModel>();
 
-    final historyButton = IconButton(
+    late final historyButton = IconButton(
       onPressed: () => viewModelRead.onHistoryButtonTapped(context),
       icon: const Icon(Icons.history_rounded),
     );
@@ -66,6 +65,7 @@ class CalculatorScreen extends StatelessWidget {
           : formatDecimal(
               viewModelResult,
               decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+              inScientificNotation: !viewModelRead.isInBottomSheet,
             );
 
       resultOrError = FittedBox(
@@ -111,20 +111,22 @@ class CalculatorScreen extends StatelessWidget {
       onTap: viewModelRead.onPressBack,
       onLongPress: viewModelRead.onLongPressBack,
       child: Icon(
-        Icons.backspace_rounded,
-        size: 35,
+        Icons.backspace_outlined,
+        size: 40,
         color: isLightTheme ? null : appColors.primary,
       ),
     );
 
-    final scaffold = Scaffold(
-      drawer: const MyDrawer(),
-      appBar: AppBar(
-        title: Text(
-          '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
-        ),
-        actions: [historyButton],
-      ),
+    return Scaffold(
+      drawer: viewModelRead.isInBottomSheet ? null : const MyDrawer(),
+      appBar: viewModelRead.isInBottomSheet
+          ? null
+          : AppBar(
+              title: Text(
+                '${viewModelRead.isScientific ? 'Scientific ' : ''}Calculator',
+              ),
+              actions: [historyButton],
+            ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -162,17 +164,6 @@ class CalculatorScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-
-    return PopScope(
-      canPop: !context.read<SettingsProvider>().keepLastRecord ||
-          context.watch<CalculatorViewModel>().canPop,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        showToast("Press 'Back' once more to exit");
-        await viewModelRead.saveExpression();
-      },
-      child: scaffold,
     );
   }
 }

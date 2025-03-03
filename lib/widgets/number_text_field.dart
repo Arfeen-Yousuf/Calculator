@@ -31,13 +31,12 @@ class NumberTextField extends StatelessWidget {
           focusNode: focusNode,
           keyboardType: TextInputType.none,
           textAlign: TextAlign.right,
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 24),
           enableInteractiveSelection: false,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: const TextStyle(fontSize: 16),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+            contentPadding: const EdgeInsets.all(8),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: appColors.primary ?? Colors.black,

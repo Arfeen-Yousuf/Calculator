@@ -9,7 +9,7 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Currency _usd = Currency.from(
+final _usd = Currency.from(
   json: {
     'code': 'USD',
     'name': 'United States Dollar',
@@ -18,6 +18,22 @@ Currency _usd = Currency.from(
     'decimal_digits': 2,
     'number': 840,
     'name_plural': 'US dollars',
+    'thousands_separator': ',',
+    'decimal_separator': '.',
+    'space_between_amount_and_symbol': false,
+    'symbol_on_left': true,
+  },
+);
+
+final _pkr = Currency.from(
+  json: {
+    'code': 'PKR',
+    'name': 'Pakistan Rupee',
+    'symbol': '₨',
+    'flag': 'PKR',
+    'decimal_digits': 0,
+    'number': 586,
+    'name_plural': 'Pakistani rupees',
     'thousands_separator': ',',
     'decimal_separator': '.',
     'space_between_amount_and_symbol': false,
@@ -117,7 +133,7 @@ class CurrencyConverterViewModel extends ChangeNotifier {
   final focusNode2 = FocusNode();
 
   Currency _currency1 = _usd;
-  Currency _currency2 = _usd;
+  Currency _currency2 = _pkr;
 
   Currency get currency1 => _currency1;
   Currency get currency2 => _currency2;

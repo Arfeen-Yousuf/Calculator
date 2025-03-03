@@ -1,12 +1,16 @@
 import 'package:calculator/app/colors.dart';
 import 'package:flutter/material.dart';
 
+import 'svg_icon.dart';
+
 class GridButton extends StatelessWidget {
+  ///Exactly one of [text], [iconData], [svgIconData] must be provided
   const GridButton({
     super.key,
     this.onPressed,
     this.text,
     this.iconData,
+    this.svgIconData,
     this.foregroundColor,
     this.backgroundColor,
     this.largeFontSize = false,
@@ -15,6 +19,7 @@ class GridButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String? text;
   final IconData? iconData;
+  final SvgIconData? svgIconData;
   final Color? foregroundColor;
   final Color? backgroundColor;
   final bool largeFontSize;
@@ -47,13 +52,19 @@ class GridButton extends StatelessWidget {
               ),
               softWrap: false,
             );
+          } else if (iconData != null) {
+            return Icon(
+              iconData,
+              size: constraints.maxHeight * 0.4,
+              color: foregroundColor ?? appColors.primary,
+            );
+          } else {
+            return SvgIcon(
+              svgIconData!,
+              size: constraints.maxHeight * 0.4,
+              color: foregroundColor ?? appColors.primary,
+            );
           }
-
-          return Icon(
-            iconData,
-            size: constraints.maxHeight * 0.7,
-            color: foregroundColor ?? appColors.primary,
-          );
         },
       ),
     );

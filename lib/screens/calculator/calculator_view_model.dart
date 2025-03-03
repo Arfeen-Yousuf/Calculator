@@ -16,11 +16,14 @@ import 'package:rich_text_controller/rich_text_controller.dart';
 
 import 'formatters/thousands_formatter.dart';
 
-class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
-  BuildContext context;
+class CalculatorViewModel extends ChangeNotifier {
+  final BuildContext context;
+  final bool isInBottomSheet;
 
-  CalculatorViewModel(this.context) {
-    WidgetsBinding.instance.addObserver(this);
+  CalculatorViewModel(
+    this.context, {
+    required this.isInBottomSheet,
+  }) {
     _initializeController(context);
 
     // Listen for theme changes dynamically
@@ -28,24 +31,14 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     settingsProvider.addListener(
       () => _updateControllerTextStyles(context),
     );
-
-    _setInitialExpression();
+    if (!isInBottomSheet) _setInitialExpression();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _textEditingController.dispose();
     focusNode.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      saveExpression();
-    }
   }
 
   void _initializeController(
@@ -85,23 +78,6 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  Future<void> saveExpression() async {
-    final settingsProvider = context.read<SettingsProvider>();
-    if (settingsProvider.keepLastRecord) {
-      await settingsProvider.updateLastExpression(_textEditingController.text);
-    }
-
-    _canPop = true;
-    notifyListeners();
-    Timer(
-      const Duration(seconds: 3),
-      () {
-        _canPop = false;
-        notifyListeners();
-      },
-    );
-  }
-
   void _setInitialExpression() {
     final settingsProvider = context.read<SettingsProvider>();
     if (settingsProvider.keepLastRecord) {
@@ -117,11 +93,9 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  bool _canPop = false;
-  bool get canPop => _canPop;
-
   late RichTextController _textEditingController;
   RichTextController get textEditingController => _textEditingController;
+  String get currentExpression => _textEditingController.text;
 
   final focusNode = FocusNode();
   final _evaluator = ExpressionEvaluator();
@@ -185,13 +159,26 @@ class CalculatorViewModel extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     if (isSimpleNumber(_textEditingController.text)) {
+      if (isInBottomSheet) {
+        Navigator.pop<String>(
+          context,
+          _textEditingController.text,
+        );
+      }
+
       return;
     }
 
     final formattedResult = formatDecimal(
       _result!,
       decimalPlaces: context.read<SettingsProvider>().decimalPlaces,
+      inScientificNotation: !isInBottomSheet,
     );
+    if (isInBottomSheet) {
+      Navigator.pop<String>(context, formattedResult);
+      return;
+    }
+
     final newHistoryLog = HistoryLog(
       expression: _textEditingController.text,
       result: formattedResult,
