@@ -34,20 +34,22 @@ class DiscountCalculatorScreen extends StatelessWidget {
     final taxTextField = NumberTextField(
       controller: viewModelRead.taxTextEditingController,
       focusNode: viewModelRead.taxFocusNode,
-      label: 'Tax (%)',
-      hintText: 'Default 0.00%',
+      label: 'Tax',
+      hintText: '0.00',
+      isPercentage: true,
     );
     final originalPriceTextField = NumberTextField(
       controller: viewModelRead.priceTextEditingController,
       focusNode: viewModelRead.priceFocusNode,
       label: 'Original Price',
-      hintText: 'Default 0',
+      hintText: '0',
     );
     final discountTextField = NumberTextField(
       controller: viewModelRead.discountTextEditingController,
       focusNode: viewModelRead.discountFocusNode,
-      label: 'Discount (%)',
-      hintText: 'Default 0.00%',
+      label: 'Discount',
+      hintText: '0.00',
+      isPercentage: true,
     );
 
     return Scaffold(

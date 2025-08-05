@@ -35,9 +35,7 @@ class CalculatorScreen extends StatelessWidget {
       keyboardType: TextInputType.none,
       decoration: const InputDecoration(border: InputBorder.none),
       cursorColor: appColors.primary,
-      style: const TextStyle(
-        fontSize: 50,
-      ),
+      style: const TextStyle(fontSize: 50),
       minFontSize: 30,
       focusNode: viewModelRead.focusNode,
     );
@@ -70,9 +68,7 @@ class CalculatorScreen extends StatelessWidget {
 
       resultOrError = FittedBox(
         child: GestureDetector(
-          onLongPress: () async => await copyTextToClipboard(
-            formattedResult,
-          ),
+          onLongPress: () async => await copyTextToClipboard(formattedResult),
           child: Text(
             formattedResult,
             style: TextStyle(color: appColors.result),

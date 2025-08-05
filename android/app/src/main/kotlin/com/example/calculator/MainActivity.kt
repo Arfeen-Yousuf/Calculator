@@ -1,5 +1,5 @@
-package com.example.calculator
+package com.arfeen.calculator
 
 import io.flutter.embedding.android.FlutterActivity
 
-class MainActivity: FlutterActivity()
+class MainActivity : FlutterActivity()

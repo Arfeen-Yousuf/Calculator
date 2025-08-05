@@ -163,12 +163,12 @@ class MyApp extends StatelessWidget {
       datePickerTheme: const DatePickerThemeData(
         backgroundColor: AppColorsLight.scaffoldBackground,
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: primaryColor,
         indicatorColor: primaryColor,
         dividerHeight: 0,
       ),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: AppColorsLight.cardBackground,
         elevation: 0,
       ),
@@ -216,12 +216,12 @@ class MyApp extends StatelessWidget {
           foregroundColor: primaryColor,
         ),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: primaryColor,
         indicatorColor: primaryColor,
         dividerHeight: 0,
       ),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: AppColorsDark.cardBackground,
         elevation: 0,
       ),

@@ -8,12 +8,14 @@ class NumberTextField extends StatelessWidget {
     this.focusNode,
     this.label,
     this.hintText,
+    this.isPercentage = false,
   });
 
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final String? label;
   final String? hintText;
+  final bool isPercentage;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class NumberTextField extends StatelessWidget {
 
     late final labelStyle =
         TextTheme.of(context).labelMedium?.copyWith(fontSize: 18);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
@@ -35,8 +38,10 @@ class NumberTextField extends StatelessWidget {
           enableInteractiveSelection: false,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(fontSize: 16),
+            //hintStyle: const TextStyle(fontSize: 18),
             contentPadding: const EdgeInsets.all(8),
+            suffixText: isPercentage ? '%' : null,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: appColors.primary ?? Colors.black,
