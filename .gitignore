@@ -46,3 +46,6 @@ app.*.map.json
 
 # After upgradation from Flutter 3.27 to 3.29
 android/app/.cxx/
+
+# FVM Version Cache
+.fvm/
